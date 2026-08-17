@@ -14,9 +14,9 @@
   <input type="text" name="student_reference" value="{{ $graduate->student_reference }}">
 
   <label>School</label>
-  <select name="school_id">
+  <select name="school_id" id="school_id">
     @foreach ($schools as $school)
-    <option value="{{ $school->id }}" @selected($graduate->school_id === $school->id)>{{ $school->name }}</option>
+    <option value="{{ $school->id }}">{{ $school->name }}</option>
     @endforeach
   </select>
   @error('school_id')
@@ -24,9 +24,11 @@
   @enderror
 
   <label>Major</label>
-  <select name="major_id">
+  <select name="major_id" id="major_id">
     @foreach ($majors as $major)
-    <option value="{{ $major->id }}" @selected($graduate->major_id === $major->id)>{{ $major->name }}</option>
+    <option value="{{ $major->id }}" data-school-id="{{ $major->school_id }}">
+      {{ $major->name }}
+    </option>
     @endforeach
   </select>
   @error('major_id')
@@ -80,4 +82,22 @@
 
   <button type="submit">Update</button>
 </form>
-  
+
+<script>
+  const schoolSelect = document.getElementById('school_id');
+  const majorSelect = document.getElementById('major_id');
+  const allMajorOptions = Array.from(majorSelect.options);
+
+  schoolSelect.addEventListener('change', function() {
+    const selectedSchoolId = this.value;
+
+    majorSelect.innerHTML = '';
+
+    allMajorOptions.forEach(function(option) {
+      if (option.dataset.schoolId === selectedSchoolId) {
+        majorSelect.appendChild(option);
+      }
+    });
+  });
+
+</script>
