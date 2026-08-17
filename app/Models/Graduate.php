@@ -1,0 +1,61 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use App\Models\Campus;
+use App\Models\School;
+use App\Models\Major;
+use App\Models\Graduation;
+
+class Graduate extends Model
+{
+  protected $fillable = [
+    'student_reference',
+    'name',
+    'school_id',
+    'major_id',
+    'campus_id',
+    'graduation_id',
+    'profile_text',
+    'achievements',
+    'activities',
+    'projects',
+    'internships',
+    'future_plans',
+    'quote',
+    'consent_status',
+    'publish_status',
+    'portrait_media_id',
+  ];
+
+  protected function casts(): array
+  {
+    return [
+      'achievements' => 'array',
+      'activities' => 'array',
+      'projects' => 'array',
+      'internships' => 'array',
+    ];
+  }
+
+  public function school()
+  {
+    return $this->belongsTo(School::class);
+  }
+
+  public function major()
+  {
+    return $this->belongsTo(Major::class);
+  }
+
+  public function campus()
+  {
+    return $this->belongsTo(Campus::class);
+  }
+
+  public function graduation()
+  {
+    return $this->belongsTo(Graduation::class);
+  }
+}
