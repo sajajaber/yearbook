@@ -20,10 +20,14 @@ class SchoolController extends Controller
 
     public function store(Request $request)
     {
-        School::create([
-            'name' => $request->input('name'),
-            'code' => $request->input('code'),
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'code' => 'required|string|max:255|unique:schools,code',
+            'status' => 'required|in:active,archived',
         ]);
+
+        School::create($validated);
+
         return redirect()->route('schools.index');
     }
 
@@ -41,10 +45,15 @@ class SchoolController extends Controller
     public function update(Request $request, string $id)
     {
         $school = School::findOrFail($id);
-        $school->update([
-            'name' => $request->input('name'),
-            'code' => $request->input('code'),
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'code' => 'required|string|max:255|unique:schools,code,' . $id,
+            'status' => 'required|in:active,archived',
         ]);
+
+        $school->update($validated);
+
         return redirect()->route('schools.index');
     }
 

@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Campus;
+use Illuminate\Http\Request;
 
 class CampusController extends Controller
 {
@@ -20,10 +20,14 @@ class CampusController extends Controller
 
     public function store(Request $request)
     {
-        Campus::create([
-            'name' => $request->input('name'),
-            'code' => $request->input('code'),
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'code' => 'required|string|max:255|unique:campuses,code',
+            'status' => 'required|in:active,archived',
         ]);
+
+        Campus::create($validated);
+
         return redirect()->route('campuses.index');
     }
 
@@ -41,10 +45,15 @@ class CampusController extends Controller
     public function update(Request $request, string $id)
     {
         $campus = Campus::findOrFail($id);
-        $campus->update([
-            'name' => $request->input('name'),
-            'code' => $request->input('code'),
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'code' => 'required|string|max:255|unique:campuses,code,' . $id,
+            'status' => 'required|in:active,archived',
         ]);
+
+        $campus->update($validated);
+
         return redirect()->route('campuses.index');
     }
 

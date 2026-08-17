@@ -6,7 +6,7 @@
             {{ $year->title }} ({{ $year->status }})
 
             <a href="{{ route('academic-years.edit', $year->id) }}">Edit</a>
-
+            
             <form method="POST" action="{{ route('academic-years.destroy', $year->id) }}" style="display:inline">
                 @csrf
                 @method('DELETE')
@@ -14,4 +14,6 @@
             </form>
         </li>
     @endforeach
+
+    
 </ul>

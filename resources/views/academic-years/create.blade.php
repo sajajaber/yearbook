@@ -1,8 +1,8 @@
 <h1>Add Academic Year</h1>
 
 <form method="POST" action="{{ route('academic-years.store') }}">
-    @csrf //inserts a hidden security token into the form
-    // this is a defense against CSRF attacks (a malicious site tricking your browser into submitting a form to your app without you knowing)
+    @csrf <!-- inserts a hidden security token into the form
+     this is a defense against CSRF attacks (a malicious site tricking your browser into submitting a form to your app without you knowing) -->
 
     <label>Title</label>
     <input type="text" name="title">

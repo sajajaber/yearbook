@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class Campus extends Model
 {
-    protected $fillable = ['name', 'code'];
+    protected $fillable = ['name', 'code', 'status'];
 }

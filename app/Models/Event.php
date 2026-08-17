@@ -1,0 +1,43 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use App\Models\AcademicYear;
+use App\Models\EventCategory;
+use App\Models\Campus;
+use App\Models\School;
+
+class Event extends Model
+{
+    protected $fillable = [
+        'academic_year_id',
+        'category_id',
+        'title',
+        'event_date',
+        'description',
+        'location',
+        'status',
+        'featured',
+    ];
+
+    public function academicYear()
+    {
+        return $this->belongsTo(AcademicYear::class);
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(EventCategory::class);
+    }
+
+    public function campuses()
+    {
+        return $this->belongsToMany(Campus::class, 'event_campuses')->withTimestamps();
+    }
+
+    public function schools()
+    {
+        return $this->belongsToMany(School::class, 'event_schools')->withTimestamps();
+    }
+}

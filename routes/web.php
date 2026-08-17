@@ -7,6 +7,7 @@ use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\MajorController;
 use App\Http\Controllers\CampusController;
 use App\Http\Controllers\EventCategoryController;
+use App\Http\Controllers\EventController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -30,5 +31,7 @@ Route::middleware(['auth', 'verified', 'role:admin,editor'])->group(function () 
     Route::resource('schools', SchoolController::class);
     Route::resource('event-categories', EventCategoryController::class);
 });
+
+Route::resource('events', EventController::class);
 
 require __DIR__.'/auth.php';

@@ -16,7 +16,7 @@ class MajorController extends Controller
 
     public function create()
     {
-        $schools = School::all();
+        $schools = School::where('status', 'active')->get();
 
         return view('majors.create', ['schools' => $schools]);
     }
@@ -39,7 +39,7 @@ class MajorController extends Controller
     public function edit(string $id)
     {
         $major = Major::findOrFail($id);
-        $schools = School::all();
+        $schools = School::where('status', 'active')->get();
 
         return view('majors.edit', ['major' => $major, 'schools' => $schools]);
     }
