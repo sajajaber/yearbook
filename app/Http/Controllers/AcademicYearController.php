@@ -30,12 +30,31 @@ class AcademicYearController extends Controller
 
     public function store(Request $request)
     {
-        AcademicYear::create([
-            'title' => $request->input('title'),
-            'start_date' => $request->input('start_date'),
-            'end_date' => $request->input('end_date'),
-            'status' => $request->input('status'),
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after:start_date',
+            'status' => 'required|in:draft,active,archived',
         ]);
+
+        AcademicYear::create($validated);
+
+        return redirect()->route('academic-years.index');
+    }
+
+    public function update(Request $request, string $id)
+    {
+        $academicYear = AcademicYear::findOrFail($id);
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after:start_date',
+            'status' => 'required|in:draft,active,archived',
+        ]);
+
+        $academicYear->update($validated);
+
         return redirect()->route('academic-years.index');
     }
 
@@ -58,30 +77,13 @@ class AcademicYearController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        $academicYear = AcademicYear::findOrFail($id);
-
-        $academicYear->update([
-            'title' => $request->input('title'),
-            'start_date' => $request->input('start_date'),
-            'end_date' => $request->input('end_date'),
-            'status' => $request->input('status'),
-        ]);
-
-        return redirect()->route('academic-years.index');
-    }
-
-    /**
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)
     {
         $academicYear = AcademicYear::findOrFail($id);
         $academicYear->delete();
-        
-        return redirect()->route('academic-years.index');   
+
+        return redirect()->route('academic-years.index');
     }
 }

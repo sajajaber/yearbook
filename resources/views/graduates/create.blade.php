@@ -83,13 +83,12 @@
 </form>
 
 <script>
-
   const schoolSelect = document.getElementById('school_id');
   const majorSelect = document.getElementById('major_id');
   const allMajorOptions = Array.from(majorSelect.options);
 
-  schoolSelect.addEventListener('change', function() {
-    const selectedSchoolId = this.value;
+  function filterMajors() {
+    const selectedSchoolId = schoolSelect.value;
 
     majorSelect.innerHTML = '';
 
@@ -98,6 +97,9 @@
         majorSelect.appendChild(option);
       }
     });
-  });
+  }
+
+  schoolSelect.addEventListener('change', filterMajors);
+  filterMajors();
 
 </script>

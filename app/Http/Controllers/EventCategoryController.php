@@ -20,10 +20,27 @@ class EventCategoryController extends Controller
 
     public function store(Request $request)
     {
-        EventCategory::create([
-            'name' => $request->input('name'),
-            'description' => $request->input('description'),
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
         ]);
+
+        EventCategory::create($validated);
+
+        return redirect()->route('event-categories.index');
+    }
+
+    public function update(Request $request, string $id)
+    {
+        $eventCategory = EventCategory::findOrFail($id);
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+        ]);
+
+        $eventCategory->update($validated);
+
         return redirect()->route('event-categories.index');
     }
 
@@ -36,16 +53,6 @@ class EventCategoryController extends Controller
     {
         $eventCategory = EventCategory::findOrFail($id);
         return view('event-categories.edit', ['eventCategory' => $eventCategory]);
-    }
-
-    public function update(Request $request, string $id)
-    {
-        $eventCategory = EventCategory::findOrFail($id);
-        $eventCategory->update([
-            'name' => $request->input('name'),
-            'description' => $request->input('description'),
-        ]);
-        return redirect()->route('event-categories.index');
     }
 
     public function destroy(string $id)

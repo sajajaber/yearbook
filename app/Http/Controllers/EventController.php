@@ -52,17 +52,20 @@ class EventController extends Controller
     // runs when that form is submitted; reads the input, saves a new row redirects back to the list
     public function store(Request $request)
     {
-
-        $event = Event::create([
-            'academic_year_id' => $request->input('academic_year_id'),
-            'category_id' => $request->input('category_id'),
-            'title' => $request->input('title'),
-            'event_date' => $request->input('event_date'),
-            'description' => $request->input('description'),
-            'location' => $request->input('location'),
-            'status' => $request->input('status'),
-            'featured' => $request->input('featured', false),
+        $validated = $request->validate([
+            'academic_year_id' => 'required|exists:academic_years,id',
+            'category_id' => 'required|exists:event_categories,id',
+            'title' => 'required|string|max:255',
+            'event_date' => 'required|date',
+            'description' => 'nullable|string',
+            'location' => 'nullable|string|max:255',
+            'status' => 'required|in:draft,reviewed,approved,published,archived',
+            'featured' => 'nullable|boolean',
         ]);
+
+        $validated['featured'] = $request->boolean('featured'); 
+
+        $event = Event::create($validated);
 
         $event->campuses()->sync($request->input('campus_ids', []));
         $event->schools()->sync($request->input('school_ids', []));
@@ -73,20 +76,25 @@ class EventController extends Controller
     public function update(Request $request, string $id)
     {
         $event = Event::findOrFail($id);
-        $event->update([
-            'academic_year_id' => $request->input('academic_year_id'),
-            'category_id' => $request->input('category_id'),
-            'title' => $request->input('title'),
-            'event_date' => $request->input('event_date'),
-            'description' => $request->input('description'),
-            'location' => $request->input('location'),
-            'status' => $request->input('status'),
-            'featured' => $request->input('featured', false),
+
+        $validated = $request->validate([
+            'academic_year_id' => 'required|exists:academic_years,id',
+            'category_id' => 'required|exists:event_categories,id',
+            'title' => 'required|string|max:255',
+            'event_date' => 'required|date',
+            'description' => 'nullable|string',
+            'location' => 'nullable|string|max:255',
+            'status' => 'required|in:draft,reviewed,approved,published,archived',
+            'featured' => 'nullable|boolean',
         ]);
+
+        $validated['featured'] = $request->boolean('featured');
+
+        $event->update($validated);
 
         $event->campuses()->sync($request->input('campus_ids', []));
         $event->schools()->sync($request->input('school_ids', []));
-        
+
         return redirect()->route('events.index');
     }
 
