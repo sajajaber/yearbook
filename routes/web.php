@@ -10,6 +10,7 @@ use App\Http\Controllers\EventCategoryController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\GraduationController;
 use App\Http\Controllers\GraduateController;
+use App\Http\Controllers\MediaController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -35,6 +36,7 @@ Route::middleware(['auth', 'verified', 'role:admin,editor'])->group(function () 
     Route::resource('events', EventController::class);
     Route::resource('graduations', GraduationController::class);
     Route::resource('graduates', GraduateController::class);
+    Route::resource('media', MediaController::class);
     });
     
 
