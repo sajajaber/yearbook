@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\EventCategory;
 use Illuminate\Http\Request;
-
+use App\Models\AuditLog;
 class EventCategoryController extends Controller
 {
     public function index()
@@ -25,7 +25,8 @@ class EventCategoryController extends Controller
             'description' => 'nullable|string',
         ]);
 
-        EventCategory::create($validated);
+        $eventCategory = EventCategory::create($validated);
+        AuditLog::record('created', $eventCategory);
 
         return redirect()->route('event-categories.index');
     }
@@ -40,6 +41,7 @@ class EventCategoryController extends Controller
         ]);
 
         $eventCategory->update($validated);
+        AuditLog::record('updated', $eventCategory);
 
         return redirect()->route('event-categories.index');
     }
@@ -59,6 +61,7 @@ class EventCategoryController extends Controller
     {
         $eventCategory = EventCategory::findOrFail($id);
         $eventCategory->delete();
+        AuditLog::record('deleted', $eventCategory);
         return redirect()->route('event-categories.index');
     }
 }

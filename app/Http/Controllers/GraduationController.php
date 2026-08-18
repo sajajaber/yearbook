@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Graduation;
 use App\Models\AcademicYear;
 use App\Models\Campus;
-
+use App\Models\AuditLog;
 class GraduationController extends Controller
 {
     public function index()
@@ -37,6 +37,7 @@ class GraduationController extends Controller
 
         $graduation = Graduation::create($validated);
         $graduation->campuses()->sync($request->input('campus_ids', []));
+        AuditLog::record('created', $graduation);
 
         return redirect()->route('graduations.index');
     }
@@ -67,6 +68,7 @@ class GraduationController extends Controller
 
         $graduation->update($validated);
         $graduation->campuses()->sync($request->input('campus_ids', []));
+        AuditLog::record('updated', $graduation);
 
         return redirect()->route('graduations.index');
     }
@@ -75,7 +77,7 @@ class GraduationController extends Controller
     {
         $graduation = Graduation::findOrFail($id);
         $graduation->delete();
-
+        AuditLog::record('deleted', $graduation);
         return redirect()->route('graduations.index');
     }
 }

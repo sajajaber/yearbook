@@ -8,6 +8,7 @@ use App\Models\AcademicYear;
 use App\Models\EventCategory;
 use App\Models\Campus;
 use App\Models\School;
+use App\Models\AuditLog;
 
 class EventController extends Controller
 {
@@ -66,6 +67,7 @@ class EventController extends Controller
         $validated['featured'] = $request->boolean('featured'); 
 
         $event = Event::create($validated);
+        AuditLog::record('created', $event);
 
         $event->campuses()->sync($request->input('campus_ids', []));
         $event->schools()->sync($request->input('school_ids', []));
@@ -91,6 +93,7 @@ class EventController extends Controller
         $validated['featured'] = $request->boolean('featured');
 
         $event->update($validated);
+        AuditLog::record('updated', $event);
 
         $event->campuses()->sync($request->input('campus_ids', []));
         $event->schools()->sync($request->input('school_ids', []));
@@ -102,6 +105,7 @@ class EventController extends Controller
     {
         $event = Event::findOrFail($id);
         $event->delete();
+        AuditLog::record('deleted', $event);
         return redirect()->route('events.index');
     }
 }

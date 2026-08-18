@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\School;
 use Illuminate\Http\Request;
+use App\Models\AuditLog;
 
 class SchoolController extends Controller
 {
@@ -26,8 +27,8 @@ class SchoolController extends Controller
             'status' => 'required|in:active,archived',
         ]);
 
-        School::create($validated);
-
+        $school = School::create($validated);
+        AuditLog::record('cretaed', $school);
         return redirect()->route('schools.index');
     }
 
@@ -53,6 +54,7 @@ class SchoolController extends Controller
         ]);
 
         $school->update($validated);
+        AuditLog::record('updated', $school);
 
         return redirect()->route('schools.index');
     }
@@ -61,6 +63,7 @@ class SchoolController extends Controller
     {
         $school = School::findOrFail($id);
         $school->delete();
+        AuditLog::record('deleted', $school);
         return redirect()->route('schools.index');
     }
 }

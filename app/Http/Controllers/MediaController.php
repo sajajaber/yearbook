@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Media;
-
+use App\Models\AuditLog;
 class MediaController extends Controller
 {
     public function index()
@@ -36,7 +36,7 @@ class MediaController extends Controller
         }
 
         try {
-            Media::create([
+            $media = Media::create([
                 'file_name' => $uploadedFile->getClientOriginalName(),
                 'path' => $path,
                 'type' => 'image',
@@ -47,6 +47,7 @@ class MediaController extends Controller
                 'uploaded_by' => $userId,
                 'checksum' => md5_file($uploadedFile->getRealPath()),
             ]);
+            AuditLog::record('created', $media);
         } catch (\Exception $e) {
             \Log::error('Media upload failed: ' . $e->getMessage());
             return redirect()->route('media.index')->with('error', 'Failed to save media: ' . $e->getMessage()); 
@@ -72,6 +73,7 @@ class MediaController extends Controller
         ]);
 
         $mediaItem->update($validated);
+        AuditLog::record('updated', $mediaItem);
 
         return redirect()->route('media.index');
     }
@@ -80,7 +82,8 @@ class MediaController extends Controller
     {
         $mediaItem = Media::findOrFail($id);
         $mediaItem->delete();
-
+        AuditLog::record('deleted', $mediaItem);
+        
         return redirect()->route('media.index');
     }
 }

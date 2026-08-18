@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\AcademicYear;
+use App\Models\AuditLog;
 
 class AcademicYearController extends Controller
 {
@@ -37,7 +38,8 @@ class AcademicYearController extends Controller
             'status' => 'required|in:draft,active,archived',
         ]);
 
-        AcademicYear::create($validated);
+        $academicYear = AcademicYear::create($validated);
+        AuditLog::record('created', $academicYear);
 
         return redirect()->route('academic-years.index');
     }
@@ -54,6 +56,7 @@ class AcademicYearController extends Controller
         ]);
 
         $academicYear->update($validated);
+        AuditLog::record('updated', $academicYear);
 
         return redirect()->route('academic-years.index');
     }
@@ -83,7 +86,7 @@ class AcademicYearController extends Controller
     {
         $academicYear = AcademicYear::findOrFail($id);
         $academicYear->delete();
-
+        AuditLog::record('deleted', $academicYear);
         return redirect()->route('academic-years.index');
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Campus;
 use Illuminate\Http\Request;
+use App\Models\AuditLog;
 
 class CampusController extends Controller
 {
@@ -26,7 +27,8 @@ class CampusController extends Controller
             'status' => 'required|in:active,archived',
         ]);
 
-        Campus::create($validated);
+        $campus = Campus::create($validated);
+        AuditLog::record('created', $campus);
 
         return redirect()->route('campuses.index');
     }
@@ -53,6 +55,7 @@ class CampusController extends Controller
         ]);
 
         $campus->update($validated);
+        AuditLog::record('updated', $campus);
 
         return redirect()->route('campuses.index');
     }
@@ -61,6 +64,8 @@ class CampusController extends Controller
     {
         $campus = Campus::findOrFail($id);
         $campus->delete();
+        AuditLog::record('deleted', $campus);
+
         return redirect()->route('campuses.index');
     }
 }

@@ -8,6 +8,7 @@ use App\Models\School;
 use App\Models\Campus;
 use App\Models\Major;
 use App\Models\Graduation;
+use App\Models\AuditLog;
 
 class GraduateController extends Controller
 {
@@ -49,7 +50,8 @@ class GraduateController extends Controller
             'publish_status' => 'required|in:draft,reviewed,approved,published,archived',
         ]);
 
-        Graduate::create($validated);
+        $graduate = Graduate::create($validated);
+        AuditLog::record('created', $graduate);
 
         return redirect()->route('graduates.index');
     }
@@ -91,6 +93,7 @@ class GraduateController extends Controller
         ]);
 
         $graduate->update($validated);
+        AuditLog::record('updated', $graduate);
 
         return redirect()->route('graduates.index');
     }
@@ -99,7 +102,7 @@ class GraduateController extends Controller
     {
         $graduate = Graduate::findOrFail($id);
         $graduate->delete();
-
+        AuditLog::record('deleted', $graduate);
         return redirect()->route('graduates.index');
     }
 }

@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Major;
 use App\Models\School;
-
+use App\Models\AuditLog;
 class MajorController extends Controller
 {
     public function index()
@@ -42,8 +42,8 @@ class MajorController extends Controller
             'school_id' => 'required|exists:schools,id',
         ]);
 
-        Major::create($validated);
-
+        $major = Major::create($validated);
+        AuditLog::record('created', $major);
         return redirect()->route('majors.index');
     }
 
@@ -58,7 +58,7 @@ class MajorController extends Controller
         ]);
 
         $major->update($validated);
-
+        AuditLog::record('updated', $major);
         return redirect()->route('majors.index');
     }
 
@@ -66,6 +66,7 @@ class MajorController extends Controller
     {
         $major = Major::findOrFail($id);
         $major->delete();
+        AuditLog::record('deleted', $major);
         return redirect()->route('majors.index');
     }
 }
