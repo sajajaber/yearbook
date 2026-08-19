@@ -7,6 +7,7 @@ use App\Models\Graduation;
 use App\Models\AcademicYear;
 use App\Models\Campus;
 use App\Models\AuditLog;
+
 class GraduationController extends Controller
 {
     public function index()
@@ -63,7 +64,7 @@ class GraduationController extends Controller
             'academic_year_id' => 'required|exists:academic_years,id',
             'ceremony_date' => 'required|date',
             'venue' => 'nullable|string|max:255',
-            'description' => 'nullable|string', 
+            'description' => 'nullable|string',
         ]);
 
         $graduation->update($validated);
@@ -80,4 +81,5 @@ class GraduationController extends Controller
         AuditLog::record('deleted', $graduation);
         return redirect()->route('graduations.index');
     }
+
 }

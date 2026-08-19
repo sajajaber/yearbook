@@ -21,7 +21,7 @@ class AuditLog extends Model
     public static function record(string $action, $model): void
     {
         self::create([
-            'user_id' => auth()->id,
+            'user_id' => auth()->id(),
             'action' => $action,
             'entity_type' => get_class($model),
             'entity_id' => $model->id,

@@ -47,7 +47,15 @@ class GraduateController extends Controller
             'future_plans' => 'nullable|string',
             'quote' => 'nullable|string|max:255',
             'consent_status' => 'required|in:pending,granted,declined',
-            'publish_status' => 'required|in:draft,reviewed,approved,published,archived',
+            'publish_status' => [
+                'required',
+                'in:draft,reviewed,approved,published,archived',
+                function ($attribute, $value, $fail) use ($request) {
+                    if ($value === 'published' && $request->input('consent_status') !== 'granted') {
+                        $fail('A graduate cannot be published without granted consent.');
+                    }
+                },
+            ],
         ]);
 
         $graduate = Graduate::create($validated);
@@ -89,7 +97,15 @@ class GraduateController extends Controller
             'future_plans' => 'nullable|string',
             'quote' => 'nullable|string|max:255',
             'consent_status' => 'required|in:pending,granted,declined',
-            'publish_status' => 'required|in:draft,reviewed,approved,published,archived',
+            'publish_status' => [
+                'required',
+                'in:draft,reviewed,approved,published,archived',
+                function ($attribute, $value, $fail) use ($request) {
+                    if ($value === 'published' && $request->input('consent_status') !== 'granted') {
+                        $fail('A graduate cannot be published without granted consent.');
+                    }
+                },
+            ],
         ]);
 
         $graduate->update($validated);
@@ -103,6 +119,30 @@ class GraduateController extends Controller
         $graduate = Graduate::findOrFail($id);
         $graduate->delete();
         AuditLog::record('deleted', $graduate);
+        return redirect()->route('graduates.index');
+    }
+
+    public function submitForReview(string $id)
+    {
+        $graduate = Graduate::findOrFail($id);
+        $graduate->update(['publish_status' => 'reviewed']);
+        AuditLog::record('submitted_for_review', $graduate);
+        return redirect()->route('graduates.index');
+    }
+
+    public function approve(string $id)
+    {
+        $graduate = Graduate::findOrFail($id);
+        $graduate->update(['publish_status' => 'approved']);
+        AuditLog::record('approved', $graduate);
+        return redirect()->route('graduates.index');
+    }
+
+    public function reject(string $id)
+    {
+        $graduate = Graduate::findOrFail($id);
+        $graduate->update(['publish_status' => 'draft']);
+        AuditLog::record('rejected', $graduate);
         return redirect()->route('graduates.index');
     }
 }

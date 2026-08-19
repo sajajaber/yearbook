@@ -64,7 +64,7 @@ class EventController extends Controller
             'featured' => 'nullable|boolean',
         ]);
 
-        $validated['featured'] = $request->boolean('featured'); 
+        $validated['featured'] = $request->boolean('featured');
 
         $event = Event::create($validated);
         AuditLog::record('created', $event);
@@ -106,6 +106,32 @@ class EventController extends Controller
         $event = Event::findOrFail($id);
         $event->delete();
         AuditLog::record('deleted', $event);
+        return redirect()->route('events.index');
+    }
+
+    // Editor's action
+    public function submitForReview(string $id)
+    {
+        $event = Event::findOrFail($id);
+        $event->update(['status' => 'reviewed']);
+        AuditLog::record('submitted_for_review', $event);
+        return redirect()->route('events.index');
+    }
+
+    // Reviewer's action
+    public function approve(string $id)
+    {
+        $event = Event::findOrFail($id);
+        $event->update(['status' => 'approved']);
+        AuditLog::record('approved', $event);
+        return redirect()->route('events.index');
+    }
+
+    public function reject(string $id)
+    {
+        $event = Event::findOrFail($id);
+        $event->update(['status' => 'draft']);
+        AuditLog::record('rejected', $event);
         return redirect()->route('events.index');
     }
 }

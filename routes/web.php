@@ -11,15 +11,16 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\GraduationController;
 use App\Http\Controllers\GraduateController;
 use App\Http\Controllers\MediaController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\UserController;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified', 'role:admin'])->name('dashboard');
-
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified', 'role:admin'])
+    ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -27,17 +28,45 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+// Full CRUD — Admin and Editor only (master data + write access to events/graduates)
 Route::middleware(['auth', 'verified', 'role:admin,editor'])->group(function () {
     Route::resource('academic-years', AcademicYearController::class);
     Route::resource('majors', MajorController::class);
     Route::resource('campuses', CampusController::class);
     Route::resource('schools', SchoolController::class);
     Route::resource('event-categories', EventCategoryController::class);
-    Route::resource('events', EventController::class);
     Route::resource('graduations', GraduationController::class);
-    Route::resource('graduates', GraduateController::class);
     Route::resource('media', MediaController::class);
-    });
-    
 
-require __DIR__.'/auth.php';
+    Route::resource('events', EventController::class)->except(['index', 'show', 'edit']);
+    Route::resource('graduates', GraduateController::class)->except(['index', 'show', 'edit']);
+});
+
+// Read-only access — Admin, Editor, AND Reviewer (so Reviewer can see the pending queue)
+Route::middleware(['auth', 'verified', 'role:admin,editor,reviewer'])->group(function () {
+    Route::resource('events', EventController::class)->only(['index', 'show', 'edit']);
+    Route::resource('graduates', GraduateController::class)->only(['index', 'show', 'edit']);
+});
+
+// Workflow actions — submit (Admin/Editor), approve/reject (Admin/Reviewer)
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::post('events/{event}/submit', [EventController::class, 'submitForReview'])
+        ->middleware('role:admin,editor')->name('events.submit');
+    Route::post('events/{event}/approve', [EventController::class, 'approve'])
+        ->middleware('role:admin,reviewer')->name('events.approve');
+    Route::post('events/{event}/reject', [EventController::class, 'reject'])
+        ->middleware('role:admin,reviewer')->name('events.reject');
+
+    Route::post('graduates/{graduate}/submit', [GraduateController::class, 'submitForReview'])
+        ->middleware('role:admin,editor')->name('graduates.submit');
+    Route::post('graduates/{graduate}/approve', [GraduateController::class, 'approve'])
+        ->middleware('role:admin,reviewer')->name('graduates.approve');
+    Route::post('graduates/{graduate}/reject', [GraduateController::class, 'reject'])
+        ->middleware('role:admin,reviewer')->name('graduates.reject');
+
+    Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
+        Route::resource('users', UserController::class);
+    });
+});
+
+require __DIR__ . '/auth.php';
