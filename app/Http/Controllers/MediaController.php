@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Media;
 use App\Models\AuditLog;
+use Illuminate\Support\Facades\Storage;
+
 class MediaController extends Controller
 {
     public function index()
@@ -29,7 +31,7 @@ class MediaController extends Controller
 
         $uploadedFile = $request->file('file');
         $path = $uploadedFile->store('media', 'public');
-        
+
         $userId = auth()->id();
         if (!$userId) {
             return redirect()->route('media.index')->with('error', 'User not authenticated');
@@ -50,7 +52,7 @@ class MediaController extends Controller
             AuditLog::record('created', $media);
         } catch (\Exception $e) {
             \Log::error('Media upload failed: ' . $e->getMessage());
-            return redirect()->route('media.index')->with('error', 'Failed to save media: ' . $e->getMessage()); 
+            return redirect()->route('media.index')->with('error', 'Failed to save media: ' . $e->getMessage());
         }
 
         return redirect()->route('media.index')->with('success', 'Media uploaded successfully');
@@ -81,9 +83,10 @@ class MediaController extends Controller
     public function destroy(string $id)
     {
         $mediaItem = Media::findOrFail($id);
+        Storage::disk('public')->delete($mediaItem->path);
         $mediaItem->delete();
         AuditLog::record('deleted', $mediaItem);
-        
+
         return redirect()->route('media.index');
     }
 }
