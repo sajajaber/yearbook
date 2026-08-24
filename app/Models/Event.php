@@ -7,9 +7,10 @@ use App\Models\AcademicYear;
 use App\Models\EventCategory;
 use App\Models\Campus;
 use App\Models\School;
-use App\Contracts\Publishable;
+use App\Contracts\PublishableInterface;
+use App\Models\AiGeneration;
 
-class Event extends Model implements Publishable
+class Event extends Model implements PublishableInterface
 {
     protected $fillable = [
         'academic_year_id',
@@ -45,5 +46,11 @@ class Event extends Model implements Publishable
     public function isPublished(): bool
     {
         return $this->status === 'published';
+    }
+
+    public function aiGenerations()
+    {
+        return $this->hasMany(AiGeneration::class, 'source_record_id')
+            ->where('source_record_type', 'event');
     }
 }

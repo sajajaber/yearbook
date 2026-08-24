@@ -14,8 +14,18 @@ class GraduateAiService
         string $name,
         string $major,
         string $school,
-        array $achievements
+        array|string $achievements
     ): string {
+        // Achievements may arrive as an array (e.g. from Graduate::$casts)
+        // or as a raw string (e.g. straight from request input on a form
+        // that hasn't been split into an array yet). Normalize either way.
+        if (is_string($achievements)) {
+            $achievements = array_filter(array_map(
+                'trim',
+                preg_split('/[,\n]+/', $achievements) ?: []
+            ));
+        }
+
         $achievementsList = implode(', ', $achievements) ?: 'none listed';
 
         $prompt = "Write a short, warm yearbook biography (3-4 sentences) "

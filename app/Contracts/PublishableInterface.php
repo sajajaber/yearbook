@@ -7,7 +7,7 @@ you can write code that works on either type (Graduate/ Event)
 without caring which one it actually is */
 
 
-interface Publishable
+interface PublishableInterface
 {
     public function isPublished(): bool;
 }

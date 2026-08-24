@@ -10,6 +10,7 @@ class SchoolSeeder extends Seeder
     public function run(): void
     {
         $schools = [
+            ['name' => 'School of Engineering', 'code' => 'ENG'],
             ['name' => 'School of Business', 'code' => 'BUS'],
             ['name' => 'School of Pharmacy', 'code' => 'PHA'],
             ['name' => 'School of Education', 'code' => 'EDU'],

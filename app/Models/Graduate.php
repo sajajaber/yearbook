@@ -7,9 +7,10 @@ use App\Models\Campus;
 use App\Models\School;
 use App\Models\Major;
 use App\Models\Graduation;
-use App\Contracts\Publishable;
+use App\Contracts\PublishableInterface;
+use App\Models\AiGeneration;
 
-class Graduate extends Model implements Publishable
+class Graduate extends Model implements PublishableInterface
 {
   protected $fillable = [
     'student_reference',
@@ -63,5 +64,11 @@ class Graduate extends Model implements Publishable
   public function isPublished(): bool
   {
     return $this->publish_status === 'published';
+  }
+
+  public function aiGenerations()
+  {
+    return $this->hasMany(AiGeneration::class, 'source_record_id')
+      ->where('source_record_type', 'graduate');
   }
 }

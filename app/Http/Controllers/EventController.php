@@ -125,15 +125,7 @@ class EventController extends Controller
     {
         $event = Event::findOrFail($id);
 
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'event_date' => 'required|date',
-            'description' => 'nullable|string',
-            'location' => 'nullable|string|max:255',
-        ]);
-
-        $validated['status'] = 'approved';
-        $event->update($validated);
+        $event->update(['status' => 'approved']);
 
         AuditLog::record('approved', $event);
 

@@ -96,15 +96,7 @@ class GraduateController extends Controller
     {
         $graduate = Graduate::findOrFail($id);
 
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'profile_text' => 'nullable|string',
-            'future_plans' => 'nullable|string',
-            'quote' => 'nullable|string|max:255',
-        ]);
-
-        $validated['publish_status'] = 'approved';
-        $graduate->update($validated);
+        $graduate->update(['publish_status' => 'approved']);
 
         AuditLog::record('approved', $graduate);
 
