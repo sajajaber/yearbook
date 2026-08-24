@@ -13,6 +13,7 @@ use App\Http\Controllers\GraduateController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\AiGenerationController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -66,6 +67,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
         Route::resource('users', UserController::class);
+    });
+
+    Route::middleware(['auth', 'verified', 'role:admin,editor'])->group(function () {
+        Route::post('events/{event}/generate-summary', [EventController::class, 'generateSummary'])
+            ->name('events.generate-summary');
+        Route::post('graduates/{graduate}/generate-biography', [GraduateController::class, 'generateBiography'])
+            ->name('graduates.generate-biography');
+    });
+
+    Route::middleware(['auth', 'verified', 'role:admin,reviewer'])->group(function () {
+        Route::get('ai-generations', [AiGenerationController::class, 'index'])->name('ai-generations.index');
+        Route::post('ai-generations/{aiGeneration}/review', [AiGenerationController::class, 'review'])->name('ai-generations.review');
     });
 });
 

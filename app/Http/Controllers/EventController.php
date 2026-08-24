@@ -9,6 +9,8 @@ use App\Models\EventCategory;
 use App\Models\Campus;
 use App\Models\School;
 use App\Models\AuditLog;
+use App\Services\EventAiService;
+use App\Models\AiGeneration;
 
 class EventController extends Controller
 {
@@ -119,19 +121,60 @@ class EventController extends Controller
     }
 
     // Reviewer's action
-    public function approve(string $id)
+    public function approve(Request $request, string $id)
     {
         $event = Event::findOrFail($id);
-        $event->update(['status' => 'approved']);
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'event_date' => 'required|date',
+            'description' => 'nullable|string',
+            'location' => 'nullable|string|max:255',
+        ]);
+
+        $validated['status'] = 'approved';
+        $event->update($validated);
+
         AuditLog::record('approved', $event);
+
         return redirect()->route('events.index');
     }
 
-    public function reject(string $id)
+    public function reject(Request $request, string $id)
     {
         $event = Event::findOrFail($id);
         $event->update(['status' => 'draft']);
         AuditLog::record('rejected', $event);
         return redirect()->route('events.index');
+    }
+
+    // AI Integration 
+    public function generateSummary(
+        string $id,
+        EventAiService $aiService
+    ) {
+        $event = Event::findOrFail($id);
+
+        $generatedText = $aiService->summarizeEvent(
+            $event->title,
+            $event->description ?? '',
+            $event->event_date
+        );
+
+        AiGeneration::create([
+            'content_type' => 'event_summary',
+            'source_record_id' => $event->id,
+            'source_record_type' => 'event',
+            'prompt_version' => 'v1',
+            'generated_text' => $generatedText,
+            'status' => 'pending_review',
+        ]);
+
+        return redirect()
+            ->route('events.index')
+            ->with(
+                'success',
+                'AI summary generated — pending review.'
+            );
     }
 }

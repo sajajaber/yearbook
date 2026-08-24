@@ -9,6 +9,12 @@ use App\Models\Campus;
 use App\Models\Major;
 use App\Models\Graduation;
 use App\Models\AuditLog;
+use App\Models\AiGeneration;
+use App\Contracts\AiProviderInterface;
+use App\Services\GeminiAiService;
+use App\Services\GraduateAiService;
+use App\Http\Requests\StoreGraduateRequest;
+use App\Http\Requests\UpdateGraduateRequest;
 
 class GraduateController extends Controller
 {
@@ -33,32 +39,9 @@ class GraduateController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(StoreGraduateRequest $request)
     {
-        // we validate here so we can catch the violation before it reaches the DB
-        $validated = $request->validate([
-            'student_reference' => 'nullable|string|max:255',
-            'name' => 'required|string|max:255',
-            'school_id' => 'required|exists:schools,id',
-            'major_id' => 'required|exists:majors,id',
-            'campus_id' => 'required|exists:campuses,id',
-            'graduation_id' => 'required|exists:graduations,id',
-            'profile_text' => 'nullable|string',
-            'future_plans' => 'nullable|string',
-            'quote' => 'nullable|string|max:255',
-            'consent_status' => 'required|in:pending,granted,declined',
-            'publish_status' => [
-                'required',
-                'in:draft,reviewed,approved,published,archived',
-                function ($attribute, $value, $fail) use ($request) {
-                    if ($value === 'published' && $request->input('consent_status') !== 'granted') {
-                        $fail('A graduate cannot be published without granted consent.');
-                    }
-                },
-            ],
-        ]);
-
-        $graduate = Graduate::create($validated);
+        $graduate = Graduate::create($request->validated());
         AuditLog::record('created', $graduate);
 
         return redirect()->route('graduates.index');
@@ -81,38 +64,17 @@ class GraduateController extends Controller
         ]);
     }
 
-    public function update(Request $request, string $id)
-    {
 
+    public function update(UpdateGraduateRequest $request, string $id)
+    {
         $graduate = Graduate::findOrFail($id);
 
-        $validated = $request->validate([
-            'student_reference' => 'nullable|string|max:255',
-            'name' => 'required|string|max:255',
-            'school_id' => 'required|exists:schools,id',
-            'major_id' => 'required|exists:majors,id',
-            'campus_id' => 'required|exists:campuses,id',
-            'graduation_id' => 'required|exists:graduations,id',
-            'profile_text' => 'nullable|string',
-            'future_plans' => 'nullable|string',
-            'quote' => 'nullable|string|max:255',
-            'consent_status' => 'required|in:pending,granted,declined',
-            'publish_status' => [
-                'required',
-                'in:draft,reviewed,approved,published,archived',
-                function ($attribute, $value, $fail) use ($request) {
-                    if ($value === 'published' && $request->input('consent_status') !== 'granted') {
-                        $fail('A graduate cannot be published without granted consent.');
-                    }
-                },
-            ],
-        ]);
-
-        $graduate->update($validated);
+        $graduate->update($request->validated());
         AuditLog::record('updated', $graduate);
 
         return redirect()->route('graduates.index');
     }
+
 
     public function destroy(string $id)
     {
@@ -130,19 +92,59 @@ class GraduateController extends Controller
         return redirect()->route('graduates.index');
     }
 
-    public function approve(string $id)
+    public function approve(Request $request, string $id)
     {
         $graduate = Graduate::findOrFail($id);
-        $graduate->update(['publish_status' => 'approved']);
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'profile_text' => 'nullable|string',
+            'future_plans' => 'nullable|string',
+            'quote' => 'nullable|string|max:255',
+        ]);
+
+        $validated['publish_status'] = 'approved';
+        $graduate->update($validated);
+
         AuditLog::record('approved', $graduate);
+
         return redirect()->route('graduates.index');
     }
-
-    public function reject(string $id)
+    public function reject(Request $request, string $id)
     {
         $graduate = Graduate::findOrFail($id);
         $graduate->update(['publish_status' => 'draft']);
         AuditLog::record('rejected', $graduate);
         return redirect()->route('graduates.index');
+    }
+
+    public function generateBiography(
+        string $id,
+        GraduateAiService $aiService
+    ) {
+        $graduate = Graduate::findOrFail($id);
+
+        $generatedText = $aiService->draftBiography(
+            $graduate->name,
+            $graduate->major->name,
+            $graduate->school->name,
+            $graduate->achievements ?? []
+        );
+
+        AiGeneration::create([
+            'content_type' => 'graduate_biography',
+            'source_record_id' => $graduate->id,
+            'source_record_type' => 'graduate',
+            'prompt_version' => 'v1',
+            'generated_text' => $generatedText,
+            'status' => 'pending_review',
+        ]);
+
+        return redirect()
+            ->route('graduates.index')
+            ->with(
+                'success',
+                'AI biography generated, pending review.'
+            );
     }
 }

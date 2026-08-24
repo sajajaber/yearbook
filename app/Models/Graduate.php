@@ -7,8 +7,9 @@ use App\Models\Campus;
 use App\Models\School;
 use App\Models\Major;
 use App\Models\Graduation;
+use App\Contracts\Publishable;
 
-class Graduate extends Model
+class Graduate extends Model implements Publishable
 {
   protected $fillable = [
     'student_reference',
@@ -57,5 +58,10 @@ class Graduate extends Model
   public function graduation()
   {
     return $this->belongsTo(Graduation::class);
+  }
+
+  public function isPublished(): bool
+  {
+    return $this->publish_status === 'published';
   }
 }

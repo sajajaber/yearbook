@@ -7,8 +7,9 @@ use App\Models\AcademicYear;
 use App\Models\EventCategory;
 use App\Models\Campus;
 use App\Models\School;
+use App\Contracts\Publishable;
 
-class Event extends Model
+class Event extends Model implements Publishable
 {
     protected $fillable = [
         'academic_year_id',
@@ -39,5 +40,10 @@ class Event extends Model
     public function schools()
     {
         return $this->belongsToMany(School::class, 'event_schools')->withTimestamps();
+    }
+
+    public function isPublished(): bool
+    {
+        return $this->status === 'published';
     }
 }

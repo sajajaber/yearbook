@@ -28,6 +28,10 @@
       @csrf
       <button type="submit">Reject</button>
     </form>
+    <form method="POST" action="{{ route('events.generate-summary', $event->id) }}" style="display:inline">
+      @csrf
+      <button type="submit">Generate AI Summary</button>
+    </form>
   </li>
   @endforeach
 </ul>
