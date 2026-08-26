@@ -81,4 +81,11 @@ class Graduate extends Model implements PublishableInterface
   {
     return $consentStatus === 'granted';
   }
+
+  public function media()
+  {
+    return $this->belongsToMany(Media::class, 'graduate_media')
+      ->withPivot('display_order')
+      ->orderBy('graduate_media.display_order');
+  }
 }

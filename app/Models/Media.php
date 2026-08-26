@@ -29,4 +29,16 @@ class Media extends Model
     {
         return $this->belongsTo(User::class, 'uploaded_by');
     }
+
+    public function events()
+    {
+        return $this->belongsToMany(Event::class, 'event_media')
+            ->withPivot('display_order');
+    }
+
+    public function graduates()
+    {
+        return $this->belongsToMany(Graduate::class, 'graduate_media')
+            ->withPivot('display_order');
+    }
 }

@@ -13,9 +13,12 @@ use App\Services\EventAiService;
 use App\Models\AiGeneration;
 use App\Http\Requests\UpdateEventRequest;
 use App\Http\Requests\StoreEventRequest;
+use App\Http\Controllers\Concerns\SyncsOrderedMedia;
 
 class EventController extends Controller
 {
+    use SyncsOrderedMedia;
+    
     public function index()
     {
         $events = Event::all();
@@ -54,8 +57,7 @@ class EventController extends Controller
             'schools' => $schools,
         ]);
     }
-    // runs when that form is submitted; reads the input, saves a new row redirects back to the list
-    // After
+
     public function store(StoreEventRequest $request)
     {
         $validated = $request->validated();
@@ -66,6 +68,7 @@ class EventController extends Controller
 
         $event->campuses()->sync($request->input('campus_ids', []));
         $event->schools()->sync($request->input('school_ids', []));
+        $this->syncMediaWithOrder($event, $request->input('media_ids', []));
 
         return redirect()->route('events.index');
     }
@@ -82,6 +85,7 @@ class EventController extends Controller
 
         $event->campuses()->sync($request->input('campus_ids', []));
         $event->schools()->sync($request->input('school_ids', []));
+        $this->syncMediaWithOrder($event, $request->input('media_ids', []));
 
         return redirect()->route('events.index');
     }
@@ -94,7 +98,7 @@ class EventController extends Controller
         return redirect()->route('events.index');
     }
 
-    
+
     public function submitForReview(string $id)
     {
         $event = Event::findOrFail($id);

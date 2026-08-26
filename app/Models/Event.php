@@ -14,7 +14,7 @@ use App\Models\Concerns\HasPublishingWorkflow;
 class Event extends Model implements PublishableInterface
 {
     use HasPublishingWorkflow;
-    
+
     protected $fillable = [
         'academic_year_id',
         'category_id',
@@ -55,5 +55,12 @@ class Event extends Model implements PublishableInterface
     {
         return $this->hasMany(AiGeneration::class, 'source_record_id')
             ->where('source_record_type', 'event');
+    }
+
+    public function media()
+    {
+        return $this->belongsToMany(Media::class, 'event_media')
+            ->withPivot('display_order')
+            ->orderBy('event_media.display_order');
     }
 }

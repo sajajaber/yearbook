@@ -37,7 +37,7 @@ Route::middleware(['auth', 'verified', 'role:admin,editor'])->group(function () 
     Route::resource('schools', SchoolController::class);
     Route::resource('event-categories', EventCategoryController::class);
     Route::resource('graduations', GraduationController::class);
-    Route::resource('media', MediaController::class);
+    Route::resource('media', MediaController::class)->except(['show']);
 
     Route::resource('events', EventController::class)->except(['index', 'show', 'edit']);
     Route::resource('graduates', GraduateController::class)->except(['index', 'show', 'edit']);

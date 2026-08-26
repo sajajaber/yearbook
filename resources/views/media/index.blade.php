@@ -40,7 +40,19 @@
       @foreach ($mediaItems as $mediaItem)
       <div style="border: 1px solid #ddd; border-radius: 4px; overflow: hidden;">
         <div style="background: #f5f5f5; display: flex; align-items: center; justify-content: center; min-height: 250px;">
+          @if ($mediaItem->type === 'image')
           <img src="{{ asset('storage/' . $mediaItem->path) }}" alt="{{ $mediaItem->alt_text ?? $mediaItem->file_name }}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+          @elseif ($mediaItem->type === 'video')
+          <video controls style="max-width: 100%; max-height: 100%;">
+            <source src="{{ asset('storage/' . $mediaItem->path) }}">
+            {{ __('Your browser does not support video playback.') }}
+          </video>
+          @elseif ($mediaItem->type === 'document')
+          <a href="{{ asset('storage/' . $mediaItem->path) }}" target="_blank" style="text-decoration: none; color: #333; text-align: center;">
+            <div style="font-size: 48px;">📄</div>
+            <div style="font-size: 12px; margin-top: 8px;">{{ __('View document') }}</div>
+          </a>
+          @endif
         </div>
         <div style="padding: 15px;">
           <p style="margin: 0 0 10px 0; font-size: 12px; color: #666;">
@@ -77,4 +89,4 @@
     </div>
     @endif
   </div>
-</x-app-layout>
+</x-app-layout> 

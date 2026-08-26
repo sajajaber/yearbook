@@ -15,9 +15,12 @@ use App\Services\GeminiAiService;
 use App\Services\GraduateAiService;
 use App\Http\Requests\StoreGraduateRequest;
 use App\Http\Requests\UpdateGraduateRequest;
+use App\Http\Controllers\Concerns\SyncsOrderedMedia;
 
 class GraduateController extends Controller
 {
+    use SyncsOrderedMedia;
+
     public function index()
     {
         $graduates = Graduate::all();
@@ -44,6 +47,20 @@ class GraduateController extends Controller
         $graduate = Graduate::create($request->validated());
         AuditLog::record('created', $graduate);
 
+        $this->syncMediaWithOrder($graduate, request()->input('media_ids', []));
+
+        return redirect()->route('graduates.index');
+    }
+
+    public function update(UpdateGraduateRequest $request, string $id)
+    {
+        $graduate = Graduate::findOrFail($id);
+
+        $graduate->update($request->validated());
+        AuditLog::record('updated', $graduate);
+
+        $this->syncMediaWithOrder($graduate, request()->input('media_ids', []));
+
         return redirect()->route('graduates.index');
     }
 
@@ -63,18 +80,6 @@ class GraduateController extends Controller
             'graduations' => $graduations,
         ]);
     }
-
-
-    public function update(UpdateGraduateRequest $request, string $id)
-    {
-        $graduate = Graduate::findOrFail($id);
-
-        $graduate->update($request->validated());
-        AuditLog::record('updated', $graduate);
-
-        return redirect()->route('graduates.index');
-    }
-
 
     public function destroy(string $id)
     {
@@ -121,7 +126,7 @@ class GraduateController extends Controller
         AuditLog::record('published', $graduate);
         return redirect()->route('graduates.index');
     }
-    
+
     public function generateBiography(
         string $id,
         GraduateAiService $aiService
