@@ -11,6 +11,8 @@ use App\Models\School;
 use App\Models\AuditLog;
 use App\Services\EventAiService;
 use App\Models\AiGeneration;
+use App\Http\Requests\UpdateEventRequest;
+use App\Http\Requests\StoreEventRequest;
 
 class EventController extends Controller
 {
@@ -53,19 +55,10 @@ class EventController extends Controller
         ]);
     }
     // runs when that form is submitted; reads the input, saves a new row redirects back to the list
-    public function store(Request $request)
+    // After
+    public function store(StoreEventRequest $request)
     {
-        $validated = $request->validate([
-            'academic_year_id' => 'required|exists:academic_years,id',
-            'category_id' => 'required|exists:event_categories,id',
-            'title' => 'required|string|max:255',
-            'event_date' => 'required|date',
-            'description' => 'nullable|string',
-            'location' => 'nullable|string|max:255',
-            'status' => 'required|in:draft,reviewed,approved,published,archived',
-            'featured' => 'nullable|boolean',
-        ]);
-
+        $validated = $request->validated();
         $validated['featured'] = $request->boolean('featured');
 
         $event = Event::create($validated);
@@ -77,21 +70,11 @@ class EventController extends Controller
         return redirect()->route('events.index');
     }
 
-    public function update(Request $request, string $id)
+    public function update(UpdateEventRequest $request, string $id)
     {
         $event = Event::findOrFail($id);
 
-        $validated = $request->validate([
-            'academic_year_id' => 'required|exists:academic_years,id',
-            'category_id' => 'required|exists:event_categories,id',
-            'title' => 'required|string|max:255',
-            'event_date' => 'required|date',
-            'description' => 'nullable|string',
-            'location' => 'nullable|string|max:255',
-            'status' => 'required|in:draft,reviewed,approved,published,archived',
-            'featured' => 'nullable|boolean',
-        ]);
-
+        $validated = $request->validated();
         $validated['featured'] = $request->boolean('featured');
 
         $event->update($validated);
@@ -111,32 +94,36 @@ class EventController extends Controller
         return redirect()->route('events.index');
     }
 
-    // Editor's action
+    
     public function submitForReview(string $id)
     {
         $event = Event::findOrFail($id);
-        $event->update(['status' => 'reviewed']);
+        $event->submitForReview();
         AuditLog::record('submitted_for_review', $event);
         return redirect()->route('events.index');
     }
 
-    // Reviewer's action
-    public function approve(Request $request, string $id)
+    public function approve(string $id)
     {
         $event = Event::findOrFail($id);
-
-        $event->update(['status' => 'approved']);
-
+        $event->approve();
         AuditLog::record('approved', $event);
-
         return redirect()->route('events.index');
     }
 
-    public function reject(Request $request, string $id)
+    public function reject(string $id)
     {
         $event = Event::findOrFail($id);
-        $event->update(['status' => 'draft']);
+        $event->reject();
         AuditLog::record('rejected', $event);
+        return redirect()->route('events.index');
+    }
+
+    public function publish(string $id)
+    {
+        $event = Event::findOrFail($id);
+        $event->publish();
+        AuditLog::record('published', $event);
         return redirect()->route('events.index');
     }
 

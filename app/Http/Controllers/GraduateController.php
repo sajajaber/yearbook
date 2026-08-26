@@ -87,29 +87,41 @@ class GraduateController extends Controller
     public function submitForReview(string $id)
     {
         $graduate = Graduate::findOrFail($id);
-        $graduate->update(['publish_status' => 'reviewed']);
+        $graduate->submitForReview();
         AuditLog::record('submitted_for_review', $graduate);
         return redirect()->route('graduates.index');
     }
 
-    public function approve(Request $request, string $id)
+    public function approve(string $id)
     {
         $graduate = Graduate::findOrFail($id);
-
-        $graduate->update(['publish_status' => 'approved']);
-
+        $graduate->approve();
         AuditLog::record('approved', $graduate);
-
         return redirect()->route('graduates.index');
     }
-    public function reject(Request $request, string $id)
+
+    public function reject(string $id)
     {
         $graduate = Graduate::findOrFail($id);
-        $graduate->update(['publish_status' => 'draft']);
+        $graduate->reject();
         AuditLog::record('rejected', $graduate);
         return redirect()->route('graduates.index');
     }
 
+    public function publish(string $id)
+    {
+        $graduate = Graduate::findOrFail($id);
+
+        if (! $graduate->publish()) {
+            return redirect()
+                ->route('graduates.index')
+                ->with('error', 'A graduate cannot be published without granted consent.');
+        }
+
+        AuditLog::record('published', $graduate);
+        return redirect()->route('graduates.index');
+    }
+    
     public function generateBiography(
         string $id,
         GraduateAiService $aiService

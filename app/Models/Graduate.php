@@ -71,4 +71,14 @@ class Graduate extends Model implements PublishableInterface
     return $this->hasMany(AiGeneration::class, 'source_record_id')
       ->where('source_record_type', 'graduate');
   }
+
+  public function canBePublished(): bool
+  {
+    return static::consentAllowsPublishing($this->consent_status);
+  }
+
+  public static function consentAllowsPublishing(?string $consentStatus): bool
+  {
+    return $consentStatus === 'granted';
+  }
 }

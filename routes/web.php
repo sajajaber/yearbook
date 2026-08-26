@@ -49,7 +49,7 @@ Route::middleware(['auth', 'verified', 'role:admin,editor,reviewer'])->group(fun
     Route::resource('graduates', GraduateController::class)->only(['index', 'show', 'edit']);
 });
 
-// Workflow actions — submit (Admin/Editor), approve/reject (Admin/Reviewer)
+// Workflow actions — submit (Admin/Editor), approve/reject/publish (Admin/Reviewer)
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('events/{event}/submit', [EventController::class, 'submitForReview'])
         ->middleware('role:admin,editor')->name('events.submit');
@@ -57,6 +57,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('role:admin,reviewer')->name('events.approve');
     Route::post('events/{event}/reject', [EventController::class, 'reject'])
         ->middleware('role:admin,reviewer')->name('events.reject');
+    Route::post('events/{event}/publish', [EventController::class, 'publish'])
+        ->middleware('role:admin,reviewer')->name('events.publish');
 
     Route::post('graduates/{graduate}/submit', [GraduateController::class, 'submitForReview'])
         ->middleware('role:admin,editor')->name('graduates.submit');
@@ -64,6 +66,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('role:admin,reviewer')->name('graduates.approve');
     Route::post('graduates/{graduate}/reject', [GraduateController::class, 'reject'])
         ->middleware('role:admin,reviewer')->name('graduates.reject');
+    Route::post('graduates/{graduate}/publish', [GraduateController::class, 'publish'])
+        ->middleware('role:admin,reviewer')->name('graduates.publish');
 
     Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
         Route::resource('users', UserController::class);
