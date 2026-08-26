@@ -1,139 +1,58 @@
-<h1>Graduates</h1>
+<x-app-layout>
+    <x-slot name="header">
+        <div class="dashboard-heading graduate-heading">
+            <div><p class="eyebrow">Yearbook office / people</p><h1>Graduate profiles</h1></div>
+            <a href="{{ route('graduates.create') }}" class="button button-red"><span aria-hidden="true">+</span> Add graduate</a>
+        </div>
+    </x-slot>
 
-<a href="{{ route('graduates.create') }}">Add Graduate</a>
+    @php
+        $statusCounts = $graduates->groupBy('publish_status')->map->count();
+        $consentGranted = $graduates->where('consent_status', 'granted')->count();
+    @endphp
 
-@if (session('success'))
-<p>{{ session('success') }}</p>
-@endif
+    <div class="dashboard-wrap graduate-wrap" x-data="{ search: '', status: 'all' }">
+        <section class="graduate-intro">
+            <div><p class="eyebrow eyebrow-light">The people behind the year</p><h2>Make every<br>story count.</h2><p>Review, refine, and publish the voices that will define this year's yearbook.</p></div>
+            <div class="graduate-intro-stats"><div><strong>{{ $graduates->count() }}</strong><span>profiles</span></div><div><strong>{{ $consentGranted }}</strong><span>consents</span></div></div>
+        </section>
 
-@if ($errors->any())
-<ul>
-  @foreach ($errors->all() as $error)
-  <li>{{ $error }}</li>
-  @endforeach
-</ul>
-@endif
+        @if (session('success') || session('error'))<div class="notice {{ session('error') ? 'notice-error' : 'notice-success' }}">{{ session('error') ?? session('success') }}</div>@endif
 
-<hr>
+        <section class="graduate-toolbar" aria-label="Graduate profile controls">
+            <div class="graduate-filters">
+                <button type="button" class="filter-button" :class="{ 'is-selected': status === 'all' }" @click="status = 'all'">All <span>{{ $graduates->count() }}</span></button>
+                @foreach (['draft' => 'Draft', 'reviewed' => 'Review', 'approved' => 'Approved', 'published' => 'Published'] as $key => $label)
+                    <button type="button" class="filter-button" :class="{ 'is-selected': status === '{{ $key }}' }" @click="status = '{{ $key }}'">{{ $label }} <span>{{ $statusCounts->get($key, 0) }}</span></button>
+                @endforeach
+            </div>
+            <label class="search-field"><span aria-hidden="true">⌕</span><input type="search" x-model="search" placeholder="Search by name, school, or major" aria-label="Search graduate profiles"></label>
+        </section>
 
-@forelse ($graduates as $graduate)
-
-<h2>{{ $graduate->name }}</h2>
-
-<p>
-  Student Reference: {{ $graduate->student_reference }} <br>
-  Major: {{ $graduate->major->name }} <br>
-  School: {{ $graduate->school->name }} <br>
-  Publish Status: {{ $graduate->publish_status }} <br>
-  Consent Status: {{ $graduate->consent_status }}
-</p>
-
-@if ($graduate->profile_text)
-<p>
-  <strong>Profile:</strong><br>
-  {{ $graduate->profile_text }}
-</p>
-@endif
-
-@if ($graduate->future_plans)
-<p>
-  <strong>Future Plans:</strong><br>
-  {{ $graduate->future_plans }}
-</p>
-@endif
-
-@if ($graduate->quote)
-<p>
-  <strong>Quote:</strong><br>
-  {{ $graduate->quote }}
-</p>
-@endif
-
-<a href="{{ route('graduates.edit', $graduate->id) }}">Edit</a>
-
-<form
-  method="POST"
-  action="{{ route('graduates.destroy', $graduate->id) }}"
-  style="display:inline">
-  @csrf
-  @method('DELETE')
-  <button type="submit">Delete</button>
-</form>
-
-<form
-  method="POST"
-  action="{{ route('graduates.submit', $graduate->id) }}"
-  style="display:inline">
-  @csrf
-  <button type="submit">Submit for Review</button>
-</form>
-
-<form
-  method="POST"
-  action="{{ route('graduates.approve', $graduate->id) }}"
-  style="display:inline">
-  @csrf
-  <button type="submit">Approve</button>
-</form>
-
-<form
-  method="POST"
-  action="{{ route('graduates.reject', $graduate->id) }}"
-  style="display:inline">
-  @csrf
-  <button type="submit">Reject</button>
-</form>
-
-<form
-  method="POST"
-  action="{{ route('graduates.generate-biography', $graduate->id) }}"
-  style="display:inline">
-  @csrf
-  <button type="submit">Generate AI Biography</button>
-</form>
-
-@if ($graduate->aiGenerations->count() > 0)
-
-<h3>AI Generations</h3>
-
-@foreach ($graduate->aiGenerations as $generation)
-
-<p>
-  <strong>Content Type:</strong>
-  {{ $generation->content_type }}
-</p>
-
-<p>
-  <strong>Status:</strong>
-  {{ $generation->status }}
-</p>
-
-<p>
-  <strong>Generated Biography:</strong><br>
-  {{ $generation->generated_text }}
-</p>
-
-@if ($generation->reviewed_text)
-<p>
-  <strong>Reviewed Biography:</strong><br>
-  {{ $generation->reviewed_text }}
-</p>
-@endif
-
-<hr>
-
-@endforeach
-
-@else
-
-<p>No AI biography generated yet.</p>
-
-@endif
-
-<hr>
-
-@empty
-
-<p>No graduates found.</p>
-
-@endforelse
+        <section class="graduate-section">
+            <div class="section-heading"><div><p class="eyebrow">Profile directory</p><h2>Class of graduates</h2></div><span class="panel-meta">{{ $graduates->count() }} records</span></div>
+            <div class="graduate-grid">
+                @forelse ($graduates as $graduate)
+                    @php
+                        $searchText = strtolower($graduate->name . ' ' . ($graduate->school?->name ?? '') . ' ' . ($graduate->major?->name ?? '') . ' ' . ($graduate->student_reference ?? ''));
+                        $initials = collect(explode(' ', trim($graduate->name)))->filter()->map(fn ($part) => strtoupper(substr($part, 0, 1)))->take(2)->implode('');
+                    @endphp
+                    <article class="graduate-card" x-show="(status === 'all' || status === '{{ $graduate->publish_status }}') && '{{ $searchText }}'.includes(search.toLowerCase())">
+                        <div class="graduate-card-top"><div class="graduate-avatar">{{ $initials }}</div><span class="edition-status {{ $graduate->publish_status === 'published' ? 'is-active' : 'is-archived' }}">{{ ucfirst($graduate->publish_status) }}</span></div>
+                        <h3>{{ $graduate->name }}</h3><p class="graduate-reference">{{ $graduate->student_reference ?: 'No student reference' }}</p>
+                        <dl class="graduate-details"><div><dt>School</dt><dd>{{ $graduate->school?->name ?? 'Unassigned' }}</dd></div><div><dt>Major</dt><dd>{{ $graduate->major?->name ?? 'Unassigned' }}</dd></div><div><dt>Campus</dt><dd>{{ $graduate->campus?->name ?? 'Unassigned' }}</dd></div></dl>
+                        <div class="graduate-footer"><span class="consent-label"><span class="status-dot {{ $graduate->consent_status === 'granted' ? 'status-approved' : 'status-reviewed' }}"></span>{{ ucfirst($graduate->consent_status ?: 'pending') }} consent</span><a href="{{ route('graduates.edit', $graduate) }}" class="text-link">Open profile <span aria-hidden="true">→</span></a></div>
+                        <div class="graduate-actions">
+                            @if ($graduate->publish_status === 'draft')<form method="POST" action="{{ route('graduates.submit', $graduate) }}">@csrf<button type="submit" class="action-button action-primary">Submit for review</button></form>
+                            @elseif ($graduate->publish_status === 'reviewed')<form method="POST" action="{{ route('graduates.approve', $graduate) }}">@csrf<button type="submit" class="action-button action-primary">Approve</button></form><form method="POST" action="{{ route('graduates.reject', $graduate) }}">@csrf<button type="submit" class="action-button">Reject</button></form>
+                            @elseif ($graduate->publish_status === 'approved' && $graduate->consent_status === 'granted')<form method="POST" action="{{ route('graduates.publish', $graduate) }}">@csrf<button type="submit" class="action-button action-primary">Publish profile</button></form>@endif
+                            @if (!$graduate->aiGenerations->count())<form method="POST" action="{{ route('graduates.generate-biography', $graduate) }}">@csrf<button type="submit" class="action-button">Generate biography</button></form>@endif
+                        </div>
+                    </article>
+                @empty
+                    <div class="empty-editions"><p class="eyebrow">No profiles yet</p><h3>Start the class directory.</h3><p>Add a graduate to begin shaping this year's collection.</p><a href="{{ route('graduates.create') }}" class="button button-navy">Add graduate <span aria-hidden="true">→</span></a></div>
+                @endforelse
+            </div>
+        </section>
+    </div>
+</x-app-layout>

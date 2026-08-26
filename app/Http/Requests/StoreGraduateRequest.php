@@ -26,6 +26,7 @@ class StoreGraduateRequest extends FormRequest
                 'profile_text' => 'nullable|string',
                 'future_plans' => 'nullable|string',
                 'quote' => 'nullable|string|max:255',
+                'portrait' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
                 'consent_status' => [
                     'required',
                     'in:pending,granted,declined',

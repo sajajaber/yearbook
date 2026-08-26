@@ -1,14 +1,8 @@
 <x-app-layout>
-  <x-slot name="header">
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-      <h2>{{ __('Media Library') }}</h2>
-      <a href="{{ route('media.create') }}" style="padding: 8px 16px; background: #007bff; color: white; text-decoration: none; border-radius: 4px;">
-        {{ __('Upload New Media') }}
-      </a>
-    </div>
-  </x-slot>
+  <x-slot name="header"><div class="dashboard-heading media-heading"><div><p class="eyebrow">Yearbook office / assets</p><h1>Media library</h1></div><a href="{{ route('media.create') }}" class="button button-red"><span aria-hidden="true">+</span> Upload media</a></div></x-slot>
 
-  <div style="padding: 20px;">
+  <div class="dashboard-wrap media-wrap">
+    <div class="media-toolbar"><div><p class="eyebrow">Organized archive</p><h2>Every image, ready when you need it.</h2></div><div class="media-filters"><a href="{{ route('media.index') }}" class="filter-button {{ $filter === 'all' ? 'is-selected' : '' }}">All</a><a href="{{ route('media.index', ['filter' => 'graduate-portraits']) }}" class="filter-button {{ $filter === 'graduate-portraits' ? 'is-selected' : '' }}">Graduate profile photos</a></div></div>
     @if ($errors->any())
     <div style="margin-bottom: 20px; padding: 15px; background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; border-radius: 4px;">
       <ul>
@@ -36,12 +30,12 @@
       <p>{{ __('No media items yet. Start by uploading your first media.') }}</p>
     </div>
     @else
-    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+    <div class="media-grid">
       @foreach ($mediaItems as $mediaItem)
-      <div style="border: 1px solid #ddd; border-radius: 4px; overflow: hidden;">
-        <div style="background: #f5f5f5; display: flex; align-items: center; justify-content: center; min-height: 250px;">
+      <div class="media-card">
+        <div class="media-preview">
           @if ($mediaItem->type === 'image')
-          <img src="{{ asset('storage/' . $mediaItem->path) }}" alt="{{ $mediaItem->alt_text ?? $mediaItem->file_name }}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+          <img src="{{ asset('storage/' . $mediaItem->path) }}" alt="{{ $mediaItem->alt_text ?? $mediaItem->file_name }}">
           @elseif ($mediaItem->type === 'video')
           <video controls style="max-width: 100%; max-height: 100%;">
             <source src="{{ asset('storage/' . $mediaItem->path) }}">
@@ -54,31 +48,32 @@
           </a>
           @endif
         </div>
-        <div style="padding: 15px;">
-          <p style="margin: 0 0 10px 0; font-size: 12px; color: #666;">
+        <div class="media-card-body">
+          <p class="media-file-name">
             {{ $mediaItem->file_name }}
           </p>
           @if ($mediaItem->caption)
-          <p style="margin: 10px 0; font-weight: bold;">
+          <p class="media-caption">
             {{ $mediaItem->caption }}
           </p>
           @endif
           @if ($mediaItem->credit)
-          <p style="margin: 10px 0; font-size: 14px; color: #666;">
+          <p class="media-meta">
             {{ __('Credit') }}: {{ $mediaItem->credit }}
           </p>
           @endif
-          <p style="margin: 10px 0; font-size: 12px; color: #999;">
+          <p class="media-meta">
             {{ __('Uploaded') }}: {{ $mediaItem->created_at->format('M d, Y') }}
           </p>
-          <div style="margin-top: 15px; display: flex; gap: 10px;">
-            <a href="{{ route('media.edit', $mediaItem->id) }}" style="flex: 1; padding: 8px; background: #007bff; color: white; text-decoration: none; text-align: center; border-radius: 4px; font-size: 14px;">
+          @if ($mediaItem->portraitGraduates->isNotEmpty())<div class="portrait-links"><span>Graduate profile</span>@foreach ($mediaItem->portraitGraduates as $graduate)<a href="{{ route('graduates.edit', $graduate) }}">{{ $graduate->name }} <span aria-hidden="true">→</span></a>@endforeach</div>@endif
+          <div class="media-actions">
+            <a href="{{ route('media.edit', $mediaItem->id) }}" class="button button-navy">
               {{ __('Edit') }}
             </a>
-            <form action="{{ route('media.destroy', $mediaItem->id) }}" method="POST" style="flex: 1;" onsubmit="return confirm('{{ __('Are you sure?') }}');">
+            <form action="{{ route('media.destroy', $mediaItem->id) }}" method="POST" onsubmit="return confirm('Are you sure?');">
               @csrf
               @method('DELETE')
-              <button type="submit" style="width: 100%; padding: 8px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">
+              <button type="submit" class="action-button">
                 {{ __('Delete') }}
               </button>
             </form>

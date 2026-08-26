@@ -41,4 +41,9 @@ class Media extends Model
         return $this->belongsToMany(Graduate::class, 'graduate_media')
             ->withPivot('display_order');
     }
+
+    public function portraitGraduates()
+    {
+        return $this->hasMany(Graduate::class, 'portrait_media_id');
+    }
 }

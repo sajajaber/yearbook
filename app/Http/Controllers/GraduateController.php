@@ -10,6 +10,7 @@ use App\Models\Campus;
 use App\Models\Major;
 use App\Models\AuditLog;
 use App\Models\AiGeneration;
+use App\Models\Media;
 use App\Services\GraduateAiService;
 use App\Http\Requests\StoreGraduateRequest;
 use App\Http\Requests\UpdateGraduateRequest;
@@ -21,7 +22,9 @@ class GraduateController extends Controller
 
     public function index()
     {
-        $graduates = Graduate::all();
+        $graduates = Graduate::with(['school', 'major', 'campus', 'graduation', 'aiGenerations'])
+            ->orderBy('name')
+            ->get();
         return view('graduates.index', ['graduates' => $graduates]);
     }
 
@@ -43,6 +46,7 @@ class GraduateController extends Controller
     public function store(StoreGraduateRequest $request)
     {
         $graduate = Graduate::create($request->validated());
+        $this->savePortrait($graduate, $request);
         AuditLog::record('created', $graduate);
 
         $this->syncMediaWithOrder($graduate, request()->input('media_ids', []));
@@ -55,6 +59,7 @@ class GraduateController extends Controller
         $graduate = Graduate::findOrFail($id);
 
         $graduate->update($request->validated());
+        $this->savePortrait($graduate, $request);
         AuditLog::record('updated', $graduate);
 
         $this->syncMediaWithOrder($graduate, request()->input('media_ids', []));
@@ -82,6 +87,7 @@ class GraduateController extends Controller
     public function destroy(string $id)
     {
         $graduate = Graduate::findOrFail($id);
+        $graduate->update(['portrait_media_id' => null]);
         $graduate->delete();
         AuditLog::record('deleted', $graduate);
         return redirect()->route('graduates.index');
@@ -160,5 +166,28 @@ class GraduateController extends Controller
         return redirect()
             ->route('graduates.index')
             ->with('success', 'AI biography generated — pending review.');
+    }
+
+    private function savePortrait(Graduate $graduate, Request $request): void
+    {
+        if (! $request->hasFile('portrait')) {
+            return;
+        }
+
+        $portrait = $request->file('portrait');
+        $media = Media::create([
+            'file_name' => $portrait->getClientOriginalName(),
+            'path' => $portrait->store('media/portraits', 'public'),
+            'type' => 'image',
+            'caption' => $graduate->name . ' profile photo',
+            'alt_text' => 'Profile photo of ' . $graduate->name,
+            'credit' => null,
+            'tags' => ['graduate-portrait', 'profile-photo'],
+            'uploaded_by' => $request->user()->id,
+            'checksum' => md5_file($portrait->getRealPath()),
+        ]);
+
+        $graduate->update(['portrait_media_id' => $media->id]);
+        $graduate->media()->syncWithoutDetaching([$media->id => ['display_order' => 0]]);
     }
 }

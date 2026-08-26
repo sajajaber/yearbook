@@ -17,7 +17,9 @@ class GraduationController extends Controller
 
     public function index()
     {
-        $graduations = Graduation::all();
+        $graduations = Graduation::with(['academicYear', 'campuses', 'schools', 'media'])
+            ->orderByDesc('ceremony_date')
+            ->get();
         return view('graduations.index', ['graduations' => $graduations]);
     }
 

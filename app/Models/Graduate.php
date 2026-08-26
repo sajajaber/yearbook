@@ -9,9 +9,12 @@ use App\Models\School;
 use App\Models\Major;
 use App\Contracts\PublishableInterface;
 use App\Models\AiGeneration;
+use App\Models\Concerns\HasPublishingWorkflow;
 
 class Graduate extends Model implements PublishableInterface
 {
+  use HasPublishingWorkflow;
+
   protected $fillable = [
     'student_reference',
     'name',
@@ -87,5 +90,10 @@ class Graduate extends Model implements PublishableInterface
     return $this->belongsToMany(Media::class, 'graduate_media')
       ->withPivot('display_order')
       ->orderBy('graduate_media.display_order');
+  }
+
+  public function portraitMedia()
+  {
+    return $this->belongsTo(Media::class, 'portrait_media_id');
   }
 }

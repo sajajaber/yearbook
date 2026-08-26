@@ -10,6 +10,7 @@ class CampusSeeder extends Seeder
     public function run(): void
     {
         $campuses = [
+            ['name' => 'Beirut', 'code' => 'BEY'],
             ['name' => 'Saida', 'code' => 'SAI'],
             ['name' => 'Nabatieh', 'code' => 'NAB'],
             ['name' => 'Tripoli', 'code' => 'TRI'],

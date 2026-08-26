@@ -11,8 +11,13 @@ class MediaController extends Controller
 {
     public function index()
     {
-        $mediaItems = Media::all();
-        return view('media.index', ['mediaItems' => $mediaItems]);
+        $filter = request('filter', 'all');
+        $mediaItems = Media::with(['portraitGraduates', 'graduates'])
+            ->when($filter === 'graduate-portraits', fn ($query) => $query->whereHas('portraitGraduates'))
+            ->latest()
+            ->get();
+
+        return view('media.index', compact('mediaItems', 'filter'));
     }
 
     public function create()
