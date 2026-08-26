@@ -10,8 +10,6 @@ use App\Models\Campus;
 use App\Models\Major;
 use App\Models\AuditLog;
 use App\Models\AiGeneration;
-use App\Contracts\AiProviderInterface;
-use App\Services\GeminiAiService;
 use App\Services\GraduateAiService;
 use App\Http\Requests\StoreGraduateRequest;
 use App\Http\Requests\UpdateGraduateRequest;
@@ -131,14 +129,22 @@ class GraduateController extends Controller
         string $id,
         GraduateAiService $aiService
     ) {
-        $graduate = Graduate::findOrFail($id);
+        $graduate = Graduate::with(['major', 'school'])->findOrFail($id);
 
-        $generatedText = $aiService->draftBiography(
-            $graduate->name,
-            $graduate->major->name,
-            $graduate->school->name,
-            $graduate->achievements ?? []
-        );
+        try {
+            $generatedText = $aiService->draftBiography(
+                $graduate->name,
+                $graduate->major->name ?? '',
+                $graduate->school->name ?? '',
+                $graduate->achievements ?? []
+            );
+        } catch (\Throwable $e) {
+            AuditLog::record('ai_generation_failed', $graduate);
+
+            return redirect()
+                ->route('graduates.index')
+                ->with('error', 'AI biography generation failed. Please try again or contact an administrator.');
+        }
 
         AiGeneration::create([
             'content_type' => 'graduate_biography',
@@ -149,11 +155,10 @@ class GraduateController extends Controller
             'status' => 'pending_review',
         ]);
 
+        AuditLog::record('ai_generation_created', $graduate);
+
         return redirect()
             ->route('graduates.index')
-            ->with(
-                'success',
-                'AI biography generated, pending review.'
-            );
+            ->with('success', 'AI biography generated — pending review.');
     }
 }

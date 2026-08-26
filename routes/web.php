@@ -73,7 +73,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('users', UserController::class);
     });
 
-    Route::middleware(['auth', 'verified', 'role:admin,editor'])->group(function () {
+    Route::middleware(['auth', 'verified', 'role:admin,editor', 'throttle:6,1'])->group(function () {
         Route::post('events/{event}/generate-summary', [EventController::class, 'generateSummary'])
             ->name('events.generate-summary');
         Route::post('graduates/{graduate}/generate-biography', [GraduateController::class, 'generateBiography'])

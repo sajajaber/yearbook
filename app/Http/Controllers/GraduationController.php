@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Graduation;
 use App\Models\AcademicYear;
 use App\Models\Campus;
 use App\Models\School;
+use App\Models\Graduation;
 use App\Models\AuditLog;
-use App\Http\Requests\StoreGraduationRequest;
-use App\Http\Requests\UpdateGraduationRequest;
 use App\Http\Controllers\Concerns\SyncsOrderedMedia;
+use App\Http\Requests\UpdateGraduationRequest;
+use App\Http\Requests\StoreGraduationRequest;
 
 class GraduationController extends Controller
 {

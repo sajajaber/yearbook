@@ -3,10 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Graduation;
 use App\Models\Campus;
 use App\Models\School;
 use App\Models\Major;
-use App\Models\Graduation;
 use App\Contracts\PublishableInterface;
 use App\Models\AiGeneration;
 

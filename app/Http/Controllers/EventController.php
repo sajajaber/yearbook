@@ -18,7 +18,7 @@ use App\Http\Controllers\Concerns\SyncsOrderedMedia;
 class EventController extends Controller
 {
     use SyncsOrderedMedia;
-    
+
     public function index()
     {
         $events = Event::all();
@@ -138,11 +138,19 @@ class EventController extends Controller
     ) {
         $event = Event::findOrFail($id);
 
-        $generatedText = $aiService->summarizeEvent(
-            $event->title,
-            $event->description ?? '',
-            $event->event_date
-        );
+        try {
+            $generatedText = $aiService->summarizeEvent(
+                $event->title,
+                $event->description ?? '',
+                $event->event_date
+            );
+        } catch (\Throwable $e) {
+            AuditLog::record('ai_generation_failed', $event);
+
+            return redirect()
+                ->route('events.index')
+                ->with('error', 'AI summary generation failed. Please try again or contact an administrator.');
+        }
 
         AiGeneration::create([
             'content_type' => 'event_summary',
@@ -153,11 +161,10 @@ class EventController extends Controller
             'status' => 'pending_review',
         ]);
 
+        AuditLog::record('ai_generation_created', $event);
+
         return redirect()
             ->route('events.index')
-            ->with(
-                'success',
-                'AI summary generated — pending review.'
-            );
+            ->with('success', 'AI summary generated — pending review.');
     }
 }

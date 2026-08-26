@@ -4,6 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use App\Models\School;
+use App\Models\Campus;
+use App\Models\AcademicYear;
+use App\Models\Media;
 
 class Graduation extends Model
 {

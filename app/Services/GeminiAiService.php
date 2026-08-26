@@ -36,13 +36,20 @@ class GeminiAiService implements AiProviderInterface
         );
 
         if ($response->failed()) {
-            throw new \Exception(
-                'AI request failed: ' . $response->body()
+            throw new \RuntimeException(
+                'Gemini API request failed: ' . $response->body()
             );
         }
 
-        return $response->json(
-            'candidates.0.content.parts.0.text'
-        );
+        $text = $response->json('candidates.0.content.parts.0.text');
+
+        if (! is_string($text) || trim($text) === '') {
+            throw new \RuntimeException(
+                'Gemini returned no usable content (possibly blocked by safety filters or an unexpected response shape). Response: '
+                    . $response->body()
+            );
+        }
+
+        return $text;
     }
 }
