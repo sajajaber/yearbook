@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Graduation;
 use Illuminate\Http\Request;
 use App\Models\Graduate;
 use App\Models\School;
 use App\Models\Campus;
 use App\Models\Major;
-use App\Models\Graduation;
 use App\Models\AuditLog;
 use App\Models\AiGeneration;
 use App\Contracts\AiProviderInterface;

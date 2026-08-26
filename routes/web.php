@@ -84,6 +84,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('ai-generations', [AiGenerationController::class, 'index'])->name('ai-generations.index');
         Route::post('ai-generations/{aiGeneration}/review', [AiGenerationController::class, 'review'])->name('ai-generations.review');
     });
+
+    Route::post('graduations/{graduation}/unarchive', [GraduationController::class, 'unarchive'])
+        ->middleware('role:admin,editor')->name('graduations.unarchive');
 });
 
 require __DIR__ . '/auth.php';
