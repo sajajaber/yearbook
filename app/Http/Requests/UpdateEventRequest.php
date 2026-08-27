@@ -7,6 +7,14 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateEventRequest extends FormRequest
 {
+    protected function prepareForValidation(): void
+    {
+        if ($this->user()?->role?->role_name === 'editor') {
+            $event = $this->route('event');
+            $this->merge(['status' => $event?->status]);
+        }
+    }
+
     public function authorize(): bool
     {
         return true;

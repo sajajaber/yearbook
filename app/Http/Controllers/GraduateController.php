@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Graduation;
+use App\Models\AcademicYear;
 use Illuminate\Http\Request;
 use App\Models\Graduate;
 use App\Models\School;
@@ -25,7 +26,13 @@ class GraduateController extends Controller
         $graduates = Graduate::with(['school', 'major', 'campus', 'graduation', 'aiGenerations'])
             ->orderBy('name')
             ->get();
-        return view('graduates.index', ['graduates' => $graduates]);
+        return view('graduates.index', [
+            'graduates' => $graduates,
+            'schools' => School::where('status', 'active')->orderBy('name')->get(),
+            'campuses' => Campus::where('status', 'active')->orderBy('name')->get(),
+            'majors' => Major::orderBy('name')->get(),
+            'academicYears' => AcademicYear::where('status', '!=', 'archived')->orderByDesc('title')->get(),
+        ]);
     }
 
     public function create()
@@ -96,25 +103,31 @@ class GraduateController extends Controller
     public function submitForReview(string $id)
     {
         $graduate = Graduate::findOrFail($id);
-        $graduate->submitForReview();
+        if (! $graduate->submitForReview()) {
+            return redirect()->route('graduates.index')->with('error', 'The graduate could not be submitted for review.');
+        }
         AuditLog::record('submitted_for_review', $graduate);
-        return redirect()->route('graduates.index');
+        return redirect()->route('graduates.index')->with('success', 'Graduate submitted for review.');
     }
 
     public function approve(string $id)
     {
         $graduate = Graduate::findOrFail($id);
-        $graduate->approve();
+        if (! $graduate->approve()) {
+            return redirect()->route('graduates.index')->with('error', 'The graduate could not be approved.');
+        }
         AuditLog::record('approved', $graduate);
-        return redirect()->route('graduates.index');
+        return redirect()->route('graduates.index')->with('success', 'Graduate approved.');
     }
 
     public function reject(string $id)
     {
         $graduate = Graduate::findOrFail($id);
-        $graduate->reject();
+        if (! $graduate->reject()) {
+            return redirect()->route('graduates.index')->with('error', 'The graduate could not be rejected.');
+        }
         AuditLog::record('rejected', $graduate);
-        return redirect()->route('graduates.index');
+        return redirect()->route('graduates.index')->with('success', 'Graduate returned to draft.');
     }
 
     public function publish(string $id)
@@ -148,7 +161,7 @@ class GraduateController extends Controller
             AuditLog::record('ai_generation_failed', $graduate);
 
             return redirect()
-                ->route('graduates.index')
+                ->route('graduates.edit', $graduate)
                 ->with('error', 'AI biography generation failed. Please try again or contact an administrator.');
         }
 
@@ -164,7 +177,7 @@ class GraduateController extends Controller
         AuditLog::record('ai_generation_created', $graduate);
 
         return redirect()
-            ->route('graduates.index')
+            ->route('graduates.edit', $graduate)
             ->with('success', 'AI biography generated — pending review.');
     }
 

@@ -10,31 +10,34 @@ use Illuminate\Database\Eloquent\Model;
  */
 trait HasPublishingWorkflow
 {
-    protected string $statusColumn = 'status';
+    protected function statusColumn(): string
+    {
+        return 'status';
+    }
 
     public function scopeDraft(Builder $query): Builder
     {
-        return $query->where($this->statusColumn, 'draft');
+        return $query->where($this->statusColumn(), 'draft');
     }
 
     public function scopeReviewed(Builder $query): Builder
     {
-        return $query->where($this->statusColumn, 'reviewed');
+        return $query->where($this->statusColumn(), 'reviewed');
     }
 
     public function scopeApproved(Builder $query): Builder
     {
-        return $query->where($this->statusColumn, 'approved');
+        return $query->where($this->statusColumn(), 'approved');
     }
 
     public function scopePublished(Builder $query): Builder
     {
-        return $query->where($this->statusColumn, 'published');
+        return $query->where($this->statusColumn(), 'published');
     }
 
     public function scopeArchived(Builder $query): Builder
     {
-        return $query->where($this->statusColumn, 'archived');
+        return $query->where($this->statusColumn(), 'archived');
     }
 
     public function submitForReview(): bool
@@ -69,7 +72,7 @@ trait HasPublishingWorkflow
     protected function transitionTo(string $status): bool
     {
         /** @var \Illuminate\Database\Eloquent\Model $this */
-        return $this->update([$this->statusColumn => $status]);
+        return $this->update([$this->statusColumn() => $status]);
     }
 
     protected function guardPublish(): bool
@@ -79,6 +82,6 @@ trait HasPublishingWorkflow
 
     public function isPublished(): bool
     {
-        return $this->{$this->statusColumn} === 'published';
+        return $this->{$this->statusColumn()} === 'published';
     }
 }

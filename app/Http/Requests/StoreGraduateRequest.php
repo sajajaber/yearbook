@@ -7,6 +7,13 @@ use App\Rules\ConsentGrantedForPublish;
 
 class StoreGraduateRequest extends FormRequest
 {
+    protected function prepareForValidation(): void
+    {
+        if ($this->user()?->role?->role_name === 'editor') {
+            $this->merge(['consent_status' => 'pending', 'publish_status' => 'draft']);
+        }
+    }
+
     /* authorization check, separate from route middleware */
     public function authorize(): bool
     {
@@ -17,7 +24,7 @@ class StoreGraduateRequest extends FormRequest
     public function rules(): array
     {
         return [
-                'student_reference' => 'nullable|string|max:255',
+                'student_reference' => 'nullable|string|max:255|unique:graduates,student_reference' . ($this->route('graduate') ? ',' . $this->route('graduate')->id : ''),
                 'name' => 'required|string|max:255',
                 'school_id' => 'required|exists:schools,id',
                 'major_id' => 'required|exists:majors,id',

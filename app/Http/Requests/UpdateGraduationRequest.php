@@ -19,6 +19,8 @@ class UpdateGraduationRequest extends FormRequest
             'venue' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'status' => 'nullable|in:active,archived',
+            'school_ids' => 'nullable|array',
+            'school_ids.*' => 'integer|exists:schools,id',
         ];
     }
 }

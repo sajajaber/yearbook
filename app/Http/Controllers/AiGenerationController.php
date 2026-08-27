@@ -12,13 +12,16 @@ class AiGenerationController extends Controller
 {
     public function index(): View
     {
+        $contentType = request('type', 'all');
         $pending = AiGeneration::query()
             ->where('status', 'pending_review')
+            ->when(in_array($contentType, ['graduate_biography', 'event_summary'], true), fn ($query) => $query->where('content_type', $contentType))
             ->latest()
             ->get();
 
         return view('ai-generations.index', [
             'pending' => $pending,
+            'contentType' => $contentType,
         ]);
     }
 

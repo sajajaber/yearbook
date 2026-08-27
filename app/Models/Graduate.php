@@ -15,6 +15,11 @@ class Graduate extends Model implements PublishableInterface
 {
   use HasPublishingWorkflow;
 
+  protected function statusColumn(): string
+  {
+    return 'publish_status';
+  }
+
   protected $fillable = [
     'student_reference',
     'name',
@@ -80,6 +85,11 @@ class Graduate extends Model implements PublishableInterface
     return static::consentAllowsPublishing($this->consent_status);
   }
 
+  protected function guardPublish(): bool
+  {
+    return $this->canBePublished();
+  }
+
   public static function consentAllowsPublishing(?string $consentStatus): bool
   {
     return $consentStatus === 'granted';
@@ -96,4 +106,5 @@ class Graduate extends Model implements PublishableInterface
   {
     return $this->belongsTo(Media::class, 'portrait_media_id');
   }
+
 }

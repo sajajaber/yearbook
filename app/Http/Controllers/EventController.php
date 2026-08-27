@@ -21,8 +21,13 @@ class EventController extends Controller
 
     public function index()
     {
-        $events = Event::all();
-        return view('events.index', compact('events'));
+        $events = Event::with(['academicYear', 'category', 'campuses', 'schools', 'aiGenerations'])->get();
+        return view('events.index', [
+            'events' => $events,
+            'schools' => School::where('status', 'active')->orderBy('name')->get(),
+            'campuses' => Campus::where('status', 'active')->orderBy('name')->get(),
+            'academicYears' => AcademicYear::where('status', '!=', 'archived')->orderByDesc('title')->get(),
+        ]);
     }
 
     // shows the empty form (/events/create)

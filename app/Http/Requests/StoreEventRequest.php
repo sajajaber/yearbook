@@ -7,6 +7,13 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class StoreEventRequest extends FormRequest
 {
+    protected function prepareForValidation(): void
+    {
+        if ($this->user()?->role?->role_name === 'editor') {
+            $this->merge(['status' => 'draft']);
+        }
+    }
+
     /**
      * Determine if the user is authorized to make this request.
      */

@@ -5,7 +5,7 @@
                 <p class="eyebrow">Yearbook office / {{ now()->format('Y') }}</p>
                 <h1>Good morning, {{ Str::before(Auth::user()->name, ' ') }}.</h1>
             </div>
-            <a href="{{ route('graduates.create') }}" class="button button-red"><span aria-hidden="true">+</span> Add graduate</a>
+            @if (in_array(Auth::user()->role?->role_name, ['admin', 'editor']))<a href="{{ route('graduates.create') }}" class="button button-red"><span aria-hidden="true">+</span> Add graduate</a>@endif
         </div>
     </x-slot>
 
@@ -28,8 +28,7 @@
         <section class="stat-grid" aria-label="Yearbook totals">
             <a href="{{ route('graduates.index') }}" class="stat-card stat-card-featured"><span class="stat-label">Graduate profiles</span><strong>{{ number_format($totalGraduates) }}</strong><span class="stat-link">Manage profiles <span aria-hidden="true">→</span></span></a>
             <a href="{{ route('events.index') }}" class="stat-card"><span class="stat-label">Campus stories</span><strong>{{ number_format($totalEvents) }}</strong><span class="stat-link">Browse events <span aria-hidden="true">→</span></span></a>
-            <a href="{{ route('graduations.index') }}" class="stat-card"><span class="stat-label">Graduations</span><strong>{{ number_format($totalGraduations) }}</strong><span class="stat-link">View editions <span aria-hidden="true">→</span></span></a>
-            <a href="{{ route('media.index') }}" class="stat-card"><span class="stat-label">Media assets</span><strong>{{ number_format($totalMedia) }}</strong><span class="stat-link">Open library <span aria-hidden="true">→</span></span></a>
+            @if (in_array(Auth::user()->role?->role_name, ['admin', 'editor']))<a href="{{ route('graduations.index') }}" class="stat-card"><span class="stat-label">Graduations</span><strong>{{ number_format($totalGraduations) }}</strong><span class="stat-link">View editions <span aria-hidden="true">→</span></span></a><a href="{{ route('media.index') }}" class="stat-card"><span class="stat-label">Media assets</span><strong>{{ number_format($totalMedia) }}</strong><span class="stat-link">Open library <span aria-hidden="true">→</span></span></a>@else<div class="stat-card"><span class="stat-label">Graduations</span><strong>{{ number_format($totalGraduations) }}</strong></div><div class="stat-card"><span class="stat-label">Media assets</span><strong>{{ number_format($totalMedia) }}</strong></div>@endif
         </section>
 
         <section class="content-grid">
@@ -81,7 +80,7 @@
                     <div><strong>{{ $eventStatuses->get('draft')?->total ?? 0 }}</strong><span>Draft</span></div>
                     <div><strong>{{ $eventStatuses->get('reviewed')?->total ?? 0 }}</strong><span>Review</span></div>
                     <div><strong>{{ $eventStatuses->get('published')?->total ?? 0 }}</strong><span>Live</span></div>
-                </div><a href="{{ route('events.create') }}" class="button button-outline">Add an event <span aria-hidden="true">→</span></a>
+                </div>@if (in_array(Auth::user()->role?->role_name, ['admin', 'editor']))<a href="{{ route('events.create') }}" class="button button-outline">Add an event <span aria-hidden="true">→</span></a>@endif
             </div>
         </section>
     </div>
