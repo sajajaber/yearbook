@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Contracts\AiProviderInterface;
 use Illuminate\Support\Facades\Http;
+use App\Exceptions\AiServiceTimeoutException;
+use Illuminate\Http\Client\ConnectionException;
 
 class GeminiAiService implements AiProviderInterface
 {
@@ -18,11 +20,12 @@ class GeminiAiService implements AiProviderInterface
         // want to try it). Configurable so future deprecations are a
         // config/env change, not a code deploy.
         $this->model = config('services.gemini.model', 'gemini-3.6-flash');
+        $this->timeoutSeconds = (int) config('services.gemini.timeout', 30);
     }
 
     public function generate(string $prompt): string
     {
-        $response = Http::timeout(30)->post(
+        $response = Http::timeout($this->timeoutSeconds)->post(
             "https://generativelanguage.googleapis.com/v1beta/models/{$this->model}:generateContent?key={$this->apiKey}",
             [
                 'contents' => [

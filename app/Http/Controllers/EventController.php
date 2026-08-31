@@ -136,7 +136,6 @@ class EventController extends Controller
         return redirect()->route('events.index');
     }
 
-    // AI Integration 
     public function generateSummary(
         string $id,
         EventAiService $aiService
@@ -149,12 +148,28 @@ class EventController extends Controller
                 $event->description ?? '',
                 $event->event_date
             );
+        } catch (AiServiceTimeoutException $e) {
+            report($e);
+
+            AuditLog::record('ai_generation_timeout', $event);
+
+            return redirect()
+                ->route('events.index')
+                ->with(
+                    'error',
+                    'The AI summary request timed out: ' . $e->getMessage()
+                );
         } catch (\Throwable $e) {
+            report($e);
+
             AuditLog::record('ai_generation_failed', $event);
 
             return redirect()
                 ->route('events.index')
-                ->with('error', 'AI summary generation failed. Please try again or contact an administrator.');
+                ->with(
+                    'error',
+                    'AI error: ' . $e->getMessage()
+                );
         }
 
         AiGeneration::create([
@@ -170,6 +185,9 @@ class EventController extends Controller
 
         return redirect()
             ->route('events.index')
-            ->with('success', 'AI summary generated — pending review.');
+            ->with(
+                'success',
+                'AI summary generated — pending review.'
+            );
     }
 }

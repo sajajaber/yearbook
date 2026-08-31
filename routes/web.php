@@ -14,10 +14,14 @@ use App\Http\Controllers\MediaController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AiGenerationController;
+use App\Http\Controllers\SearchController;
 
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/search', [SearchController::class, 'index'])->name('search.index');
+Route::post('/search', [SearchController::class, 'search'])->name('search.perform');
 
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified', 'role:admin,editor,reviewer'])
