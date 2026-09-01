@@ -37,7 +37,7 @@
             </div>
             <div class="graduate-filters">
                 <button type="button" class="filter-button" :class="{ 'is-selected': status === 'all' }" @click="status = 'all'">All <span>{{ $graduates->count() }}</span></button>
-                @foreach (['draft' => 'Draft', 'reviewed' => 'Review', 'approved' => 'Approved', 'published' => 'Published'] as $key => $label)
+                @foreach (['draft' => 'Draft', 'reviewed' => 'Review', 'approved' => 'Approved', 'published' => 'Published', 'rejected' => 'Rejected'] as $key => $label)
                 <button type="button" class="filter-button" :class="{ 'is-selected': status === '{{ $key }}' }" @click="status = '{{ $key }}'">{{ $label }} <span>{{ $statusCounts->get($key, 0) }}</span></button>
                 @endforeach
             </div>
@@ -105,7 +105,8 @@
                         @if ($graduate->publish_status === 'draft')<form method="POST" action="{{ route('graduates.submit', $graduate) }}">@csrf<button type="submit" class="action-button action-primary">Submit for review</button></form>
                         @elseif ($graduate->publish_status === 'reviewed' && in_array(Auth::user()->role?->role_name, ['admin', 'reviewer']))<form method="POST" action="{{ route('graduates.approve', $graduate) }}">@csrf<button type="submit" class="action-button action-primary">Approve</button></form>
                         <form method="POST" action="{{ route('graduates.reject', $graduate) }}">@csrf<button type="submit" class="action-button">Reject</button></form>
-                        @elseif ($graduate->publish_status === 'approved' && $graduate->consent_status === 'granted' && in_array(Auth::user()->role?->role_name, ['admin', 'reviewer']))<form method="POST" action="{{ route('graduates.publish', $graduate) }}">@csrf<button type="submit" class="action-button action-primary">Publish profile</button></form>@endif
+                        @elseif ($graduate->publish_status === 'approved' && $graduate->consent_status === 'granted' && in_array(Auth::user()->role?->role_name, ['admin', 'reviewer']))<form method="POST" action="{{ route('graduates.publish', $graduate) }}">@csrf<button type="submit" class="action-button action-primary">Publish profile</button></form>
+                        @elseif ($graduate->publish_status === 'rejected')<form method="POST" action="{{ route('graduates.submit', $graduate) }}">@csrf<button type="submit" class="action-button action-primary">Resubmit for review</button></form>@endif
                     </div>
                 </article>
                 @empty

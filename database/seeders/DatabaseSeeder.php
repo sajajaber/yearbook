@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             GraduationSeeder::class,
             GraduateSeeder::class,
             EventSeeder::class,
+            MediaSeeder::class,
         ]);
     }
 }

@@ -58,7 +58,7 @@ class UpdateGraduateRequest extends FormRequest
 
             'publish_status' => [
                 'required',
-                'in:draft,reviewed,approved,published,archived',
+                'in:draft,reviewed,approved,published,archived,rejected',
                 new ConsentGrantedForPublish(
                     $this->input('consent_status')
                 ),

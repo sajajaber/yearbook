@@ -63,4 +63,12 @@ class Event extends Model implements PublishableInterface
             ->withPivot('display_order')
             ->orderBy('event_media.display_order');
     }
+
+    protected function casts(): array
+    {
+        return [
+            'event_date' => 'date',
+            'featured' => 'boolean',
+        ];
+    }
 }

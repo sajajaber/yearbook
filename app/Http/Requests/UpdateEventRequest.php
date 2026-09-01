@@ -29,7 +29,7 @@ class UpdateEventRequest extends FormRequest
             'event_date' => 'required|date',
             'description' => 'nullable|string',
             'location' => 'nullable|string|max:255',
-            'status' => 'required|in:draft,reviewed,approved,published,archived',
+            'status' => 'required|in:draft,reviewed,approved,published,archived,rejected',
             'featured' => 'nullable|boolean',
         ];
     }

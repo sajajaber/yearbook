@@ -1,5 +1,6 @@
 @php($isEdit = isset($graduate))
 @php($isAdmin = Auth::user()->role?->role_name === 'admin')
+@php($canManageAi = in_array(Auth::user()->role?->role_name, ['admin', 'editor']))
 
 <x-app-layout>
     <x-slot name="header">
@@ -53,7 +54,7 @@
                     <p class="eyebrow">Portrait</p>
                     <h2>{{ $isEdit && $graduate->portraitMedia ? 'Update grad photo' : 'Add grad photo' }}</h2>@if ($isEdit && $graduate->portraitMedia)<img class="portrait-preview" src="{{ asset('storage/' . $graduate->portraitMedia->path) }}" alt="{{ $graduate->portraitMedia->alt_text }}">@else<div class="portrait-placeholder">{{ collect(explode(' ', trim($graduate->name ?? 'GR')))->filter()->map(fn ($part) => strtoupper(substr($part, 0, 1)))->take(2)->implode('') }}</div>@endif<label class="upload-field"><span>Choose a new photo</span><input type="file" name="portrait" accept="image/jpeg,image/png,image/webp"><small>JPG, PNG, or WebP. Maximum 5 MB.</small></label>@error('portrait')<small class="form-error">{{ $message }}</small>@enderror<p class="upload-note">The photo will be added to the media library and linked to this graduate's profile.</p>
                 </section>
-                @if ($isEdit && !$graduate->aiGenerations->count())<section class="form-section form-section-compact">
+                @if ($isEdit && !$graduate->aiGenerations->count() && $canManageAi)<section class="form-section form-section-compact">
                     <div class="form-section-heading">
                         <p class="eyebrow">Writing assistant</p>
                         <h2>Build the biography.</h2>
@@ -80,8 +81,13 @@
                             <option value="reviewed" @selected(old('publish_status', $graduate->publish_status ?? '') === 'reviewed')>Reviewed</option>
                             <option value="approved" @selected(old('publish_status', $graduate->publish_status ?? '') === 'approved')>Approved</option>
                             <option value="published" @selected(old('publish_status', $graduate->publish_status ?? '') === 'published')>Published</option>
+                            <option value="rejected" @selected(old('publish_status', $graduate->publish_status ?? '') === 'rejected')>Rejected</option>
                             <option value="archived" @selected(old('publish_status', $graduate->publish_status ?? '') === 'archived')>Archived</option>
-                        </select></label>@else<label class="form-field"><span>Consent status</span><select disabled><option>{{ ucfirst($graduate->consent_status ?? 'pending') }}</option></select><small>Only an administrator can change permissions.</small></label><label class="form-field"><span>Publish status</span><select disabled><option>{{ ucfirst($graduate->publish_status ?? 'draft') }}</option></select></label>@endif
+                        </select></label>@else<label class="form-field"><span>Consent status</span><select disabled>
+                            <option>{{ ucfirst($graduate->consent_status ?? 'pending') }}</option>
+                        </select><small>Only an administrator can change permissions.</small></label><label class="form-field"><span>Publish status</span><select disabled>
+                            <option>{{ ucfirst($graduate->publish_status ?? 'draft') }}</option>
+                        </select></label>@endif
                 </section>
                 <div class="form-actions"><a href="{{ route('graduates.index') }}" class="button button-muted">Cancel</a><button type="submit" class="button button-navy">{{ $isEdit ? 'Update graduate' : 'Save graduate' }} <span aria-hidden="true">→</span></button></div>
             </aside>

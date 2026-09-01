@@ -40,6 +40,11 @@ trait HasPublishingWorkflow
         return $query->where($this->statusColumn(), 'archived');
     }
 
+    public function scopeRejected(Builder $query): Builder
+    {
+        return $query->where($this->statusColumn(), 'rejected');
+    }
+
     public function submitForReview(): bool
     {
         return $this->transitionTo('reviewed');
@@ -52,7 +57,7 @@ trait HasPublishingWorkflow
 
     public function reject(): bool
     {
-        return $this->transitionTo('draft');
+        return $this->transitionTo('rejected');
     }
 
     public function publish(): bool

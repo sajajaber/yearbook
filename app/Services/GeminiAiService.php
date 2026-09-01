@@ -7,10 +7,12 @@ use Illuminate\Support\Facades\Http;
 use App\Exceptions\AiServiceTimeoutException;
 use Illuminate\Http\Client\ConnectionException;
 
+
 class GeminiAiService implements AiProviderInterface
 {
     protected string $apiKey;
     protected string $model;
+    protected int $timeoutSeconds;
 
     public function __construct()
     {
@@ -25,18 +27,23 @@ class GeminiAiService implements AiProviderInterface
 
     public function generate(string $prompt): string
     {
-        $response = Http::timeout($this->timeoutSeconds)->post(
-            "https://generativelanguage.googleapis.com/v1beta/models/{$this->model}:generateContent?key={$this->apiKey}",
-            [
-                'contents' => [
-                    [
-                        'parts' => [
-                            ['text' => $prompt]
+
+        try {
+            $response = Http::timeout($this->timeoutSeconds)->post(
+                "https://generativelanguage.googleapis.com/v1beta/models/{$this->model}:generateContent?key={$this->apiKey}",
+                [
+                    'contents' => [
+                        [
+                            'parts' => [
+                                ['text' => $prompt]
+                            ],
                         ],
                     ],
-                ],
-            ]
-        );
+                ]
+            );
+        } catch (ConnectionException $e) {
+            throw new AiServiceTimeoutException('The AI service did not respond in time. Please try again.', previous: $e);
+        }
 
         if ($response->failed()) {
             throw new \RuntimeException(

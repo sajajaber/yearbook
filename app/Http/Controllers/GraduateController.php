@@ -24,8 +24,13 @@ class GraduateController extends Controller
     public function index()
     {
         $graduates = Graduate::with(['school', 'major', 'campus', 'graduation', 'aiGenerations'])
+            ->when(
+                auth()->user()->role?->role_name === 'reviewer',
+                fn($query) => $query->where('publish_status', '!=', 'draft')
+            )
             ->orderBy('name')
             ->get();
+
         return view('graduates.index', [
             'graduates' => $graduates,
             'schools' => School::where('status', 'active')->orderBy('name')->get(),

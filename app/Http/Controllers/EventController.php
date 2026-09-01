@@ -21,7 +21,13 @@ class EventController extends Controller
 
     public function index()
     {
-        $events = Event::with(['academicYear', 'category', 'campuses', 'schools', 'aiGenerations'])->get();
+        $events = Event::with(['academicYear', 'category', 'campuses', 'schools', 'aiGenerations'])
+            ->when(
+                auth()->user()->role?->role_name === 'reviewer',
+                fn($query) => $query->where('status', '!=', 'draft')
+            )
+            ->get();
+
         return view('events.index', [
             'events' => $events,
             'schools' => School::where('status', 'active')->orderBy('name')->get(),

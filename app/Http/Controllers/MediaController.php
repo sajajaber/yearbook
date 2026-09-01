@@ -12,12 +12,24 @@ class MediaController extends Controller
     public function index()
     {
         $filter = request('filter', 'all');
+        $search = request('search', '');
+        $sortBy = request('sort', 'latest');
+        
         $mediaItems = Media::with(['portraitGraduates', 'graduates'])
             ->when($filter === 'graduate-portraits', fn ($query) => $query->whereHas('portraitGraduates'))
-            ->latest()
-            ->get();
+            ->when($search, fn ($query) => 
+                $query->where('file_name', 'like', "%{$search}%")
+                    ->orWhere('caption', 'like', "%{$search}%")
+                    ->orWhere('alt_text', 'like', "%{$search}%")
+            )
+            ->when($sortBy === 'oldest', fn ($query) => $query->oldest())
+            ->when($sortBy === 'name', fn ($query) => $query->orderBy('file_name'))
+            ->when($sortBy === 'latest', fn ($query) => $query->latest())
+            ->paginate(12);
 
-        return view('media.index', compact('mediaItems', 'filter'));
+        $totalMedia = Media::count();
+
+        return view('media.index', compact('mediaItems', 'filter', 'search', 'sortBy', 'totalMedia'));
     }
 
     public function create()
