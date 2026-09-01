@@ -28,7 +28,7 @@ class SchoolController extends Controller
         ]);
 
         $school = School::create($validated);
-        AuditLog::record('cretaed', $school);
+        AuditLog::record('created', $school);
         return redirect()->route('schools.index');
     }
 

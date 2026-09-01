@@ -29,18 +29,24 @@ class GeminiAiService implements AiProviderInterface
     {
 
         try {
-            $response = Http::timeout($this->timeoutSeconds)->post(
-                "https://generativelanguage.googleapis.com/v1beta/models/{$this->model}:generateContent?key={$this->apiKey}",
-                [
-                    'contents' => [
-                        [
-                            'parts' => [
-                                ['text' => $prompt]
+            // Key goes in the x-goog-api-key header rather than the query
+            // string, so it doesn't end up captured in web-server/proxy
+            // access logs (query strings are logged by default; headers
+            // generally aren't unless explicitly configured to be).
+            $response = Http::timeout($this->timeoutSeconds)
+                ->withHeaders(['x-goog-api-key' => $this->apiKey])
+                ->post(
+                    "https://generativelanguage.googleapis.com/v1beta/models/{$this->model}:generateContent",
+                    [
+                        'contents' => [
+                            [
+                                'parts' => [
+                                    ['text' => $prompt]
+                                ],
                             ],
                         ],
-                    ],
-                ]
-            );
+                    ]
+                );
         } catch (ConnectionException $e) {
             throw new AiServiceTimeoutException('The AI service did not respond in time. Please try again.', previous: $e);
         }

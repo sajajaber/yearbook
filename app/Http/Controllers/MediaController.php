@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Media;
 use App\Models\AuditLog;
+use App\Services\MediaTypeResolver;
+use App\Http\Requests\StoreMediaRequest;
 use Illuminate\Support\Facades\Storage;
 
 class MediaController extends Controller
@@ -37,17 +39,25 @@ class MediaController extends Controller
         return view('media.create');
     }
 
-    public function store(Request $request)
+    public function store(StoreMediaRequest $request, MediaTypeResolver $resolver)
     {
-        $validated = $request->validate([
-            'file' => 'required|file|mimes:jpg,jpeg,png,webp|max:5120',
-            'caption' => 'nullable|string|max:255',
-            'alt_text' => 'nullable|string|max:255',
-            'credit' => 'nullable|string|max:255',
-        ]);
+        $validated = $request->validated();
 
         $uploadedFile = $request->file('file');
-        $path = $uploadedFile->store('media', 'public');
+
+        // StoreMediaRequest resolves the type (image/video/document) during
+        // validation so the mimes/size rules match what was actually
+        // uploaded; reuse that same resolution here rather than guessing
+        // again, and fail closed if it somehow comes back empty.
+        $type = $request->resolvedType() ?? $resolver->resolveType($uploadedFile);
+
+        if (! $type) {
+            return redirect()
+                ->route('media.index')
+                ->with('error', 'Unsupported file type.');
+        }
+
+        $path = $uploadedFile->store("media/{$type}s", 'public');
 
         $userId = auth()->id();
         if (!$userId) {
@@ -58,7 +68,7 @@ class MediaController extends Controller
             $media = Media::create([
                 'file_name' => $uploadedFile->getClientOriginalName(),
                 'path' => $path,
-                'type' => 'image',
+                'type' => $type,
                 'caption' => $validated['caption'] ?? null,
                 'alt_text' => $validated['alt_text'] ?? null,
                 'credit' => $validated['credit'] ?? null,
