@@ -28,13 +28,21 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8',
             'role_id' => 'required|exists:roles,id',
-            'status' => 'required|in:active,suspended',
         ]);
 
-        $user = User::create($validated);
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => $validated['password'],
+            'role_id' => $validated['role_id'],
+            'status' => 'active',
+        ]);
+
         AuditLog::record('created', $user);
 
-        return redirect()->route('users.index');
+        return redirect()->back()
+            ->with('success', 'User added.')
+            ->with('active_tab', $request->input('tab', 'users'));
     }
 
     public function edit(string $id)
@@ -63,7 +71,9 @@ class UserController extends Controller
         $user->update($validated);
         AuditLog::record('updated', $user);
 
-        return redirect()->route('users.index');
+        return redirect()->back()
+            ->with('success', 'User updated.')
+            ->with('active_tab', $request->input('tab', 'users'));
     }
 
     public function destroy(string $id)
@@ -72,6 +82,8 @@ class UserController extends Controller
         $user->delete();
         AuditLog::record('deleted', $user);
 
-        return redirect()->route('users.index');
+        return redirect()->back()
+            ->with('success', 'User deleted.')
+            ->with('active_tab', request()->input('tab', 'users'));
     }
 }

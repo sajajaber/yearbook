@@ -1,29 +1,69 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Profile') }}
-        </h2>
-    </x-slot>
-
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
-                <div class="max-w-xl">
-                    @include('profile.partials.update-profile-information-form')
-                </div>
-            </div>
-
-            <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
-                <div class="max-w-xl">
-                    @include('profile.partials.update-password-form')
-                </div>
-            </div>
-
-            <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
-                <div class="max-w-xl">
-                    @include('profile.partials.delete-user-form')
+        <div class="page-header">
+            <div class="page-header-inner dashboard-heading">
+                <div>
+                    <p class="eyebrow">Account</p>
+                    <h1>Profile Settings</h1>
                 </div>
             </div>
         </div>
+    </x-slot>
+
+    <div class="site-shell">
+        <main class="page-content dashboard-wrap">
+            <div class="profile-grid">
+
+                {{-- Profile Information --}}
+                <section class="form-section">
+                    @include('profile.partials.update-profile-information-form')
+                </section>
+
+                {{-- Update Password --}}
+                <section class="form-section">
+                    @include('profile.partials.update-password-form')
+                </section>
+
+            </div>
+        </main>
     </div>
+
 </x-app-layout>
+
+<style>
+    .profile-grid {
+        display: grid;
+        gap: 24px;
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .profile-grid .form-section {
+        min-width: 0;
+    }
+
+    .profile-grid .form-section>section {
+        min-width: 0;
+    }
+
+    .profile-danger {
+        border-color: #e7b7a5;
+    }
+
+    .profile-danger h2 {
+        color: #8b3a0d;
+    }
+
+    .profile-danger p {
+        color: var(--ink-soft);
+    }
+
+    .profile-danger .danger-heading {
+        border-bottom-color: #ead8cb;
+    }
+
+    @media (max-width: 600px) {
+        .profile-grid {
+            gap: 18px;
+        }
+    }
+</style>

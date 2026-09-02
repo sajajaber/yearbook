@@ -139,7 +139,7 @@
 
         @if($graduates->count() > 0)
             <p style="color: var(--ink-soft); font-size: 0.95rem; margin-bottom: 20px;">
-                Showing {{ $graduates->from() }}-{{ $graduates->to() }} of {{ $graduates->total() }} graduates
+                Showing {{ $graduates->firstItem() }} to {{ $graduates->lastItem() }} of {{ $graduates->total() }} graduates
             </p>
 
             <div class="grid grid-4">

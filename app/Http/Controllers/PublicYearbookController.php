@@ -170,8 +170,8 @@ class PublicYearbookController extends Controller
 
         // Get related events
         $relatedEvents = Event::where('status', 'published')
-            ->where('id', '!=', $event->id)
-            ->where('event_category_id', $event->event_category_id)
+        ->where('id', '!=', $event->id)
+        ->where('category_id', $event->event_category_id)
             ->latest('event_date')
             ->limit(4)
             ->with(['media'])

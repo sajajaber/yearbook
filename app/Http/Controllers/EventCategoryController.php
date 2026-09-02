@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\EventCategory;
 use Illuminate\Http\Request;
 use App\Models\AuditLog;
+
 class EventCategoryController extends Controller
 {
     public function index()
@@ -28,7 +29,9 @@ class EventCategoryController extends Controller
         $eventCategory = EventCategory::create($validated);
         AuditLog::record('created', $eventCategory);
 
-        return redirect()->route('event-categories.index');
+        return redirect()->back()
+            ->with('success', 'Category added.')
+            ->with('active_tab', $request->input('tab', 'categories'));
     }
 
     public function update(Request $request, string $id)
@@ -43,7 +46,9 @@ class EventCategoryController extends Controller
         $eventCategory->update($validated);
         AuditLog::record('updated', $eventCategory);
 
-        return redirect()->route('event-categories.index');
+        return redirect()->back()
+            ->with('success', 'Category updated.')
+            ->with('active_tab', $request->input('tab', 'categories'));
     }
 
     public function show(string $id)
@@ -62,6 +67,8 @@ class EventCategoryController extends Controller
         $eventCategory = EventCategory::findOrFail($id);
         $eventCategory->delete();
         AuditLog::record('deleted', $eventCategory);
-        return redirect()->route('event-categories.index');
+        return redirect()->back()
+            ->with('success', 'Category deleted.')
+            ->with('active_tab', request()->input('tab', 'categories'));
     }
 }

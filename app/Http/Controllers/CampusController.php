@@ -30,7 +30,9 @@ class CampusController extends Controller
         $campus = Campus::create($validated);
         AuditLog::record('created', $campus);
 
-        return redirect()->route('campuses.index');
+        return redirect()->back()
+            ->with('success', 'Campus added.')
+            ->with('active_tab', $request->input('tab', 'campuses'));
     }
 
     public function show(string $id)
@@ -57,7 +59,9 @@ class CampusController extends Controller
         $campus->update($validated);
         AuditLog::record('updated', $campus);
 
-        return redirect()->route('campuses.index');
+        return redirect()->back()
+            ->with('success', 'Campus updated.')
+            ->with('active_tab', $request->input('tab', 'campuses'));
     }
 
     public function destroy(string $id)
@@ -66,6 +70,8 @@ class CampusController extends Controller
         $campus->delete();
         AuditLog::record('deleted', $campus);
 
-        return redirect()->route('campuses.index');
+        return redirect()->back()
+            ->with('success', 'Campus deleted.')
+            ->with('active_tab', 'campuses');
     }
 }

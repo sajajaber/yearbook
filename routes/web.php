@@ -16,9 +16,16 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\AiGenerationController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\PublicYearbookController;
+use App\Http\Controllers\SettingsController;
 
 Route::get('/', function () {
-  return view('welcome');
+  // Redirect to the dashboard if the user is authenticated, otherwise redirect to the public yearbook
+  return auth()->check() ? redirect()->route('dashboard') : redirect()->route('public.index');
+});
+
+Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
+    Route::get('settings', [SettingsController::class, 'index'])->name('settings.index');
+    // ...existing resource routes stay exactly as they are
 });
 
 Route::get('/search', [SearchController::class, 'index'])->name('search.index');

@@ -32,16 +32,20 @@ class AcademicYearController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'required|string|max:255|unique:academic_years,title',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after:start_date',
             'status' => 'required|in:draft,active,archived',
         ]);
 
+        if ($validated['status'] === 'active') {
+            $this->ensureNoOtherActiveYear();
+        }
+
         $academicYear = AcademicYear::create($validated);
         AuditLog::record('created', $academicYear);
 
-        return redirect()->route('academic-years.index');
+        return redirect()->back()->with('success', 'Academic year added.');
     }
 
     public function update(Request $request, string $id)
@@ -49,18 +53,53 @@ class AcademicYearController extends Controller
         $academicYear = AcademicYear::findOrFail($id);
 
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'required|string|max:255|unique:academic_years,title,' . $id,
             'start_date' => 'required|date',
             'end_date' => 'required|date|after:start_date',
             'status' => 'required|in:draft,active,archived',
         ]);
 
+        if ($validated['status'] === 'active') {
+            $this->ensureNoOtherActiveYear($id);
+        }
+
         $academicYear->update($validated);
         AuditLog::record('updated', $academicYear);
 
-        return redirect()->route('academic-years.index');
+        return redirect()->back()->with('success', 'Academic year updated.');
     }
 
+    public function destroy(string $id)
+    {
+        $academicYear = AcademicYear::findOrFail($id);
+
+        try {
+            $academicYear->delete();
+        } catch (\Illuminate\Database\QueryException $e) {
+            if ($e->getCode() === '23000') {
+                return redirect()->back()->with('error', 'This academic year cannot be deleted because it still has events, graduations, or graduates linked to it. Archive it instead, or remove those records first.');
+            }
+
+            throw $e;
+        }
+
+        AuditLog::record('deleted', $academicYear);
+
+        return redirect()->back()->with('success', 'Academic year deleted.');
+    }
+
+    private function ensureNoOtherActiveYear(?string $excludeId = null): void
+    {
+        $alreadyActive = AcademicYear::where('status', 'active')
+            ->when($excludeId, fn($query) => $query->where('id', '!=', $excludeId))
+            ->exists();
+
+        if ($alreadyActive) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'status' => 'Another academic year is already active. Archive or change it before activating this one.',
+            ]);
+        }
+    }
     /**
      * Display the specified resource.
      */
@@ -77,16 +116,5 @@ class AcademicYearController extends Controller
         $academicYear = AcademicYear::findOrFail($id);
 
         return view('academic-years.edit', ['academicYear' => $academicYear]);
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        $academicYear = AcademicYear::findOrFail($id);
-        $academicYear->delete();
-        AuditLog::record('deleted', $academicYear);
-        return redirect()->route('academic-years.index');
     }
 }

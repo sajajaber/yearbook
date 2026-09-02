@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Major;
 use App\Models\School;
 use App\Models\AuditLog;
+
 class MajorController extends Controller
 {
     public function index()
@@ -44,7 +45,9 @@ class MajorController extends Controller
 
         $major = Major::create($validated);
         AuditLog::record('created', $major);
-        return redirect()->route('majors.index');
+        return redirect()->back()
+            ->with('success', 'Major added.')
+            ->with('active_tab', $request->input('tab', 'majors'));
     }
 
     public function update(Request $request, string $id)
@@ -59,7 +62,9 @@ class MajorController extends Controller
 
         $major->update($validated);
         AuditLog::record('updated', $major);
-        return redirect()->route('majors.index');
+        return redirect()->back()
+            ->with('success', 'Major added.')
+            ->with('active_tab', $request->input('tab', 'majors'));
     }
 
     public function destroy(string $id)
@@ -67,6 +72,8 @@ class MajorController extends Controller
         $major = Major::findOrFail($id);
         $major->delete();
         AuditLog::record('deleted', $major);
-        return redirect()->route('majors.index');
+        return redirect()->back()
+            ->with('success', 'Major deleted.')
+            ->with('active_tab', request()->input('tab', 'majors'));
     }
 }

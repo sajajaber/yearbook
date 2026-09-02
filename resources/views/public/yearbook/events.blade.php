@@ -206,7 +206,7 @@
         <!-- Results -->
         @if($events->count() > 0)
             <div class="results-info">
-                Showing {{ $events->from() }} - {{ $events->to() }} of {{ $events->total() }} events
+                Showing {{ $events->firstItem() }} to {{ $events->lastItem() }} of {{ $events->total() }} events
             </div>
 
             <div class="grid grid-1" style="gap: 20px;">

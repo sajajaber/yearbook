@@ -18,6 +18,9 @@
                     <a href="{{ route('events.index') }}" class="nav-item {{ request()->routeIs('events.*') ? 'is-active' : '' }}">Events</a>
                     <a href="{{ route('media.index') }}" class="nav-item {{ request()->routeIs('media.*') ? 'is-active' : '' }}">Media</a>
                     @if (in_array(Auth::user()->role?->role_name, ['admin', 'reviewer']))<a href="{{ route('ai-generations.index') }}" class="nav-item {{ request()->routeIs('ai-generations.*') ? 'is-active' : '' }}">AI review</a>@endif
+                    @if (in_array(Auth::user()->role?->role_name, ['admin']))
+                    <a href="{{ route('settings.index') }}" class="nav-item {{ request()->routeIs('settings.*') ? 'is-active' : '' }}">Settings</a>
+                    @endif
                 </div>
             </div>
 
@@ -46,7 +49,7 @@
                             @csrf
 
                             <x-dropdown-link :href="route('logout')"
-                                    onclick="event.preventDefault();
+                                onclick="event.preventDefault();
                                                 this.closest('form').submit();">
                                 {{ __('Log Out') }}
                             </x-dropdown-link>
@@ -93,7 +96,7 @@
                     @csrf
 
                     <x-responsive-nav-link :href="route('logout')"
-                            onclick="event.preventDefault();
+                        onclick="event.preventDefault();
                                         this.closest('form').submit();">
                         {{ __('Log Out') }}
                     </x-responsive-nav-link>

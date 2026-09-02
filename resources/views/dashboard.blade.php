@@ -3,7 +3,7 @@
         <div class="dashboard-heading">
             <div>
                 <p class="eyebrow">Yearbook office / {{ now()->format('Y') }}</p>
-                <h1>Good morning, {{ Str::before(Auth::user()->name, ' ') }}.</h1>
+                <h1>Hello, {{ Str::before(Auth::user()->name, ' ') }}.</h1>
             </div>
             @if (in_array(Auth::user()->role?->role_name, ['admin', 'editor']))<a href="{{ route('graduates.create') }}" class="button button-red"><span aria-hidden="true">+</span> Add graduate</a>@endif
         </div>

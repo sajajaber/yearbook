@@ -29,7 +29,9 @@ class SchoolController extends Controller
 
         $school = School::create($validated);
         AuditLog::record('created', $school);
-        return redirect()->route('schools.index');
+        return redirect()->back()
+            ->with('success', 'School added.')
+            ->with('active_tab', $request->input('tab', 'schools'));
     }
 
     public function show(string $id)
@@ -56,7 +58,9 @@ class SchoolController extends Controller
         $school->update($validated);
         AuditLog::record('updated', $school);
 
-        return redirect()->route('schools.index');
+        return redirect()->back()
+            ->with('success', 'School updated.')
+            ->with('active_tab', $request->input('tab', 'schools'));
     }
 
     public function destroy(string $id)
@@ -64,6 +68,8 @@ class SchoolController extends Controller
         $school = School::findOrFail($id);
         $school->delete();
         AuditLog::record('deleted', $school);
-        return redirect()->route('schools.index');
+        return redirect()->back()
+            ->with('success', 'School deleted.')
+            ->with('active_tab', request()->input('tab', 'schools'));
     }
 }

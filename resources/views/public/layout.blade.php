@@ -12,17 +12,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
 
-    <!-- Base app styles (defines --ink, --paper, --red, etc.) -->
+    
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
-        /* -----------------------------------------------------------
-           Public yearbook site base styles.
-           Relies on the CSS custom properties defined in app.css
-           (--ink, --ink-soft, --paper, --white, --line, --red, --gold).
-           Individual pages layer page-specific rules on top via
-           the @section('extra-css') stack.
-           ----------------------------------------------------------- */
 
         .site-header {
             background: var(--white);

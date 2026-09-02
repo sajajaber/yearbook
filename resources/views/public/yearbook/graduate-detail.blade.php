@@ -309,7 +309,7 @@
                 <div class="section-card">
                     <h2>Academic Achievements</h2>
                     <ul class="achievements-list">
-                        @foreach(array_filter(explode("\n", $graduate->achievements)) as $achievement)
+                        @foreach(array_filter($graduate->achievements) as $achievement)
                         <li>{{ trim($achievement) }}</li>
                         @endforeach
                     </ul>
@@ -321,7 +321,7 @@
                 <div class="section-card">
                     <h2>University Activities</h2>
                     <ul class="achievements-list">
-                        @foreach(array_filter(explode("\n", $graduate->activities)) as $activity)
+                        @foreach(array_filter($graduate->activities) as $activity)
                         <li>{{ trim($activity) }}</li>
                         @endforeach
                     </ul>
@@ -332,7 +332,7 @@
                 @if($graduate->projects)
                 <div class="section-card">
                     <h2>Projects & Research</h2>
-                    <p>{!! nl2br(e($graduate->projects)) !!}</p>
+                    <p>{!! nl2br(e(implode(" ", $graduate->projects))) !!}</p>
                 </div>
                 @endif
 
@@ -340,7 +340,7 @@
                 @if($graduate->internships)
                 <div class="section-card">
                     <h2>Professional Experience</h2>
-                    <p>{!! nl2br(e($graduate->internships)) !!}</p>
+                    <p>{!! nl2br(e(implode(" ", $graduate->internships))) !!}</p>
                 </div>
                 @endif
 
