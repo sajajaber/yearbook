@@ -443,9 +443,6 @@
                 <h2>Configure the reference data<br>everything else is built on.</h2>
                 <p>Academic years, campuses, schools, majors, and event categories — the shared vocabulary behind every record in the yearbook.</p>
             </div>
-            <div class="settings-intro-stats">
-                <div><strong>{{ $totalItems }}</strong><span>configured<br>items</span></div>
-            </div>
         </section>
 
         @if (session('success') || session('error'))

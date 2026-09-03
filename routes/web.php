@@ -23,6 +23,10 @@ Route::get('/', function () {
   return auth()->check() ? redirect()->route('dashboard') : redirect()->route('public.index');
 });
 
+Route::get('/', function () {
+    return view('welcome');
+});
+
 Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
     Route::get('settings', [SettingsController::class, 'index'])->name('settings.index');
     // ...existing resource routes stay exactly as they are

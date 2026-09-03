@@ -1,200 +1,47 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<x-guest-layout>
+    <!-- Session Status -->
+    <x-auth-session-status class="mb-4" :status="session('status')" />
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <form method="POST" action="{{ route('login') }}">
+        @csrf
 
-    <title>{{ config('app.name', 'Yearbook') }} - Login</title>
+        <!-- Email Address -->
+        <div>
+            <x-input-label for="email" :value="__('Email')" />
+            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
+            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+        </div>
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
+        <!-- Password -->
+        <div class="mt-4">
+            <x-input-label for="password" :value="__('Password')" />
 
-<body>
-    <main class="login-page">
-        <div class="login-panel">
+            <x-text-input id="password" class="block mt-1 w-full"
+                            type="password"
+                            name="password"
+                            required autocomplete="current-password" />
 
-            <div class="login-header">
-                <p class="eyebrow">Yearbook Administration</p>
+            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+        </div>
 
-                <h1>Welcome Back</h1>
+        <!-- Remember Me -->
+        <div class="block mt-4">
+            <label for="remember_me" class="inline-flex items-center">
+                <input id="remember_me" type="checkbox" class="rounded dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800" name="remember">
+                <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">{{ __('Remember me') }}</span>
+            </label>
+        </div>
 
-                <p class="login-description">
-                    Sign in to access the yearbook administration portal.
-                </p>
-            </div>
-
-            @if (session('status'))
-            <div class="notice notice-success">
-                {{ session('status') }}
-            </div>
+        <div class="flex items-center justify-end mt-4">
+            @if (Route::has('password.request'))
+                <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('password.request') }}">
+                    {{ __('Forgot your password?') }}
+                </a>
             @endif
 
-            <form method="POST" action="{{ route('login') }}" class="login-form">
-                @csrf
-
-                <div class="form-field">
-                    <label for="email">Email</label>
-
-                    <input
-                        id="email"
-                        name="email"
-                        type="email"
-                        value="{{ old('email') }}"
-                        required
-                        autofocus
-                        autocomplete="username">
-
-                    @error('email')
-                    <span class="form-error">{{ $message }}</span>
-                    @enderror
-                </div>
-
-                <div class="form-field">
-                    <label for="password">Password</label>
-
-                    <input
-                        id="password"
-                        name="password"
-                        type="password"
-                        required
-                        autocomplete="current-password">
-
-                    @error('password')
-                    <span class="form-error">{{ $message }}</span>
-                    @enderror
-                </div>
-
-                <div class="login-options">
-                    <label for="remember_me" class="remember-option">
-                        <input
-                            id="remember_me"
-                            type="checkbox"
-                            name="remember">
-
-                        <span>Remember me</span>
-                    </label>
-
-                    @if (Route::has('password.request'))
-                    <a
-                        href="{{ route('password.request') }}"
-                        class="login-forgot">
-                        Forgot your password?
-                    </a>
-                    @endif
-                </div>
-
-                <button type="submit" class="button button-navy login-button">
-                    Log in
-                </button>
-            </form>
-
+            <x-primary-button class="ms-3">
+                {{ __('Log in') }}
+            </x-primary-button>
         </div>
-    </main>
-</body>
-
-</html>
-
-
-<style>
-    /* =========================
-   Login
-   ========================= */
-
-    .login-page {
-        min-height: 100vh;
-        display: grid;
-        place-items: center;
-        padding: var(--space-page);
-        background: var(--paper);
-    }
-
-    .login-panel {
-        width: min(100%, 460px);
-        background: var(--white);
-        border: 1px solid var(--line);
-        padding: 36px;
-    }
-
-    .login-header {
-        margin-bottom: 28px;
-        padding-bottom: 22px;
-        border-bottom: 1px solid var(--line);
-    }
-
-    .login-header h1 {
-        margin: 0;
-        color: var(--ink);
-        font-family: "Merriweather", Georgia, serif;
-        font-size: 32px;
-        font-weight: 700;
-    }
-
-    .login-description {
-        margin: 10px 0 0;
-        color: var(--ink-soft);
-        font-size: 12px;
-        line-height: 1.6;
-    }
-
-    .login-form {
-        display: grid;
-        gap: 18px;
-    }
-
-    .login-options {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 16px;
-    }
-
-    .remember-option {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        color: var(--ink-soft);
-        cursor: pointer;
-        font-size: 11px;
-        font-weight: 600;
-    }
-
-    .remember-option input {
-        width: 15px;
-        height: 15px;
-        margin: 0;
-        accent-color: var(--ink);
-    }
-
-    .login-forgot {
-        color: var(--ink-soft);
-        font-size: 11px;
-        font-weight: 600;
-        text-decoration: none;
-    }
-
-    .login-forgot:hover {
-        color: var(--ink);
-        text-decoration: underline;
-    }
-
-    .login-button {
-        width: 100%;
-        margin-top: 4px;
-    }
-
-    @media (max-width: 480px) {
-        .login-page {
-            padding: 20px;
-        }
-
-        .login-panel {
-            padding: 26px 22px;
-        }
-
-        .login-options {
-            align-items: flex-start;
-            flex-direction: column;
-        }
-    }
-</style>
+    </form>
+</x-guest-layout>
