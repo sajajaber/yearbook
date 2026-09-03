@@ -22,30 +22,8 @@
                     <span class="brand-copy">Digital<br><small>Yearbook</small></span>
                 </a>
                 <div class="nav-links public-nav-links">
-                    <a href="{{ route('public.home') }}"
-                        class="nav-item {{ request()->routeIs('public.home') ? 'is-active' : '' }}">
-                        Home
-                    </a>
-
-                    <a href="{{ route('public.timeline') }}"
-                        class="nav-item {{ request()->routeIs('public.timeline') ? 'is-active' : '' }}">
-                        Timeline
-                    </a>
-
-                    <a href="{{ route('public.events') }}"
-                        class="nav-item {{ request()->routeIs('public.events*') ? 'is-active' : '' }}">
-                        Events
-                    </a>
-
-                    <a href="{{ route('public.graduates') }}"
-                        class="nav-item {{ request()->routeIs('public.graduates*') ? 'is-active' : '' }}">
-                        Graduates
-                    </a>
-
-                    <a href="{{ route('search.index') }}"
-                        class="nav-item {{ request()->routeIs('search.*') ? 'is-active' : '' }}">
-                        Search
-                    </a>
+                    <a href="{{ route('public.archive') }}" class="nav-item {{ request()->routeIs('public.archive') ? 'is-active' : '' }}">Archive</a>
+                    <a href="{{ route('search.index') }}" class="nav-item {{ request()->routeIs('search.*') ? 'is-active' : '' }}">Search</a>
                 </div>
                 <a href="{{ route('login') }}" class="public-staff-link">Staff login</a>
             </div>

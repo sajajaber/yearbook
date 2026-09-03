@@ -63,24 +63,27 @@ class YearbookPdfController extends Controller
             ->with('category')
             ->get();
 
-        $graduations = Graduation::where('academic_year_id', $academicYear->id)->pluck('id');
+        $graduationIds = Graduation::where('academic_year_id', $academicYear->id)->pluck('id');
 
-        $graduates = Graduate::whereIn('graduation_id', $graduations)
+        $baseQuery = fn($level) => Graduate::whereIn('graduation_id', $graduationIds)
             ->where('publish_status', 'published')
             ->where('consent_status', 'granted')
+            ->where('degree_level', $level)
             ->with(['school', 'major', 'campus'])
             ->orderBy('name')
             ->get()
-            ->groupBy(fn ($graduate) => $graduate->school->name ?? 'Unassigned');
+            ->groupBy(fn($g) => $g->school->name ?? 'Unassigned');
+
+        $undergraduates = $baseQuery('undergraduate');
+        $graduates = $baseQuery('graduate');
 
         $pdf = Pdf::loadView('public.yearbook.pdf.book', [
             'academicYear' => $academicYear,
             'events' => $events,
+            'undergraduates' => $undergraduates,
             'graduates' => $graduates,
         ])->setPaper('a4', 'portrait');
 
-        $filename = Str::slug($academicYear->title) . '-yearbook.pdf';
-
-        return $pdf->download($filename);
+        return $pdf->download(Str::slug($academicYear->title) . '-yearbook.pdf');
     }
 }

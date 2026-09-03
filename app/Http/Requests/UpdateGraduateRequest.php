@@ -56,6 +56,7 @@ class UpdateGraduateRequest extends FormRequest
                 'in:pending,granted,declined',
             ],
 
+
             'publish_status' => [
                 'required',
                 'in:draft,reviewed,approved,published,archived,rejected',
@@ -63,6 +64,7 @@ class UpdateGraduateRequest extends FormRequest
                     $this->input('consent_status')
                 ),
             ],
+            'degree_level' => 'required|in:undergraduate,graduate',
         ];
     }
 }

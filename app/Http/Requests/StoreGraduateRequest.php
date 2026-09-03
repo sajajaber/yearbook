@@ -43,6 +43,7 @@ class StoreGraduateRequest extends FormRequest
                 'in:draft,reviewed,approved,published,archived,rejected',
                 new ConsentGrantedForPublish($this->input('consent_status')),
             ],
+            'degree_level' => 'required|in:undergraduate,graduate',
         ];
     }
 }

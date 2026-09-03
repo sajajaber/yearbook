@@ -37,6 +37,7 @@ class Graduate extends Model implements PublishableInterface
     'consent_status',
     'publish_status',
     'portrait_media_id',
+    'degree_level',
   ];
 
   protected function casts(): array

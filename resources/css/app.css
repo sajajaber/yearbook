@@ -2832,12 +2832,23 @@ h2 {
         font-size: 28px;
     }
 
-    .public-hero-stats {
-        gap: 16px;
-        flex-wrap: wrap;
-    }
+.public-hero-stats {
+    display: flex;
+    gap: 44px;
+    align-items: flex-end;
+}
 
-    .public-hero-stats strong {
-        font-size: 28px;
-    }
+.public-hero-stats strong {
+    display: block;
+    font: 700 40px/1 "Merriweather", serif;
+    color: var(--red);
+}
+
+.public-hero-stats span {
+    color: #b9c6d6;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+}
 }
