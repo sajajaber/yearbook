@@ -17,19 +17,17 @@ use App\Http\Controllers\AiGenerationController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\PublicYearbookController;
 use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\Public\HomeController;
 
-Route::get('/', function () {
-  // Redirect to the dashboard if the user is authenticated, otherwise redirect to the public yearbook
-  return auth()->check() ? redirect()->route('dashboard') : redirect()->route('public.index');
-});
+Route::get('/', [HomeController::class, 'index'])->name('public.home');
 
-Route::get('/', function () {
-    return view('welcome');
+Route::prefix('yearbook')->name('public.')->group(function () {
+  // events, graduates, graduations, timeline routes go here as we build them
 });
 
 Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
-    Route::get('settings', [SettingsController::class, 'index'])->name('settings.index');
-    // ...existing resource routes stay exactly as they are
+  Route::get('settings', [SettingsController::class, 'index'])->name('settings.index');
+  // ...existing resource routes stay exactly as they are
 });
 
 Route::get('/search', [SearchController::class, 'index'])->name('search.index');
