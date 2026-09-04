@@ -11,11 +11,11 @@ use App\Http\Controllers\GraduateController;
 use App\Http\Controllers\MajorController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\PublicYearbookController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\PublicYearbookController;
 use App\Http\Controllers\YearbookPdfController;
 use Illuminate\Support\Facades\Route;
 
@@ -26,67 +26,16 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-Route::get('/yearbook/{academicYear}', [PublicYearbookController::class, 'book'])
-  ->name('public.book');
+Route::get('/', [PublicYearbookController::class, 'archive'])->name('public.home');
 
-// Homepage -> redirect to the latest year's book (e.g. /yearbook/26)
-Route::get('/', [PublicYearbookController::class, 'latest'])
-  ->name('public.home');
-
-// Public yearbook routes
 Route::prefix('yearbook')->name('public.')->group(function () {
-
-  // /yearbook -> redirect to the latest year's book (e.g. /yearbook/26)
-  Route::get('/', [PublicYearbookController::class, 'latest'])
-    ->name('archive');
-
-  // Full list of all editions, e.g. /yearbook/all
-  Route::get('/all', [PublicYearbookController::class, 'archiveList'])
-    ->name('archive.all');
-
-  // Timeline
-  Route::get('/timeline', [PublicYearbookController::class, 'timeline'])
-    ->name('timeline');
-
-  // Events
-  Route::get('/events', [PublicYearbookController::class, 'events'])
-    ->name('events');
-
-  Route::get('/events/{id}', [PublicYearbookController::class, 'eventDetail'])
-    ->name('event.detail');
-
-  // Graduations
-  Route::get('/graduations', [PublicYearbookController::class, 'graduations'])
-    ->name('graduations');
-
-  Route::get('/graduations/{id}', [PublicYearbookController::class, 'graduationDetail'])
-    ->name('graduation.detail');
-
-  // Graduates
-  Route::get('/graduates', [PublicYearbookController::class, 'graduates'])
-    ->name('graduates');
-
-  Route::get('/graduates/{id}', [PublicYearbookController::class, 'graduateDetail'])
-    ->name('graduate.detail');
-
-  // Graduate PDF
-  Route::get('/graduates/{id}/pdf', [YearbookPdfController::class, 'graduate'])
-    ->name('graduate.pdf');
-
-  // Complete yearbook PDF
-  Route::get('/{academicYear}/pdf', [YearbookPdfController::class, 'book'])
-    ->name('book.pdf');
-
-  // Specific academic year, e.g. /yearbook/26
-  Route::get('/{academicYear}', [PublicYearbookController::class, 'book'])
-    ->whereNumber('academicYear')
-    ->name('book');
-
-  // Public search
-  Route::get('/search', [PublicYearbookController::class, 'search'])
-    ->name('search');
+  Route::get('/', [PublicYearbookController::class, 'archive'])->name('archive');
+  Route::get('/events/{id}', [PublicYearbookController::class, 'eventDetail'])->name('event.detail');
+  Route::get('/graduates/{id}', [PublicYearbookController::class, 'graduateDetail'])->name('graduate.detail');
+  Route::get('/graduates/{id}/pdf', [YearbookPdfController::class, 'graduate'])->name('graduate.pdf');
+  Route::get('/{academicYear}/pdf', [YearbookPdfController::class, 'book'])->name('book.pdf');
+  Route::get('/{academicYear}', [PublicYearbookController::class, 'book'])->name('book');
 });
-
 
 /*
 |--------------------------------------------------------------------------

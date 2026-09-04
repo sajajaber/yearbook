@@ -4,9 +4,6 @@
 <head>
     <meta charset="utf-8">
     <style>
-        /* dompdf-safe CSS only: no grid, no flexbox layout, no transitions/
-       animations, no backdrop-filter. Floats + tables + page-break rules. */
-
         @page {
             margin: 60px 50px;
         }
@@ -17,8 +14,6 @@
             font-size: 12px;
             line-height: 1.6;
         }
-
-        /* ---------- Cover ---------- */
 
         .cover {
             text-align: center;
@@ -51,8 +46,6 @@
             margin: 26px auto;
         }
 
-        /* ---------- Table of contents ---------- */
-
         .toc {
             page-break-after: always;
         }
@@ -65,6 +58,16 @@
             margin-bottom: 20px;
         }
 
+        .toc-group-label {
+            display: block;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #002a5c;
+            margin: 16px 0 4px;
+        }
+
         .toc-item {
             display: block;
             padding: 8px 0;
@@ -72,8 +75,6 @@
             font-size: 13px;
             color: #333333;
         }
-
-        /* ---------- Chapter headings ---------- */
 
         .chapter {
             page-break-before: always;
@@ -92,8 +93,6 @@
             color: #002a5c;
             margin: 26px 0 12px;
         }
-
-        /* ---------- Events ---------- */
 
         .event-row {
             margin-bottom: 16px;
@@ -119,8 +118,6 @@
             font-size: 11px;
             color: #475569;
         }
-
-        /* ---------- Graduate profile blocks ---------- */
 
         .grad-block {
             page-break-inside: avoid;
@@ -205,22 +202,35 @@
     <div class="toc">
         <h2>Table of Contents</h2>
         <span class="toc-item">Campus Events &amp; Highlights</span>
-        @foreach($graduates as $schoolName => $group)
+
+        <span class="toc-group-label">Undergraduate Programs</span>
+        @forelse ($undergraduates as $schoolName => $group)
         <span class="toc-item">{{ $schoolName }} &mdash; {{ $group->count() }} {{ \Illuminate\Support\Str::plural('graduate', $group->count()) }}</span>
-        @endforeach
+        @empty
+        <span class="toc-item">No undergraduate honorees published</span>
+        @endforelse
+
+        <span class="toc-group-label">Graduate Programs</span>
+        @forelse ($graduates as $schoolName => $group)
+        <span class="toc-item">{{ $schoolName }} &mdash; {{ $group->count() }} {{ \Illuminate\Support\Str::plural('graduate', $group->count()) }}</span>
+        @empty
+        <span class="toc-item">No graduate honorees published</span>
+        @endforelse
     </div>
 
     <div class="chapter">
         <h2 class="chapter-title">Campus Events &amp; Highlights</h2>
 
-        @forelse($events as $event)
+        @forelse ($events as $event)
         <div class="event-row">
             <div class="event-date">
                 {{ \Carbon\Carbon::parse($event->event_date)->format('F j, Y') }}
-                @if($event->category) &middot; {{ $event->category->name }} @endif
+                @if ($event->category)
+                &middot; {{ $event->category->name }}
+                @endif
             </div>
             <div class="event-title">{{ $event->title }}</div>
-            @if($event->description)
+            @if ($event->description)
             <div class="event-desc">{{ \Illuminate\Support\Str::limit(strip_tags($event->description), 320) }}</div>
             @endif
         </div>
@@ -229,17 +239,18 @@
         @endforelse
     </div>
 
-    @foreach($graduates as $schoolName => $group)
+    @foreach ($undergraduates as $schoolName => $group)
     <div class="chapter">
         <h2 class="chapter-title">{{ $schoolName }}</h2>
+        <h3 class="chapter-subtitle">Undergraduate Class</h3>
 
-        @foreach($group as $graduate)
+        @foreach ($group as $graduate)
         <div class="grad-block">
             <table class="grad-table">
                 <tr>
                     <td class="grad-portrait-cell">
                         @php $portrait = $graduate->media->first(); @endphp
-                        @if($portrait)
+                        @if ($portrait)
                         <img class="grad-portrait" src="{{ public_path('storage/' . $portrait->path) }}" alt="{{ $graduate->name }}">
                         @else
                         <div class="grad-portrait-fallback">{{ strtoupper(substr($graduate->name, 0, 1)) }}</div>
@@ -248,7 +259,38 @@
                     <td>
                         <div class="grad-name">{{ $graduate->name }}</div>
                         <div class="grad-meta">{{ $graduate->major->name ?? '' }} &middot; {{ $graduate->campus->name ?? '' }}</div>
-                        @if($graduate->profile_text)
+                        @if ($graduate->profile_text)
+                        <div class="grad-bio">{{ \Illuminate\Support\Str::limit($graduate->profile_text, 260) }}</div>
+                        @endif
+                    </td>
+                </tr>
+            </table>
+        </div>
+        @endforeach
+    </div>
+    @endforeach
+
+    @foreach ($graduates as $schoolName => $group)
+    <div class="chapter">
+        <h2 class="chapter-title">{{ $schoolName }}</h2>
+        <h3 class="chapter-subtitle">Graduate Class</h3>
+
+        @foreach ($group as $graduate)
+        <div class="grad-block">
+            <table class="grad-table">
+                <tr>
+                    <td class="grad-portrait-cell">
+                        @php $portrait = $graduate->media->first(); @endphp
+                        @if ($portrait)
+                        <img class="grad-portrait" src="{{ public_path('storage/' . $portrait->path) }}" alt="{{ $graduate->name }}">
+                        @else
+                        <div class="grad-portrait-fallback">{{ strtoupper(substr($graduate->name, 0, 1)) }}</div>
+                        @endif
+                    </td>
+                    <td>
+                        <div class="grad-name">{{ $graduate->name }}</div>
+                        <div class="grad-meta">{{ $graduate->major->name ?? '' }} &middot; {{ $graduate->campus->name ?? '' }}</div>
+                        @if ($graduate->profile_text)
                         <div class="grad-bio">{{ \Illuminate\Support\Str::limit($graduate->profile_text, 260) }}</div>
                         @endif
                     </td>
