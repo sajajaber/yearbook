@@ -26,57 +26,65 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-// Homepage
-Route::get('/', [PublicYearbookController::class, 'archive'])
-    ->name('public.home');
+Route::get('/yearbook/{academicYear}', [PublicYearbookController::class, 'book'])
+  ->name('public.book');
+
+// Homepage -> redirect to the latest year's book (e.g. /yearbook/26)
+Route::get('/', [PublicYearbookController::class, 'latest'])
+  ->name('public.home');
 
 // Public yearbook routes
 Route::prefix('yearbook')->name('public.')->group(function () {
 
-    // Yearbook archive
-    Route::get('/', [PublicYearbookController::class, 'archive'])
-        ->name('archive');
+  // /yearbook -> redirect to the latest year's book (e.g. /yearbook/26)
+  Route::get('/', [PublicYearbookController::class, 'latest'])
+    ->name('archive');
 
-    // Timeline
-    Route::get('/timeline', [PublicYearbookController::class, 'timeline'])
-        ->name('timeline');
+  // Full list of all editions, e.g. /yearbook/all
+  Route::get('/all', [PublicYearbookController::class, 'archiveList'])
+    ->name('archive.all');
 
-    // Events
-    Route::get('/events', [PublicYearbookController::class, 'events'])
-        ->name('events');
+  // Timeline
+  Route::get('/timeline', [PublicYearbookController::class, 'timeline'])
+    ->name('timeline');
 
-    Route::get('/events/{id}', [PublicYearbookController::class, 'eventDetail'])
-        ->name('event.detail');
+  // Events
+  Route::get('/events', [PublicYearbookController::class, 'events'])
+    ->name('events');
 
-    // Graduations
-    Route::get('/graduations', [PublicYearbookController::class, 'graduations'])
-        ->name('graduations');
+  Route::get('/events/{id}', [PublicYearbookController::class, 'eventDetail'])
+    ->name('event.detail');
 
-    Route::get('/graduations/{id}', [PublicYearbookController::class, 'graduationDetail'])
-        ->name('graduation.detail');
+  // Graduations
+  Route::get('/graduations', [PublicYearbookController::class, 'graduations'])
+    ->name('graduations');
 
-    // Graduates
-    Route::get('/graduates', [PublicYearbookController::class, 'graduates'])
-        ->name('graduates');
+  Route::get('/graduations/{id}', [PublicYearbookController::class, 'graduationDetail'])
+    ->name('graduation.detail');
 
-    Route::get('/graduates/{id}', [PublicYearbookController::class, 'graduateDetail'])
-        ->name('graduate.detail');
+  // Graduates
+  Route::get('/graduates', [PublicYearbookController::class, 'graduates'])
+    ->name('graduates');
 
-    // Graduate PDF
-    Route::get('/graduates/{id}/pdf', [YearbookPdfController::class, 'graduate'])
-        ->name('graduate.pdf');
+  Route::get('/graduates/{id}', [PublicYearbookController::class, 'graduateDetail'])
+    ->name('graduate.detail');
 
-    // Complete yearbook PDF
-    Route::get('/{academicYear}/pdf', [YearbookPdfController::class, 'book'])
-        ->name('book.pdf');
+  // Graduate PDF
+  Route::get('/graduates/{id}/pdf', [YearbookPdfController::class, 'graduate'])
+    ->name('graduate.pdf');
 
-    // Specific academic year
-    Route::get('/{academicYear}', [PublicYearbookController::class, 'book'])
-        ->name('book');
+  // Complete yearbook PDF
+  Route::get('/{academicYear}/pdf', [YearbookPdfController::class, 'book'])
+    ->name('book.pdf');
 
-    // Public search
-    Route::get('/search', [PublicYearbookController::class, 'search'])
-        ->name('search');
+  // Specific academic year, e.g. /yearbook/26
+  Route::get('/{academicYear}', [PublicYearbookController::class, 'book'])
+    ->whereNumber('academicYear')
+    ->name('book');
+
+  // Public search
+  Route::get('/search', [PublicYearbookController::class, 'search'])
+    ->name('search');
 });
 
 
@@ -87,10 +95,10 @@ Route::prefix('yearbook')->name('public.')->group(function () {
 */
 
 Route::get('/search', [SearchController::class, 'index'])
-    ->name('search.index');
+  ->name('search.index');
 
 Route::post('/search', [SearchController::class, 'search'])
-    ->name('search.perform');
+  ->name('search.perform');
 
 
 /*
@@ -100,8 +108,8 @@ Route::post('/search', [SearchController::class, 'search'])
 */
 
 Route::get('/dashboard', [DashboardController::class, 'index'])
-    ->middleware(['auth', 'verified', 'role:admin,editor,reviewer'])
-    ->name('dashboard');
+  ->middleware(['auth', 'verified', 'role:admin,editor,reviewer'])
+  ->name('dashboard');
 
 
 /*
@@ -112,14 +120,14 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 
 Route::middleware('auth')->group(function () {
 
-    Route::get('/profile', [ProfileController::class, 'edit'])
-        ->name('profile.edit');
+  Route::get('/profile', [ProfileController::class, 'edit'])
+    ->name('profile.edit');
 
-    Route::patch('/profile', [ProfileController::class, 'update'])
-        ->name('profile.update');
+  Route::patch('/profile', [ProfileController::class, 'update'])
+    ->name('profile.update');
 
-    Route::delete('/profile', [ProfileController::class, 'destroy'])
-        ->name('profile.destroy');
+  Route::delete('/profile', [ProfileController::class, 'destroy'])
+    ->name('profile.destroy');
 });
 
 
@@ -131,8 +139,8 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
 
-    Route::get('/settings', [SettingsController::class, 'index'])
-        ->name('settings.index');
+  Route::get('/settings', [SettingsController::class, 'index'])
+    ->name('settings.index');
 });
 
 
@@ -156,26 +164,26 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
 
 Route::middleware(['auth', 'verified', 'role:admin,editor'])->group(function () {
 
-    Route::resource('academic-years', AcademicYearController::class);
+  Route::resource('academic-years', AcademicYearController::class);
 
-    Route::resource('majors', MajorController::class);
+  Route::resource('majors', MajorController::class);
 
-    Route::resource('campuses', CampusController::class);
+  Route::resource('campuses', CampusController::class);
 
-    Route::resource('schools', SchoolController::class);
+  Route::resource('schools', SchoolController::class);
 
-    Route::resource('event-categories', EventCategoryController::class);
+  Route::resource('event-categories', EventCategoryController::class);
 
-    Route::resource('graduations', GraduationController::class);
+  Route::resource('graduations', GraduationController::class);
 
-    Route::resource('media', MediaController::class)
-        ->except(['show']);
+  Route::resource('media', MediaController::class)
+    ->except(['show']);
 
-    Route::resource('events', EventController::class)
-        ->except(['index', 'show', 'edit']);
+  Route::resource('events', EventController::class)
+    ->except(['index', 'show', 'edit']);
 
-    Route::resource('graduates', GraduateController::class)
-        ->except(['index', 'show', 'edit']);
+  Route::resource('graduates', GraduateController::class)
+    ->except(['index', 'show', 'edit']);
 });
 
 
@@ -195,14 +203,14 @@ Route::middleware(['auth', 'verified', 'role:admin,editor'])->group(function () 
 
 Route::middleware(['auth', 'verified', 'role:admin,editor,reviewer'])->group(function () {
 
-    Route::resource('events', EventController::class)
-        ->only(['index', 'show', 'edit']);
+  Route::resource('events', EventController::class)
+    ->only(['index', 'show', 'edit']);
 
-    Route::resource('graduates', GraduateController::class)
-        ->only(['index', 'show', 'edit']);
+  Route::resource('graduates', GraduateController::class)
+    ->only(['index', 'show', 'edit']);
 
-    Route::resource('media', MediaController::class)
-        ->only(['index', 'show']);
+  Route::resource('media', MediaController::class)
+    ->only(['index', 'show']);
 });
 
 
@@ -223,74 +231,74 @@ Route::middleware(['auth', 'verified', 'role:admin,editor,reviewer'])->group(fun
 
 Route::middleware(['auth', 'verified'])->group(function () {
 
-    /*
+  /*
     |--------------------------------------------------------------------------
     | Event Workflow
     |--------------------------------------------------------------------------
     */
 
-    Route::post(
-        'events/{event}/submit',
-        [EventController::class, 'submitForReview']
-    )
-        ->middleware('role:admin,editor')
-        ->name('events.submit');
+  Route::post(
+    'events/{event}/submit',
+    [EventController::class, 'submitForReview']
+  )
+    ->middleware('role:admin,editor')
+    ->name('events.submit');
 
-    Route::post(
-        'events/{event}/approve',
-        [EventController::class, 'approve']
-    )
-        ->middleware('role:admin,reviewer')
-        ->name('events.approve');
+  Route::post(
+    'events/{event}/approve',
+    [EventController::class, 'approve']
+  )
+    ->middleware('role:admin,reviewer')
+    ->name('events.approve');
 
-    Route::post(
-        'events/{event}/reject',
-        [EventController::class, 'reject']
-    )
-        ->middleware('role:admin,reviewer')
-        ->name('events.reject');
+  Route::post(
+    'events/{event}/reject',
+    [EventController::class, 'reject']
+  )
+    ->middleware('role:admin,reviewer')
+    ->name('events.reject');
 
-    Route::post(
-        'events/{event}/publish',
-        [EventController::class, 'publish']
-    )
-        ->middleware('role:admin,reviewer')
-        ->name('events.publish');
+  Route::post(
+    'events/{event}/publish',
+    [EventController::class, 'publish']
+  )
+    ->middleware('role:admin,reviewer')
+    ->name('events.publish');
 
 
-    /*
+  /*
     |--------------------------------------------------------------------------
     | Graduate Workflow
     |--------------------------------------------------------------------------
     */
 
-    Route::post(
-        'graduates/{graduate}/submit',
-        [GraduateController::class, 'submitForReview']
-    )
-        ->middleware('role:admin,editor')
-        ->name('graduates.submit');
+  Route::post(
+    'graduates/{graduate}/submit',
+    [GraduateController::class, 'submitForReview']
+  )
+    ->middleware('role:admin,editor')
+    ->name('graduates.submit');
 
-    Route::post(
-        'graduates/{graduate}/approve',
-        [GraduateController::class, 'approve']
-    )
-        ->middleware('role:admin,reviewer')
-        ->name('graduates.approve');
+  Route::post(
+    'graduates/{graduate}/approve',
+    [GraduateController::class, 'approve']
+  )
+    ->middleware('role:admin,reviewer')
+    ->name('graduates.approve');
 
-    Route::post(
-        'graduates/{graduate}/reject',
-        [GraduateController::class, 'reject']
-    )
-        ->middleware('role:admin,reviewer')
-        ->name('graduates.reject');
+  Route::post(
+    'graduates/{graduate}/reject',
+    [GraduateController::class, 'reject']
+  )
+    ->middleware('role:admin,reviewer')
+    ->name('graduates.reject');
 
-    Route::post(
-        'graduates/{graduate}/publish',
-        [GraduateController::class, 'publish']
-    )
-        ->middleware('role:admin,reviewer')
-        ->name('graduates.publish');
+  Route::post(
+    'graduates/{graduate}/publish',
+    [GraduateController::class, 'publish']
+  )
+    ->middleware('role:admin,reviewer')
+    ->name('graduates.publish');
 });
 
 
@@ -305,7 +313,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
 
-    Route::resource('users', UserController::class);
+  Route::resource('users', UserController::class);
 });
 
 
@@ -319,23 +327,23 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
 */
 
 Route::middleware([
-    'auth',
-    'verified',
-    'role:admin,editor',
-    'throttle:6,1'
+  'auth',
+  'verified',
+  'role:admin,editor',
+  'throttle:6,1'
 ])->group(function () {
 
-    Route::post(
-        'events/{event}/generate-summary',
-        [EventController::class, 'generateSummary']
-    )
-        ->name('events.generate-summary');
+  Route::post(
+    'events/{event}/generate-summary',
+    [EventController::class, 'generateSummary']
+  )
+    ->name('events.generate-summary');
 
-    Route::post(
-        'graduates/{graduate}/generate-biography',
-        [GraduateController::class, 'generateBiography']
-    )
-        ->name('graduates.generate-biography');
+  Route::post(
+    'graduates/{graduate}/generate-biography',
+    [GraduateController::class, 'generateBiography']
+  )
+    ->name('graduates.generate-biography');
 });
 
 
@@ -349,22 +357,22 @@ Route::middleware([
 */
 
 Route::middleware([
-    'auth',
-    'verified',
-    'role:admin,reviewer'
+  'auth',
+  'verified',
+  'role:admin,reviewer'
 ])->group(function () {
 
-    Route::get(
-        'ai-generations',
-        [AiGenerationController::class, 'index']
-    )
-        ->name('ai-generations.index');
+  Route::get(
+    'ai-generations',
+    [AiGenerationController::class, 'index']
+  )
+    ->name('ai-generations.index');
 
-    Route::post(
-        'ai-generations/{aiGeneration}/review',
-        [AiGenerationController::class, 'review']
-    )
-        ->name('ai-generations.review');
+  Route::post(
+    'ai-generations/{aiGeneration}/review',
+    [AiGenerationController::class, 'review']
+  )
+    ->name('ai-generations.review');
 });
 
 
@@ -375,11 +383,11 @@ Route::middleware([
 */
 
 Route::post(
-    'graduations/{graduation}/unarchive',
-    [GraduationController::class, 'unarchive']
+  'graduations/{graduation}/unarchive',
+  [GraduationController::class, 'unarchive']
 )
-    ->middleware(['auth', 'verified', 'role:admin,editor'])
-    ->name('graduations.unarchive');
+  ->middleware(['auth', 'verified', 'role:admin,editor'])
+  ->name('graduations.unarchive');
 
 
 /*

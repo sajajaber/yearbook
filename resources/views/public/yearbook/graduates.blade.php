@@ -121,9 +121,18 @@
                     <div class="filter-group">
                         <label>Sort By</label>
                         <select name="sort">
-                            <option value="name" @if($sort === 'name') selected @endif>Name (A-Z)</option>
-                            <option value="latest" @if($sort === 'latest') selected @endif>Latest</option>
-                            <option value="oldest" @if($sort === 'oldest') selected @endif>Oldest</option>
+                            <option value="name" @if($sort==='name' ) selected @endif>Name (A-Z)</option>
+                            <option value="latest" @if($sort==='latest' ) selected @endif>Latest</option>
+                            <option value="oldest" @if($sort==='oldest' ) selected @endif>Oldest</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Year</label>
+                        <select name="year">
+                            <option value="">All Years</option>
+                            @foreach($years as $y)
+                            <option value="{{ $y }}" @if($y==$year) selected @endif>Class of {{ $y }}</option>
+                            @endforeach
                         </select>
                     </div>
                 </div>
@@ -138,70 +147,70 @@
         </div>
 
         @if($graduates->count() > 0)
-            <p style="color: var(--ink-soft); font-size: 0.95rem; margin-bottom: 20px;">
-                Showing {{ $graduates->firstItem() }} to {{ $graduates->lastItem() }} of {{ $graduates->total() }} graduates
-            </p>
+        <p style="color: var(--ink-soft); font-size: 0.95rem; margin-bottom: 20px;">
+            Showing {{ $graduates->firstItem() }} to {{ $graduates->lastItem() }} of {{ $graduates->total() }} graduates
+        </p>
 
-            <div class="grid grid-4">
-                @foreach($graduates as $graduate)
-                <a href="{{ route('public.graduate.detail', $graduate->id) }}" style="text-decoration: none; color: inherit;">
-                    <div class="card graduate-card">
-                        @php
-                            $portrait = $graduate->media->first();
-                        @endphp
-                        <div class="card-image">
-                            @if($portrait)
-                                <img src="{{ Storage::disk('public')->url($portrait->path) }}" alt="{{ $graduate->name }}">
-                            @else
-                                <div style="width: 100%; height: 250px; background: linear-gradient(135deg, var(--ink) 0%, #1a3f7f 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 4rem; font-weight: 700;">{{ strtoupper(substr($graduate->name, 0, 1)) }}</div>
-                            @endif
-                            @if($graduate->graduation)
-                            <span class="graduate-badge">{{ $graduate->graduation->ceremony_date ? \Carbon\Carbon::parse($graduate->graduation->ceremony_date)->format('Y') : 'Class' }}</span>
-                            @endif
+        <div class="grid grid-4">
+            @foreach($graduates as $graduate)
+            <a href="{{ route('public.graduate.detail', $graduate->id) }}" style="text-decoration: none; color: inherit;">
+                <div class="card graduate-card">
+                    @php
+                    $portrait = $graduate->media->first();
+                    @endphp
+                    <div class="card-image">
+                        @if($portrait)
+                        <img src="{{ Storage::disk('public')->url($portrait->path) }}" alt="{{ $graduate->name }}">
+                        @else
+                        <div style="width: 100%; height: 250px; background: linear-gradient(135deg, var(--ink) 0%, #1a3f7f 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 4rem; font-weight: 700;">{{ strtoupper(substr($graduate->name, 0, 1)) }}</div>
+                        @endif
+                        @if($graduate->graduation)
+                        <span class="graduate-badge">{{ $graduate->graduation->ceremony_date ? \Carbon\Carbon::parse($graduate->graduation->ceremony_date)->format('Y') : 'Class' }}</span>
+                        @endif
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title">{{ $graduate->name }}</h3>
+                        <div class="graduate-info">
+                            {{ $graduate->major->name ?? 'Major' }}
                         </div>
-                        <div class="card-body">
-                            <h3 class="card-title">{{ $graduate->name }}</h3>
-                            <div class="graduate-info">
-                                {{ $graduate->major->name ?? 'Major' }}
-                            </div>
-                            <div class="graduate-info">
-                                {{ $graduate->school->name ?? 'School' }}
-                            </div>
+                        <div class="graduate-info">
+                            {{ $graduate->school->name ?? 'School' }}
                         </div>
                     </div>
-                </a>
-                @endforeach
-            </div>
+                </div>
+            </a>
+            @endforeach
+        </div>
 
-            <!-- Pagination -->
-            @if($graduates->hasPages())
-            <div class="pagination" style="margin-top: 40px;">
-                @if($graduates->onFirstPage())
-                    <span>←</span>
-                @else
-                    <a href="{{ $graduates->previousPageUrl() }}">←</a>
-                @endif
-
-                @foreach($graduates->getUrlRange(1, $graduates->lastPage()) as $page => $url)
-                    @if($page == $graduates->currentPage())
-                        <span class="active">{{ $page }}</span>
-                    @else
-                        <a href="{{ $url }}">{{ $page }}</a>
-                    @endif
-                @endforeach
-
-                @if($graduates->hasMorePages())
-                    <a href="{{ $graduates->nextPageUrl() }}">→</a>
-                @else
-                    <span>→</span>
-                @endif
-            </div>
+        <!-- Pagination -->
+        @if($graduates->hasPages())
+        <div class="pagination" style="margin-top: 40px;">
+            @if($graduates->onFirstPage())
+            <span>←</span>
+            @else
+            <a href="{{ $graduates->previousPageUrl() }}">←</a>
             @endif
+
+            @foreach($graduates->getUrlRange(1, $graduates->lastPage()) as $page => $url)
+            @if($page == $graduates->currentPage())
+            <span class="active">{{ $page }}</span>
+            @else
+            <a href="{{ $url }}">{{ $page }}</a>
+            @endif
+            @endforeach
+
+            @if($graduates->hasMorePages())
+            <a href="{{ $graduates->nextPageUrl() }}">→</a>
+            @else
+            <span>→</span>
+            @endif
+        </div>
+        @endif
         @else
-            <div style="text-align: center; padding: 60px 20px;">
-                <p style="font-size: 1.1rem; color: var(--ink-soft); margin-bottom: 20px;">No graduates found matching your filters.</p>
-                <a href="{{ route('public.graduates') }}" class="btn btn-primary">Browse All Graduates</a>
-            </div>
+        <div style="text-align: center; padding: 60px 20px;">
+            <p style="font-size: 1.1rem; color: var(--ink-soft); margin-bottom: 20px;">No graduates found matching your filters.</p>
+            <a href="{{ route('public.graduates') }}" class="btn btn-primary">Browse All Graduates</a>
+        </div>
         @endif
     </div>
 </div>

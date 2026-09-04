@@ -480,6 +480,7 @@
                 <input type="text" name="title" placeholder="Title, e.g. 2026-2027" required>
                 <input type="date" name="start_date" required aria-label="Start date">
                 <input type="date" name="end_date" required aria-label="End date">
+                <textarea name="dedication" placeholder="Dedication text for this yearbook edition" rows="2">{{ old('dedication') }}</textarea>
                 <select name="status">
                     <option value="draft">Draft</option>
                     <option value="active">Active</option>
