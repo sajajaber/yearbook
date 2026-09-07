@@ -85,6 +85,7 @@ a {
 }
 
 .nav-links {
+    display: flex;
     gap: 28px;
     align-self: stretch;
     align-items: center;
@@ -647,7 +648,7 @@ a {
     margin: 0 0 8px;
 }
 
-.featured-copy > p:not(.eyebrow) {
+.featured-copy>p:not(.eyebrow) {
     color: var(--ink-soft);
     font-size: 13px;
     line-height: 1.5;
@@ -800,7 +801,7 @@ a {
         grid-template-columns: 90px 1fr;
     }
 
-    .featured-edition > .button {
+    .featured-edition>.button {
         grid-column: 2;
         justify-self: start;
     }
@@ -1007,7 +1008,7 @@ a {
     width: 36px;
 }
 
-.view-button + .view-button {
+.view-button+.view-button {
     border-left: 1px solid var(--line);
 }
 
@@ -1532,7 +1533,7 @@ a {
     margin: 0 0 18px;
 }
 
-.ai-card .form-field + .ai-review-form {
+.ai-card .form-field+.ai-review-form {
     border-top: 1px solid var(--line);
     margin-top: 18px;
     padding-top: 18px;
@@ -1638,8 +1639,7 @@ a {
     display: grid;
     gap: 18px;
     grid-template-columns:
-        52px minmax(150px, 1.1fr) minmax(240px, 1.6fr)
-        minmax(170px, 1fr);
+        52px minmax(150px, 1.1fr) minmax(240px, 1.6fr) minmax(170px, 1fr);
     min-height: 0;
     padding: 15px 18px;
 }
@@ -1866,7 +1866,7 @@ a {
     padding: 20px 0 2px;
 }
 
-.selection-block + .selection-block {
+.selection-block+.selection-block {
     margin-top: 18px;
 }
 
@@ -2145,6 +2145,7 @@ a {
 }
 
 @media (max-width: 850px) {
+
     .graduate-form,
     .graduation-form {
         grid-template-columns: 1fr;
@@ -2160,6 +2161,7 @@ a {
 }
 
 @media (max-width: 600px) {
+
     .form-grid-two,
     .media-grid {
         grid-template-columns: 1fr;
@@ -2223,7 +2225,7 @@ a {
         padding: 0 0 15px;
     }
 
-    .featured-edition > .button {
+    .featured-edition>.button {
         margin-top: 20px;
     }
 
@@ -2237,6 +2239,7 @@ a {
 }
 
 @media (max-width: 800px) {
+
     .nav-inner,
     .dashboard-heading,
     .dashboard-wrap {
@@ -2366,6 +2369,7 @@ h2 {
 }
 
 @media (max-width: 800px) {
+
     .nav-inner,
     .dashboard-heading,
     .dashboard-wrap {
@@ -2469,6 +2473,7 @@ h2 {
         flex-direction: column;
     }
 }
+
 /* ========================================
    PUBLIC PAGE STYLES
    ======================================== */
@@ -2832,23 +2837,23 @@ h2 {
         font-size: 28px;
     }
 
-.public-hero-stats {
-    display: flex;
-    gap: 44px;
-    align-items: flex-end;
-}
+    .public-hero-stats {
+        display: flex;
+        gap: 44px;
+        align-items: flex-end;
+    }
 
-.public-hero-stats strong {
-    display: block;
-    font: 700 40px/1 "Merriweather", serif;
-    color: var(--red);
-}
+    .public-hero-stats strong {
+        display: block;
+        font: 700 40px/1 "Merriweather", serif;
+        color: var(--red);
+    }
 
-.public-hero-stats span {
-    color: #b9c6d6;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 1.4px;
-    text-transform: uppercase;
-}
+    .public-hero-stats span {
+        color: #b9c6d6;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 1.4px;
+        text-transform: uppercase;
+    }
 }

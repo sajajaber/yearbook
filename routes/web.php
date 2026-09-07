@@ -26,15 +26,20 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-Route::get('/', [PublicYearbookController::class, 'archive'])->name('public.home');
+Route::get('/', [PublicYearbookController::class, 'index'])->name('public.home');
 
 Route::prefix('yearbook')->name('public.')->group(function () {
   Route::get('/', [PublicYearbookController::class, 'archive'])->name('archive');
   Route::get('/events/{id}', [PublicYearbookController::class, 'eventDetail'])->name('event.detail');
+  Route::get('/events', [PublicYearbookController::class, 'events'])->name('events');
+  Route::get('/graduates', [PublicYearbookController::class, 'graduates'])->name('graduates');
   Route::get('/graduates/{id}', [PublicYearbookController::class, 'graduateDetail'])->name('graduate.detail');
+  Route::get('/timeline', [PublicYearbookController::class, 'timeline'])->name('timeline');
   Route::get('/graduates/{id}/pdf', [YearbookPdfController::class, 'graduate'])->name('graduate.pdf');
   Route::get('/{academicYear}/pdf', [YearbookPdfController::class, 'book'])->name('book.pdf');
   Route::get('/{academicYear}', [PublicYearbookController::class, 'book'])->name('book');
+  Route::get('/graduations/{id}', [PublicYearbookController::class, 'graduationDetail'])->name('graduation.detail');
+  Route::get('/graduations', [PublicYearbookController::class, 'graduations'])->name('graduations');
 });
 
 /*
@@ -88,8 +93,8 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
 
-  Route::get('/settings', [SettingsController::class, 'index'])
-    ->name('settings.index');
+  Route::get('settings', [SettingsController::class, 'index'])->name('settings.index');
+  Route::post('settings/hero-images', [SettingsController::class, 'updateHeroImages'])->name('settings.hero-images.update');
 });
 
 

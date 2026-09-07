@@ -9,6 +9,10 @@ use App\Models\Major;
 use App\Models\EventCategory;
 use App\Models\User;
 use App\Models\Role;
+use App\Models\Media;
+use App\Models\HeroImage;
+use App\Models\AuditLog;
+use Illuminate\Http\Request;
 
 class SettingsController extends Controller
 {
@@ -22,6 +26,24 @@ class SettingsController extends Controller
             'eventCategories' => EventCategory::orderBy('name')->get(),
             'users' => User::orderBy('name')->get(),
             'roles' => Role::get(),
+            'heroImagePool' => Media::where('type', 'image')->latest()->get(),
+            'selectedHeroImages' => HeroImage::orderedMedia(),
         ]);
+    }
+
+    public function updateHeroImages(Request $request)
+    {
+        $validated = $request->validate([
+            'media_ids' => 'nullable|array',
+            'media_ids.*' => 'exists:media,id',
+        ]);
+
+        HeroImage::syncOrdered($validated['media_ids'] ?? []);
+
+        AuditLog::record('updated', new HeroImage());
+
+        return redirect()->back()
+            ->with('success', 'Hero images updated.')
+            ->with('active_tab', 'hero-images');
     }
 }

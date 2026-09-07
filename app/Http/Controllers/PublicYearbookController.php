@@ -6,10 +6,59 @@ use App\Models\Graduate;
 use App\Models\Graduation;
 use App\Models\Event;
 use App\Models\AcademicYear;
+use App\Models\Campus;
+use App\Models\School;
 use Illuminate\Support\Collection;
+use App\Models\HeroImage;
 
 class PublicYearbookController extends Controller
 {
+    public function index()
+    {
+        // Get the latest active academic year
+        $currentYear = AcademicYear::where('status', 'active')->latest()->first();
+
+        // Get featured events
+        $featuredEvents = Event::where('status', 'published')
+            ->where('featured', true)
+            ->latest('event_date')
+            ->limit(6)
+            ->with(['media', 'category'])
+            ->get();
+
+        // Get recent events
+        $recentEvents = Event::where('status', 'published')
+            ->latest('event_date')
+            ->limit(8)
+            ->with(['media', 'category'])
+            ->get();
+
+        // Get latest graduation
+        $latestGraduation = Graduation::latest()
+            ->with(['media'])
+            ->first();
+
+        // Get statistics
+        $stats = [
+            'graduates' => Graduate::where('publish_status', 'published')->count(),
+            'events' => Event::where('status', 'published')->count(),
+            'campuses' => Campus::count(),
+            'schools' => School::count(),
+        ];
+
+        $heroImages = HeroImage::orderedMedia();
+
+        return view('public.yearbook.index', compact(
+            'currentYear',
+            'featuredEvents',
+            'recentEvents',
+            'latestGraduation',
+            'stats',
+            'heroImages'
+        ));
+    }
+
+
     public function archive()
     {
         $academicYears = AcademicYear::where('status', '!=', 'draft')
@@ -100,5 +149,11 @@ class PublicYearbookController extends Controller
         $qrUrl = route('public.graduate.detail', $graduate->id);
 
         return view('public.yearbook.graduate-detail', compact('graduate', 'qrUrl'));
+    }
+
+    public function graduationDetail($id)
+    {
+        $graduation = Graduation::with(['campuses', 'schools', 'graduates', 'media'])->findOrFail($id);
+        return view('public.yearbook.graduation-detail', ['graduation' => $graduation]);
     }
 }

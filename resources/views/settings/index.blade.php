@@ -464,6 +464,7 @@
             <button type="button" class="filter-button" :class="{ 'is-selected': tab === 'majors' }" @click="tab = 'majors'">Majors <span>{{ $majors->count() }}</span></button>
             <button type="button" class="filter-button" :class="{ 'is-selected': tab === 'categories' }" @click="tab = 'categories'">Event Categories <span>{{ $eventCategories->count() }}</span></button>
             <button type="button" class="filter-button" :class="{ 'is-selected': tab === 'users' }" @click="tab = 'users'">Users <span>{{ $users->count() }}</span></button>
+            <button type="button" class="filter-button" :class="{ 'is-selected': tab === 'hero-images' }" @click="tab = 'hero-images'">Hero Images <span>{{ $selectedHeroImages->count() }}</span></button>
         </div>
 
         {{-- ACADEMIC YEARS --}}
@@ -815,6 +816,64 @@
                 </div>
                 @endforelse
             </div>
+        </section>
+
+        {{-- HERO IMAGES --}}
+        <section class="settings-panel" x-show="tab === 'hero-images'" x-cloak>
+            <div class="settings-panel-heading">
+                <div>
+                    <p class="eyebrow">Public yearbook</p>
+                    <h2>Homepage hero images</h2>
+                </div>
+            </div>
+
+            @if ($selectedHeroImages->isNotEmpty())
+            <div style="margin-bottom: 28px;">
+                <p class="form-field-label" style="margin-bottom: 10px;">Current order</p>
+                <div id="hero-order-preview" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    @foreach ($selectedHeroImages as $index => $image)
+                    <div style="width: 100px; text-align: center;">
+                        <img
+                            src="{{ asset('storage/' . $image->path) }}"
+                            alt="{{ $image->alt_text ?? $image->file_name }}"
+                            style="width: 100px; height: 70px; object-fit: cover; border-radius: 6px; border: 1px solid var(--line);"
+                            onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 300 200\'%3E%3Crect fill=\'%23e7f0fa\' width=\'300\' height=\'200\'/%3E%3C/svg%3E'">
+                        <span style="display: block; font-size: 10px; color: var(--ink-soft); margin-top: 4px;">#{{ $index + 1 }}</span>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+
+            <form method="POST" action="{{ route('settings.hero-images.update') }}" id="hero-images-form">
+                @csrf
+                <div class="choice-grid" id="hero-images-choices" style="grid-template-columns: repeat(3, minmax(0, 1fr));">
+                    @forelse ($heroImagePool as $image)
+                    @php $isSelected = $selectedHeroImages->contains('id', $image->id); @endphp
+                    <label class="choice-item" style="flex-direction: column; align-items: flex-start; height: auto; padding: 10px;">
+                        <div style="display: flex; align-items: center; gap: 8px; width: 100%;">
+                            <input type="checkbox" name="media_ids[]" value="{{ $image->id }}" @checked($isSelected)>
+                            <span style="font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ $image->file_name }}</span>
+                        </div>
+                        <img
+                            src="{{ asset('storage/' . $image->path) }}"
+                            alt="{{ $image->alt_text ?? $image->file_name }}"
+                            style="width: 100%; height: 90px; object-fit: cover; border-radius: 6px; margin-top: 8px;"
+                            onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 300 200\'%3E%3Crect fill=\'%23e7f0fa\' width=\'300\' height=\'200\'/%3E%3C/svg%3E'">
+                    </label>
+                    @empty
+                    <div class="settings-empty">
+                        <p class="eyebrow">No images yet</p>
+                        <h3>Upload media first.</h3>
+                        <p>Upload an image in the Media Library, then come back here to select it as a hero image.</p>
+                    </div>
+                    @endforelse
+                </div>
+
+                <div class="form-actions" style="margin-top: 20px;">
+                    <button type="submit" class="button button-navy">Save hero images <span aria-hidden="true">→</span></button>
+                </div>
+            </form>
         </section>
 
         {{-- USERS --}}

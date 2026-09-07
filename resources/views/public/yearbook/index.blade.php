@@ -124,6 +124,7 @@
     }
 
     @media (max-width: 768px) {
+
         .timeline-item,
         .timeline-item:nth-child(even) {
             grid-template-columns: 1fr;
@@ -141,7 +142,31 @@
 @endsection
 
 @section('content')
-<!-- Hero Section -->
+<!-- Hero -->
+@if($heroImages->count() > 0)
+<div class="hero hero-carousel" id="heroCarousel" data-count="{{ $heroImages->count() }}">
+    <div class="hero-slides">
+        @foreach($heroImages as $index => $image)
+        <div class="hero-slide {{ $index === 0 ? 'is-active' : '' }}" style="background-image: linear-gradient(135deg, rgba(0, 42, 92, 0.75) 0%, rgba(26, 63, 127, 0.65) 100%), url('{{ Storage::disk('public')->url($image->path) }}');"></div>
+        @endforeach
+    </div>
+    <div class="container">
+        <h1>University Annual Yearbook</h1>
+        <p>Explore events, graduations, and celebrate the achievements of our graduates</p>
+        <div class="cta-buttons">
+            <a href="{{ route('public.events') }}" class="btn btn-primary">Browse Events</a>
+            <a href="{{ route('public.graduates') }}" class="btn btn-secondary">Meet Graduates</a>
+        </div>
+    </div>
+    @if($heroImages->count() > 1)
+    <div class="hero-dots">
+        @foreach($heroImages as $index => $image)
+        <button type="button" class="hero-dot {{ $index === 0 ? 'is-active' : '' }}" data-slide="{{ $index }}" aria-label="Show slide {{ $index + 1 }}"></button>
+        @endforeach
+    </div>
+    @endif
+</div>
+@else
 <div class="hero">
     <div class="container">
         <h1>University Annual Yearbook</h1>
@@ -152,6 +177,7 @@
         </div>
     </div>
 </div>
+@endif
 
 <!-- Statistics -->
 <div class="section">
@@ -188,12 +214,12 @@
         @foreach($featuredEvents as $event)
         <a href="{{ route('public.event.detail', $event->id) }}" class="featured-card">
             @php
-                $image = $event->media->first();
+            $image = $event->media->first();
             @endphp
             @if($image)
-                <img src="{{ Storage::disk('public')->url($image->path) }}" alt="{{ $event->title }}">
+            <img src="{{ Storage::disk('public')->url($image->path) }}" alt="{{ $event->title }}">
             @else
-                <div style="width: 100%; height: 100%; background: linear-gradient(135deg, var(--ink) 0%, #1a3f7f 100%);"></div>
+            <div style="width: 100%; height: 100%; background: linear-gradient(135deg, var(--ink) 0%, #1a3f7f 100%);"></div>
             @endif
             <div class="featured-overlay">
                 <h3>{{ $event->title }}</h3>
@@ -211,19 +237,19 @@
     <div class="container">
         <h2 class="section-title">Latest Events</h2>
         <p class="section-subtitle">Discover what's happening this year</p>
-        
+
         <div class="grid grid-3">
             @foreach($recentEvents as $event)
             <a href="{{ route('public.event.detail', $event->id) }}" style="text-decoration: none; color: inherit;">
                 <div class="card">
                     @php
-                        $image = $event->media->first();
+                    $image = $event->media->first();
                     @endphp
                     <div class="card-image">
                         @if($image)
-                            <img src="{{ Storage::disk('public')->url($image->path) }}" alt="{{ $event->title }}">
+                        <img src="{{ Storage::disk('public')->url($image->path) }}" alt="{{ $event->title }}">
                         @else
-                            <div style="width: 100%; height: 100%; background: var(--paper);"></div>
+                        <div style="width: 100%; height: 100%; background: var(--paper);"></div>
                         @endif
                     </div>
                     <div class="card-body">
@@ -251,16 +277,16 @@
 <div class="section" style="background: var(--paper);">
     <div class="container">
         <h2 class="section-title">Latest Graduation</h2>
-        
+
         <div class="timeline-item">
             @php
-                $image = $latestGraduation->media->first();
+            $image = $latestGraduation->media->first();
             @endphp
             <div class="timeline-image">
                 @if($image)
-                    <img src="{{ Storage::disk('public')->url($image->path) }}" alt="Graduation">
+                <img src="{{ Storage::disk('public')->url($image->path) }}" alt="Graduation">
                 @else
-                    <div style="width: 100%; height: 100%; background: linear-gradient(135deg, var(--ink) 0%, #1a3f7f 100%);"></div>
+                <div style="width: 100%; height: 100%; background: linear-gradient(135deg, var(--ink) 0%, #1a3f7f 100%);"></div>
                 @endif
             </div>
             <div class="timeline-content">
@@ -280,7 +306,7 @@
     <div class="container" style="text-align: center;">
         <h2 class="section-title">Explore More</h2>
         <p class="section-subtitle">Browse our comprehensive yearbook archive</p>
-        
+
         <div class="grid grid-3" style="margin-top: 40px;">
             <div class="card" style="text-align: center; border: none; box-shadow: none;">
                 <div class="card-body">

@@ -21,25 +21,16 @@
                     <span class="brand-mark">LIU</span>
                     <span class="brand-copy">Digital<br><small>Yearbook</small></span>
                 </a>
-                <div class="nav-links public-nav-links">
+                <div class="nav-links hidden sm:flex">
+                    <a href="{{ route('public.timeline') }}" class="nav-item {{ request()->routeIs('public.timeline') ? 'is-active' : '' }}">Timeline</a>
+                    <a href="{{ route('public.events') }}" class="nav-item {{ request()->routeIs('public.events') ? 'is-active' : '' }}">Events</a>
+                    <a href="{{ route('public.graduates') }}" class="nav-item {{ request()->routeIs('public.graduates') ? 'is-active' : '' }}">Graduates</a>
                     <a href="{{ route('public.archive') }}" class="nav-item {{ request()->routeIs('public.archive') ? 'is-active' : '' }}">Archive</a>
                     <a href="{{ route('search.index') }}" class="nav-item {{ request()->routeIs('search.*') ? 'is-active' : '' }}">Search</a>
                 </div>
-                <a href="{{ route('login') }}" class="public-staff-link">Staff login</a>
             </div>
         </nav>
 
-        <main class="page-content">
-            @yield('content')
-        </main>
-
-        <footer class="public-footer">
-            <div class="public-footer-inner">
-                <span>© {{ now()->year }} Lebanese International University — Digital Yearbook</span>
-                <a href="{{ route('search.index') }}">Search the archive</a>
-            </div>
-        </footer>
-    </div>
 </body>
 
 </html>
