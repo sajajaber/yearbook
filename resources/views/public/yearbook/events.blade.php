@@ -164,9 +164,9 @@
                     <div class="filter-group">
                         <label>Sort By</label>
                         <select name="sort">
-                            <option value="latest" @if($sort === 'latest') selected @endif>Latest First</option>
-                            <option value="oldest" @if($sort === 'oldest') selected @endif>Oldest First</option>
-                            <option value="alphabetical" @if($sort === 'alphabetical') selected @endif>Alphabetical</option>
+                            <option value="latest" @if($sort==='latest' ) selected @endif>Latest First</option>
+                            <option value="oldest" @if($sort==='oldest' ) selected @endif>Oldest First</option>
+                            <option value="alphabetical" @if($sort==='alphabetical' ) selected @endif>Alphabetical</option>
                         </select>
                     </div>
                 </div>
@@ -205,75 +205,75 @@
 
         <!-- Results -->
         @if($events->count() > 0)
-            <div class="results-info">
-                Showing {{ $events->firstItem() }} to {{ $events->lastItem() }} of {{ $events->total() }} events
-            </div>
+        <div class="results-info">
+            Showing {{ $events->firstItem() }} to {{ $events->lastItem() }} of {{ $events->total() }} events
+        </div>
 
-            <div class="grid grid-1" style="gap: 20px;">
-                @foreach($events as $event)
-                <a href="{{ route('public.event.detail', $event->id) }}" style="text-decoration: none; color: inherit;">
-                    <div class="card">
-                        <div class="event-card-large">
-                            @php
-                                $image = $event->media->first();
-                            @endphp
-                            @if($image)
-                            <div class="card-image">
-                                <img src="{{ Storage::disk('public')->url($image->path) }}" alt="{{ $event->title }}">
+        <div class="grid grid-1" style="gap: 20px;">
+            @foreach($events as $event)
+            <a href="{{ route('public.event.detail', $event->id) }}" style="text-decoration: none; color: inherit;">
+                <div class="card">
+                    <div class="event-card-large">
+                        @php
+                        $image = $event->media->first();
+                        @endphp
+                        @if($image)
+                        <div class="card-image">
+                            <img src="{{ Storage::disk('public')->url($image->path) }}" alt="{{ $event->title }}">
+                        </div>
+                        @else
+                        <div class="card-image" style="background: linear-gradient(135deg, var(--ink) 0%, #1a3f7f 100%);"></div>
+                        @endif
+
+                        <div class="card-body">
+                            <div class="card-meta" style="margin-bottom: 15px;">
+                                <span style="background: var(--paper); padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; color: var(--ink);">{{ $event->category->name }}</span>
+                                <span>{{ \Carbon\Carbon::parse($event->event_date)->format('M d, Y') }}</span>
                             </div>
-                            @else
-                            <div class="card-image" style="background: linear-gradient(135deg, var(--ink) 0%, #1a3f7f 100%);"></div>
-                            @endif
-                            
-                            <div class="card-body">
-                                <div class="card-meta" style="margin-bottom: 15px;">
-                                    <span style="background: var(--paper); padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; color: var(--ink);">{{ $event->category->name }}</span>
-                                    <span>{{ \Carbon\Carbon::parse($event->event_date)->format('M d, Y') }}</span>
-                                </div>
-                                <h3 class="card-title" style="font-size: 1.3rem;">{{ $event->title }}</h3>
-                                <p class="card-text">{{ Str::limit($event->description, 200) }}</p>
-                                
-                                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;">
-                                    @foreach($event->campuses as $c)
-                                    <span style="font-size: 0.8rem; padding: 4px 8px; background: rgba(255, 176, 52, 0.1); color: var(--red); border-radius: 4px;">{{ $c->name }}</span>
-                                    @endforeach
-                                </div>
+                            <h3 class="card-title" style="font-size: 1.3rem;">{{ $event->title }}</h3>
+                            <p class="card-text">{{ Str::limit($event->description, 200) }}</p>
+
+                            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;">
+                                @foreach($event->campuses as $c)
+                                <span style="font-size: 0.8rem; padding: 4px 8px; background: rgba(255, 176, 52, 0.1); color: var(--red); border-radius: 4px;">{{ $c->name }}</span>
+                                @endforeach
                             </div>
                         </div>
                     </div>
-                </a>
-                @endforeach
-            </div>
+                </div>
+            </a>
+            @endforeach
+        </div>
 
-            <!-- Pagination -->
-            @if($events->hasPages())
-            <div class="pagination">
-                @if($events->onFirstPage())
-                    <span>←</span>
-                @else
-                    <a href="{{ $events->previousPageUrl() }}">←</a>
-                @endif
-
-                @foreach($events->getUrlRange(1, $events->lastPage()) as $page => $url)
-                    @if($page == $events->currentPage())
-                        <span class="active">{{ $page }}</span>
-                    @else
-                        <a href="{{ $url }}">{{ $page }}</a>
-                    @endif
-                @endforeach
-
-                @if($events->hasMorePages())
-                    <a href="{{ $events->nextPageUrl() }}">→</a>
-                @else
-                    <span>→</span>
-                @endif
-            </div>
+        <!-- Pagination -->
+        @if($events->hasPages())
+        <div class="pagination">
+            @if($events->onFirstPage())
+            <span>←</span>
+            @else
+            <a href="{{ $events->previousPageUrl() }}">←</a>
             @endif
+
+            @foreach($events->getUrlRange(1, $events->lastPage()) as $page => $url)
+            @if($page == $events->currentPage())
+            <span class="active">{{ $page }}</span>
+            @else
+            <a href="{{ $url }}">{{ $page }}</a>
+            @endif
+            @endforeach
+
+            @if($events->hasMorePages())
+            <a href="{{ $events->nextPageUrl() }}">→</a>
+            @else
+            <span>→</span>
+            @endif
+        </div>
+        @endif
         @else
-            <div style="text-align: center; padding: 60px 20px;">
-                <p style="font-size: 1.1rem; color: var(--ink-soft); margin-bottom: 20px;">No events found matching your filters.</p>
-                <a href="{{ route('public.events') }}" class="btn btn-primary">Browse All Events</a>
-            </div>
+        <div style="text-align: center; padding: 60px 20px;">
+            <p style="font-size: 1.1rem; color: var(--ink-soft); margin-bottom: 20px;">No events found matching your filters.</p>
+            <a href="{{ route('public.events') }}" class="btn btn-primary">Browse All Events</a>
+        </div>
         @endif
     </div>
 </div>

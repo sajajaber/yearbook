@@ -83,7 +83,7 @@
                         @if (!$event->aiGenerations->count() && in_array(Auth::user()->role?->role_name, ['admin', 'editor']))
                         <form method="POST" action="{{ route('events.generate-summary', $event) }}">@csrf<button type="submit" class="action-button">Generate summary</button></form>
                         @endif
-                    </div>      
+                    </div>
                 </article>
                 @empty
                 <div class="empty-editions">
