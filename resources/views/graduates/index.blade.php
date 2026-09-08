@@ -80,7 +80,7 @@
                 $searchText = strtolower($graduate->name . ' ' . ($graduate->school?->name ?? '') . ' ' . ($graduate->major?->name ?? '') . ' ' . ($graduate->student_reference ?? ''));
                 $initials = collect(explode(' ', trim($graduate->name)))->filter()->map(fn ($part) => strtoupper(substr($part, 0, 1)))->take(2)->implode('');
                 @endphp
-                <article class="graduate-card" x-show="(status === 'all' || status === '{{ $graduate->publish_status }}') && (year === 'all' || year === '{{ $graduate->graduation?->academic_year_id }}') && (campus === 'all' || campus === '{{ $graduate->campus_id }}') && (school === 'all' || school === '{{ $graduate->school_id }}') && (major === 'all' || major === '{{ $graduate->major_id }}') && '{{ $searchText }}'.includes(search.toLowerCase())">
+                <article class="graduate-card" x-show="(status === 'all' || status === '{{ $graduate->publish_status }}') && (year === 'all' || year === '{{ $graduate->graduation?->academic_year_id }}') && (campus === 'all' || campus === '{{ $graduate->campus_id }}') && (school === 'all' || school === '{{ $graduate->school_id }}') && (major === 'all' || major === '{{ $graduate->major_id }}') && @js($searchText).includes(search.toLowerCase())">
                     <div class="graduate-card-top">
                         <div class="graduate-avatar">{{ $initials }}</div><span class="edition-status {{ $graduate->publish_status === 'published' ? 'is-active' : 'is-archived' }}">{{ ucfirst($graduate->publish_status) }}</span>
                     </div>

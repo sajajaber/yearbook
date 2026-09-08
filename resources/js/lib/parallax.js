@@ -7,7 +7,7 @@ export function initParallax() {
         () => {
             const y = window.scrollY;
             shapes.forEach((shape, i) => {
-                const speed = 0.15 + i * 0.08;
+                const speed = 0.15 + i * 0.1;
                 shape.style.transform += ` translateY(${y * speed}px)`;
             });
         },

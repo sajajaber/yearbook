@@ -59,7 +59,7 @@
             <div class="event-grid">
                 @forelse ($events as $event)
                 @php $searchText = strtolower($event->title . ' ' . ($event->category?->name ?? '') . ' ' . ($event->location ?? '') . ' ' . ($event->description ?? '')); @endphp
-                <article class="event-card" x-show="(status === 'all' || status === '{{ $event->status }}') && (year === 'all' || year === '{{ $event->academic_year_id }}') && (campus === 'all' || [{{ $event->campuses->pluck('id')->implode(',') }}].includes(Number(campus))) && (school === 'all' || [{{ $event->schools->pluck('id')->implode(',') }}].includes(Number(school))) && '{{ $searchText }}'.includes(search.toLowerCase())">
+                <article class="event-card" x-show="(status === 'all' || status === '{{ $event->status }}') && (year === 'all' || year === '{{ $event->academic_year_id }}') && (campus === 'all' || [{{ $event->campuses->pluck('id')->implode(',') }}].includes(Number(campus))) && (school === 'all' || [{{ $event->schools->pluck('id')->implode(',') }}].includes(Number(school))) && @js($searchText).includes(search.toLowerCase())">
                     <div class="event-card-top"><span class="event-date"><strong>{{ \Carbon\Carbon::parse($event->event_date)->format('d') }}</strong><small>{{ \Carbon\Carbon::parse($event->event_date)->format('M Y') }}</small></span><span class="edition-status {{ $event->status === 'published' ? 'is-active' : 'is-archived' }}">{{ ucfirst($event->status) }}</span></div>
                     <p class="event-category">{{ $event->category?->name ?? 'Campus story' }}@if ($event->featured)<span>Featured</span>@endif</p>
                     <h3>{{ $event->title }}</h3>

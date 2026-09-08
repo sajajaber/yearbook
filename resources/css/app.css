@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+[x-cloak] {
+    display: none !important;
+}
+
 :root {
     --ink: #002a5c;
     --ink-soft: #64748b;
