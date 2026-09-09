@@ -1,1187 +1,2110 @@
-@extends('public.layout')
-
-@section('title', 'Yearbook Home')
-
-@section('extra-css')
-<style>
-    /* ============ Color Palette & Design Tokens ============ */
-    :root {
-        --navy-dark: #002a5c;
-        --navy-mid: #073972;
-        --navy-light: #0a4a94;
-        --gold-accent: #ffce6b;
-        --gold-hover: #f59e0b;
-        --blue-accent: #0284c7;
-        --blue-subtitle: #d8e3ef;
-        --blue-bg-light: #f7fbff;
-        --cyan-orb: #4fc3f7;
-        --white: #ffffff;
-        --surface-border: rgba(0, 42, 92, 0.08);
-    }
-
-    /* ============ Global Setup ============ */
-    .yearbook-wrapper {
-        background-color: #f8fafc;
-        color: var(--navy-dark);
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    }
-
-    /* ============ Editorial Split Hero ============ */
-    .hero-container {
-        background: linear-gradient(135deg, var(--navy-dark) 0%, var(--navy-mid) 100%);
-        color: var(--white);
-        position: relative;
-        overflow: hidden;
-        padding: 80px 20px;
-        min-height: 560px;
-        display: flex;
-        align-items: center;
-    }
-
-    /* Decorative Background Accents */
-    .hero-glow-cyan {
-        position: absolute;
-        width: 380px;
-        height: 380px;
-        background: radial-gradient(circle, rgba(79, 195, 247, 0.25) 0%, transparent 70%);
-        top: -100px;
-        right: -50px;
-        pointer-events: none;
-    }
-
-    .hero-glow-gold {
-        position: absolute;
-        width: 320px;
-        height: 320px;
-        background: radial-gradient(circle, rgba(255, 206, 107, 0.18) 0%, transparent 70%);
-        bottom: -80px;
-        left: -40px;
-        pointer-events: none;
-    }
-
-    .hero-layout {
-        max-width: 1200px;
-        margin: 0 auto;
-        width: 100%;
-        display: grid;
-        grid-template-columns: 1.1fr 0.9fr;
-        gap: 48px;
-        align-items: center;
-        position: relative;
-        z-index: 2;
-    }
-
-    .hero-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid var(--gold-accent);
-        padding: 6px 14px;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: 700;
-        letter-spacing: 1.5px;
-        text-transform: uppercase;
-        color: var(--gold-accent);
-        margin-bottom: 24px;
-        backdrop-filter: blur(8px);
-    }
-
-    .hero-title {
-        font-family: "Merriweather", Georgia, serif;
-        font-size: clamp(2.5rem, 5vw, 3.8rem);
-        font-weight: 800;
-        line-height: 1.15;
-        margin-bottom: 20px;
-        color: var(--white);
-    }
-
-    .hero-title span {
-        color: var(--gold-accent);
-        display: inline-block;
-    }
-
-    .hero-subtitle {
-        font-size: 1.1rem;
-        color: var(--blue-subtitle);
-        line-height: 1.6;
-        margin-bottom: 32px;
-        max-width: 500px;
-    }
-
-    /* Search Input Pill */
-    .hero-search-box {
-        display: flex;
-        background: var(--white);
-        border-radius: 50px;
-        padding: 6px;
-        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
-        max-width: 480px;
-    }
-
-    .hero-search-box input {
-        flex: 1;
-        border: none;
-        background: transparent;
-        padding: 12px 20px;
-        font-size: 0.95rem;
-        outline: none;
-        color: var(--navy-dark);
-    }
-
-    .hero-search-box button {
-        background: var(--gold-accent);
-        color: var(--navy-dark);
-        border: none;
-        padding: 12px 28px;
-        border-radius: 50px;
-        font-weight: 700;
-        cursor: pointer;
-        transition: background 0.25s ease, transform 0.2s ease;
-    }
-
-    .hero-search-box button:hover {
-        background: var(--gold-hover);
-        transform: scale(1.02);
-    }
-
-    /* Hero Frame Visual */
-    .hero-frame-container {
-        position: relative;
-    }
-
-    .hero-frame-card {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        border-radius: 16px;
-        padding: 12px;
-        backdrop-filter: blur(12px);
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
-    }
-
-    .hero-frame-image {
-        width: 100%;
-        height: 340px;
-        object-fit: cover;
-        border-radius: 10px;
-        display: block;
-    }
-
-    /* ============ Stats Ribbon ============ */
-    .stats-ribbon {
-        max-width: 1100px;
-        margin: -40px auto 60px;
-        background: var(--white);
-        border-radius: 16px;
-        box-shadow: 0 15px 35px rgba(0, 42, 92, 0.08);
-        border: 1px solid var(--surface-border);
-        position: relative;
-        z-index: 5;
-        padding: 28px;
-    }
-
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 20px;
-    }
-
-    .stat-item {
-        text-align: center;
-        position: relative;
-    }
-
-    .stat-item:not(:last-child)::after {
-        content: "";
-        position: absolute;
-        right: 0;
-        top: 20%;
-        height: 60%;
-        width: 1px;
-        background: var(--surface-border);
-    }
-
-    .stat-value {
-        font-family: "Merriweather", serif;
-        font-size: 2.5rem;
-        font-weight: 800;
-        color: var(--navy-dark);
-        line-height: 1;
-        margin-bottom: 6px;
-    }
-
-    .stat-tag {
-        font-size: 0.8rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        color: var(--blue-accent);
-    }
-
-    /* ============ Quick Nav Cards ============ */
-    .section-container {
-        max-width: 1100px;
-        margin: 0 auto 70px;
-        padding: 0 20px;
-    }
-
-    .nav-tiles {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-        gap: 20px;
-    }
-
-    .nav-tile {
-        background: var(--white);
-        border: 1px solid var(--surface-border);
-        border-radius: 12px;
-        padding: 28px 20px;
-        text-decoration: none;
-        color: var(--navy-dark);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .nav-tile:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 12px 28px rgba(0, 42, 92, 0.1);
-        border-color: var(--gold-accent);
-    }
-
-    .nav-tile-icon {
-        width: 56px;
-        height: 56px;
-        background: var(--blue-bg-light);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-        margin-bottom: 16px;
-        transition: transform 0.3s ease;
-    }
-
-    .nav-tile:hover .nav-tile-icon {
-        transform: scale(1.1);
-        background: #eef6ff;
-    }
-
-    .nav-tile-title {
-        font-family: "Merriweather", serif;
-        font-size: 1.1rem;
-        font-weight: 700;
-        margin: 0;
-    }
-
-    /* ============ Dedication Pull-Quote ============ */
-    .dedication-box {
-        background: linear-gradient(135deg, var(--navy-dark) 0%, var(--navy-mid) 100%);
-        border-left: 6px solid var(--gold-accent);
-        border-radius: 12px;
-        padding: 40px;
-        color: var(--white);
-        margin-bottom: 70px;
-        position: relative;
-    }
-
-    .dedication-tag {
-        font-size: 0.75rem;
-        letter-spacing: 2px;
-        text-transform: uppercase;
-        color: var(--gold-accent);
-        font-weight: 700;
-        margin-bottom: 12px;
-    }
-
-    .dedication-quote {
-        font-family: "Merriweather", Georgia, serif;
-        font-size: 1.35rem;
-        line-height: 1.6;
-        font-style: italic;
-        color: var(--blue-subtitle);
-        margin: 0;
-    }
-
-    /* ============ Section Titles ============ */
-    .heading-block {
-        display: flex;
-        align-items: flex-end;
-        justify-content: space-between;
-        margin-bottom: 32px;
-        border-bottom: 2px solid var(--surface-border);
-        padding-bottom: 16px;
-    }
-
-    .heading-block-left .kicker {
-        font-size: 0.75rem;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: 1.5px;
-        color: var(--blue-accent);
-        margin-bottom: 4px;
-    }
-
-    .heading-block-left h2 {
-        font-family: "Merriweather", serif;
-        font-size: 2rem;
-        font-weight: 800;
-        color: var(--navy-dark);
-        margin: 0;
-    }
-
-    /* ============ Events Auto Slider ============ */
-    .events-slider-wrapper {
-        position: relative;
-        overflow: hidden;
-    }
-
-    .events-scroll-row {
-        display: flex;
-        gap: 24px;
-        overflow-x: auto;
-        padding-bottom: 16px;
-        scroll-behavior: smooth;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    .events-scroll-row::-webkit-scrollbar {
-        height: 6px;
-    }
-
-    .events-scroll-row::-webkit-scrollbar-thumb {
-        background: var(--navy-light);
-        border-radius: 4px;
-    }
-
-    .event-card {
-        min-width: 280px;
-        max-width: 320px;
-        flex: 0 0 auto;
-        background: var(--white);
-        border-radius: 12px;
-        border: 1px solid var(--surface-border);
-        overflow: hidden;
-        text-decoration: none;
-        color: inherit;
-        scroll-snap-align: start;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .event-card:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 16px 30px rgba(0, 42, 92, 0.12);
-    }
-
-    .event-card-img {
-        width: 100%;
-        height: 180px;
-        object-fit: cover;
-        background: var(--navy-dark);
-    }
-
-    .event-card-content {
-        padding: 20px;
-        display: flex;
-        flex-direction: column;
-        flex: 1;
-    }
-
-    .event-date-badge {
-        font-size: 0.75rem;
-        font-weight: 800;
-        color: var(--navy-light);
-        text-transform: uppercase;
-        margin-bottom: 8px;
-    }
-
-    .event-card-title {
-        font-family: "Merriweather", serif;
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: var(--navy-dark);
-        margin-bottom: 8px;
-        line-height: 1.35;
-    }
-
-    .event-card-desc {
-        font-size: 0.875rem;
-        color: var(--navy-mid);
-        line-height: 1.5;
-        opacity: 0.8;
-    }
-
-    /* Carousel Navigation Indicators */
-    .slider-indicators {
-        display: flex;
-        justify-content: center;
-        gap: 8px;
-        margin-top: 16px;
-    }
-
-    .slider-dot {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background: var(--surface-border);
-        transition: background 0.3s ease, transform 0.3s ease;
-        cursor: pointer;
-    }
-
-    .slider-dot.active {
-        background: var(--navy-light);
-        transform: scale(1.2);
-    }
-
-    /* ============ Graduations Grid ============ */
-    .graduations-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-        gap: 24px;
-    }
-
-    .graduation-tile {
-        background: var(--white);
-        border-radius: 12px;
-        border: 1px solid var(--surface-border);
-        overflow: hidden;
-        text-decoration: none;
-        color: inherit;
-        display: flex;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .graduation-tile:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 12px 24px rgba(0, 42, 92, 0.1);
-    }
-
-    .graduation-tile-img {
-        width: 120px;
-        height: 100%;
-        min-height: 130px;
-        object-fit: cover;
-        background: var(--navy-dark);
-    }
-
-    .graduation-tile-info {
-        padding: 20px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
-
-    .graduation-tile-title {
-        font-family: "Merriweather", serif;
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: var(--navy-dark);
-        margin-bottom: 6px;
-    }
-
-    .graduation-tile-date {
-        font-size: 0.85rem;
-        color: var(--navy-light);
-        font-weight: 600;
-    }
-
-    /* ============ Contact CTA Footer Banner ============ */
-    .cta-banner {
-        background: linear-gradient(135deg, var(--navy-dark) 0%, var(--navy-mid) 100%);
-        color: var(--white);
-        padding: 60px 20px;
-        text-align: center;
-        border-top: 4px solid var(--gold-accent);
-    }
-
-    .cta-banner-content {
-        max-width: 600px;
-        margin: 0 auto;
-    }
-
-    .cta-banner h2 {
-        font-family: "Merriweather", serif;
-        font-size: 2.2rem;
-        font-weight: 800;
-        margin-bottom: 12px;
-    }
-
-    .cta-banner p {
-        color: var(--blue-subtitle);
-        font-size: 1rem;
-        margin-bottom: 28px;
-    }
-
-    .cta-actions {
-        display: flex;
-        justify-content: center;
-        gap: 16px;
-        flex-wrap: wrap;
-    }
-
-    .btn-main {
-        background: var(--gold-accent);
-        color: var(--navy-dark);
-        padding: 14px 32px;
-        border-radius: 50px;
-        font-weight: 700;
-        text-decoration: none;
-        transition: background 0.25s ease, transform 0.2s ease;
-    }
-
-    .btn-main:hover {
-        background: var(--gold-hover);
-        transform: translateY(-2px);
-    }
-
-    .btn-outline {
-        border: 2px solid rgba(255, 255, 255, 0.4);
-        color: var(--white);
-        padding: 12px 28px;
-        border-radius: 50px;
-        font-weight: 600;
-        text-decoration: none;
-        transition: all 0.25s ease;
-    }
-
-    .btn-outline:hover {
-        border-color: var(--white);
-        background: rgba(255, 255, 255, 0.1);
-    }
-
-    /* Responsive Design */
-    @media (max-width: 900px) {
-        .hero-layout {
-            grid-template-columns: 1fr;
-            gap: 36px;
+    @extends('public.layout')
+
+    @section('title', 'Yearbook Home')
+
+    @section('extra-css')
+
+    <style>
+        /* =========================================================
+        DIGITAL YEARBOOK — EDITORIAL DESIGN SYSTEM
+        ========================================================= */
+
+        :root {
+            --yb-ink: #071a33;
+            --yb-blue: #0b3b72;
+            --yb-blue-soft: #eaf2fa;
+            --yb-gold: #d7a83e;
+            --yb-gold-light: #f4dfaa;
+            --yb-paper: #f5f2eb;
+            --yb-white: #ffffff;
+            --yb-muted: #687589;
+            --yb-line: rgba(7, 26, 51, 0.14);
+            --yb-dark-line: rgba(255, 255, 255, 0.18);
+            --yb-serif: "Merriweather", Georgia, serif;
+            --yb-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
-        .stats-grid {
-            grid-template-columns: 1fr;
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        .yearbook-wrapper {
+            background: var(--yb-paper);
+            color: var(--yb-ink);
+            font-family: var(--yb-sans);
+            overflow: hidden;
+        }
+
+        .yb-container {
+            width: min(1240px, calc(100% - 48px));
+            margin: 0 auto;
+        }
+
+        /* =========================================================
+        HERO / COVER
+        ========================================================= */
+
+        .yb-cover {
+            min-height: min(900px, 92vh);
+            background: var(--yb-ink);
+            color: var(--yb-white);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: stretch;
+        }
+
+        .yb-cover::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(90deg,
+                    rgba(7, 26, 51, 0.97) 0%,
+                    rgba(7, 26, 51, 0.82) 42%,
+                    rgba(7, 26, 51, 0.28) 72%,
+                    rgba(7, 26, 51, 0.52) 100%);
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .yb-cover-image {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+        }
+
+        .yb-cover-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            filter: saturate(0.82);
+            transform: scale(1.02);
+        }
+
+        .yb-cover-empty {
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle at 75% 30%, rgba(215, 168, 62, 0.18), transparent 25%),
+                linear-gradient(135deg, #071a33, #0b3b72);
+        }
+
+        .yb-cover-grid {
+            position: absolute;
+            inset: 0;
+            z-index: 3;
+            pointer-events: none;
+            opacity: 0.25;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, .08) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, .08) 1px, transparent 1px);
+            background-size: 80px 80px;
+        }
+
+        .yb-cover-inner {
+            position: relative;
+            z-index: 4;
+            width: min(1240px, calc(100% - 48px));
+            margin: 0 auto;
+            min-height: min(900px, 92vh);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 42px 0 50px;
+        }
+
+        .yb-cover-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .yb-brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            text-decoration: none;
+            color: var(--yb-white);
+        }
+
+        .yb-brand-mark {
+            width: 48px;
+            height: 48px;
+            border: 1px solid rgba(255, 255, 255, .55);
+            display: grid;
+            place-items: center;
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .yb-brand-text {
+            font-size: 0.68rem;
+            line-height: 1.4;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 700;
+        }
+
+        .yb-edition {
+            text-align: right;
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: rgba(255, 255, 255, .72);
+        }
+
+        .yb-edition strong {
+            display: block;
+            color: var(--yb-gold-light);
+            font-size: 0.82rem;
+            margin-top: 5px;
+        }
+
+        .yb-cover-main {
+            max-width: 920px;
+            margin-top: auto;
+            margin-bottom: auto;
+            padding: 80px 0;
+        }
+
+        .yb-cover-kicker {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            color: var(--yb-gold-light);
+            margin-bottom: 24px;
+        }
+
+        .yb-cover-kicker::before {
+            content: "";
+            width: 42px;
+            height: 1px;
+            background: var(--yb-gold);
+        }
+
+        .yb-cover-title {
+            font-family: var(--yb-serif);
+            font-size: clamp(4rem, 10vw, 9.5rem);
+            line-height: 0.84;
+            letter-spacing: -0.065em;
+            font-weight: 900;
+            margin: 0;
+            max-width: 950px;
+        }
+
+        .yb-cover-title span {
+            color: var(--yb-gold-light);
+            font-style: italic;
+            font-weight: 400;
+        }
+
+        .yb-cover-description {
+            max-width: 520px;
+            margin-top: 34px;
+            font-size: 1.05rem;
+            line-height: 1.75;
+            color: rgba(255, 255, 255, .76);
+        }
+
+        .yb-cover-actions {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            margin-top: 34px;
+            flex-wrap: wrap;
+        }
+
+        .yb-cover-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 22px;
+            background: var(--yb-gold);
+            color: var(--yb-ink);
+            text-decoration: none;
+            font-size: 0.76rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.4px;
+            transition: transform .25s ease, background .25s ease;
+        }
+
+        .yb-cover-link:hover {
+            transform: translateY(-3px);
+            background: var(--yb-gold-light);
+        }
+
+        .yb-cover-link-arrow {
+            font-size: 1rem;
+        }
+
+        .yb-cover-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            border-top: 1px solid var(--yb-dark-line);
+            padding-top: 18px;
+        }
+
+        .yb-cover-caption {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1.7px;
+            color: rgba(255, 255, 255, .55);
+        }
+
+        .yb-cover-scroll {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: rgba(255, 255, 255, .65);
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .yb-scroll-line {
+            width: 55px;
+            height: 1px;
+            background: rgba(255, 255, 255, .5);
+        }
+
+        /* =========================================================
+        INTRODUCTION
+        ========================================================= */
+
+        .yb-introduction {
+            padding: 130px 0 110px;
+            background: var(--yb-paper);
+        }
+
+        .yb-intro-grid {
+            display: grid;
+            grid-template-columns: 0.7fr 1.3fr;
+            gap: 80px;
+            align-items: start;
+        }
+
+        .yb-overline {
+            font-size: 0.68rem;
+            font-weight: 800;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: var(--yb-gold);
+            margin-bottom: 16px;
+        }
+
+        .yb-intro-side {
+            position: sticky;
+            top: 110px;
+        }
+
+        .yb-intro-number {
+            font-family: var(--yb-serif);
+            font-size: clamp(5rem, 10vw, 9rem);
+            line-height: .75;
+            color: var(--yb-blue);
+            font-weight: 900;
+            letter-spacing: -0.08em;
+            margin: 20px 0;
+        }
+
+        .yb-intro-side p {
+            max-width: 260px;
+            color: var(--yb-muted);
+            font-size: .86rem;
+            line-height: 1.7;
+        }
+
+        .yb-intro-heading {
+            font-family: var(--yb-serif);
+            font-size: clamp(2.3rem, 5vw, 5rem);
+            line-height: 1.02;
+            letter-spacing: -.055em;
+            margin: 0;
+            max-width: 760px;
+        }
+
+        .yb-intro-heading em {
+            color: var(--yb-blue);
+            font-weight: 400;
+        }
+
+        .yb-intro-copy {
+            max-width: 680px;
+            margin-top: 32px;
+            font-size: 1.05rem;
+            line-height: 1.9;
+            color: var(--yb-muted);
+        }
+
+        /* =========================================================
+        NUMBERS
+        ========================================================= */
+
+        .yb-numbers {
+            background: var(--yb-blue);
+            color: var(--yb-white);
+            padding: 75px 0;
+            position: relative;
+        }
+
+        .yb-numbers::after {
+            content: "THE YEAR";
+            position: absolute;
+            right: -10px;
+            bottom: -34px;
+            font-size: clamp(5rem, 14vw, 13rem);
+            font-weight: 900;
+            letter-spacing: -.08em;
+            color: rgba(255, 255, 255, .035);
+            pointer-events: none;
+            line-height: .8;
+        }
+
+        .yb-number-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .yb-number-item {
+            padding: 10px 50px;
+            border-left: 1px solid var(--yb-dark-line);
+        }
+
+        .yb-number-item:first-child {
+            border-left: 0;
+            padding-left: 0;
+        }
+
+        .yb-number-value {
+            font-family: var(--yb-serif);
+            font-size: clamp(3.3rem, 6vw, 6rem);
+            line-height: .9;
+            letter-spacing: -.06em;
+            color: var(--yb-gold-light);
+            margin-bottom: 15px;
+        }
+
+        .yb-number-label {
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: .68rem;
+            font-weight: 800;
+            color: rgba(255, 255, 255, .7);
+        }
+
+        /* =========================================================
+        YEAR TIMELINE
+        ========================================================= */
+
+        .yb-timeline-section {
+            padding: 135px 0 145px;
+            background: var(--yb-paper);
+        }
+
+        .yb-section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 30px;
+            margin-bottom: 80px;
+        }
+
+        .yb-section-header h2 {
+            font-family: var(--yb-serif);
+            font-size: clamp(2.7rem, 6vw, 6rem);
+            line-height: .9;
+            letter-spacing: -.065em;
+            margin: 0;
+        }
+
+        .yb-section-header h2 em {
+            color: var(--yb-blue);
+            font-weight: 400;
+        }
+
+        .yb-section-header-note {
+            max-width: 300px;
+            color: var(--yb-muted);
+            font-size: .82rem;
+            line-height: 1.65;
+            text-align: right;
+        }
+
+        .yb-timeline {
+            position: relative;
+            padding-left: 95px;
+        }
+
+        .yb-timeline::before {
+            content: "";
+            position: absolute;
+            left: 25px;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: var(--yb-line);
+        }
+
+        .yb-event {
+            position: relative;
+            display: grid;
+            grid-template-columns: 180px 1fr;
+            gap: 45px;
+            padding: 0 0 75px;
+        }
+
+        .yb-event:last-child {
+            padding-bottom: 0;
+        }
+
+        .yb-event::before {
+            content: "";
+            position: absolute;
+            left: -75px;
+            top: 5px;
+            width: 11px;
+            height: 11px;
+            background: var(--yb-paper);
+            border: 2px solid var(--yb-gold);
+            border-radius: 50%;
+            box-shadow: 0 0 0 7px var(--yb-paper);
+        }
+
+        .yb-event-date {
+            font-family: var(--yb-serif);
+            font-size: 1.05rem;
+            color: var(--yb-blue);
+            line-height: 1.3;
+        }
+
+        .yb-event-date span {
+            display: block;
+            font-family: var(--yb-sans);
+            text-transform: uppercase;
+            font-size: .62rem;
+            font-weight: 800;
+            letter-spacing: 1.8px;
+            color: var(--yb-muted);
+            margin-bottom: 7px;
+        }
+
+        .yb-event-content {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 270px;
+            gap: 30px;
+            align-items: start;
+            padding-bottom: 30px;
+            border-bottom: 1px solid var(--yb-line);
+        }
+
+        .yb-event:last-child .yb-event-content {
+            border-bottom: 0;
+        }
+
+        .yb-event-title {
+            font-family: var(--yb-serif);
+            font-size: clamp(1.5rem, 2.5vw, 2.4rem);
+            line-height: 1.12;
+            letter-spacing: -.04em;
+            margin: 0 0 13px;
+        }
+
+        .yb-event-description {
+            font-size: .88rem;
+            line-height: 1.7;
+            color: var(--yb-muted);
+            max-width: 600px;
+            margin: 0;
+        }
+
+        .yb-event-image {
+            width: 100%;
+            aspect-ratio: 1.35 / 1;
+            object-fit: cover;
+            display: block;
+            filter: saturate(.88);
+        }
+
+        .yb-event-placeholder {
+            width: 100%;
+            aspect-ratio: 1.35 / 1;
+            background: var(--yb-blue-soft);
+            display: grid;
+            place-items: center;
+            color: var(--yb-blue);
+            font-size: .65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .yb-event-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--yb-blue);
+            text-decoration: none;
+            text-transform: uppercase;
+            font-size: .65rem;
+            letter-spacing: 1.5px;
+            font-weight: 800;
+            margin-top: 22px;
+        }
+
+        /* =========================================================
+        PEOPLE / GRADUATES
+        ========================================================= */
+
+        .yb-people {
+            background: var(--yb-white);
+            padding: 130px 0;
+        }
+
+        .yb-people-heading {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 70px;
+            align-items: end;
+            margin-bottom: 70px;
+        }
+
+        .yb-people-heading h2 {
+            font-family: var(--yb-serif);
+            font-size: clamp(3rem, 7vw, 7rem);
+            line-height: .84;
+            letter-spacing: -.07em;
+            margin: 0;
+        }
+
+        .yb-people-heading h2 span {
+            color: var(--yb-blue);
+            font-style: italic;
+            font-weight: 400;
+        }
+
+        .yb-people-heading p {
+            max-width: 410px;
+            margin: 0 0 5px auto;
+            color: var(--yb-muted);
+            font-size: .9rem;
+            line-height: 1.8;
+        }
+
+        .yb-graduation-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 18px;
+        }
+
+        .yb-graduation-card {
+            position: relative;
+            min-height: 330px;
+            overflow: hidden;
+            text-decoration: none;
+            color: var(--yb-white);
+            background: var(--yb-blue);
+        }
+
+        .yb-graduation-card:nth-child(1) {
+            grid-column: span 7;
+        }
+
+        .yb-graduation-card:nth-child(2) {
+            grid-column: span 5;
+        }
+
+        .yb-graduation-card:nth-child(3) {
+            grid-column: span 5;
+        }
+
+        .yb-graduation-card:nth-child(4) {
+            grid-column: span 7;
+        }
+
+        .yb-graduation-image,
+        .yb-graduation-placeholder {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .yb-graduation-image {
+            object-fit: cover;
+            transition: transform .7s cubic-bezier(.16, 1, .3, 1);
+        }
+
+        .yb-graduation-card:hover .yb-graduation-image {
+            transform: scale(1.06);
+        }
+
+        .yb-graduation-placeholder {
+            background: linear-gradient(135deg, var(--yb-blue), var(--yb-ink));
+        }
+
+        .yb-graduation-card::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg,
+                    rgba(7, 26, 51, 0) 25%,
+                    rgba(7, 26, 51, .86) 100%);
+        }
+
+        .yb-graduation-info {
+            position: absolute;
+            z-index: 2;
+            left: 28px;
+            right: 28px;
+            bottom: 26px;
+        }
+
+        .yb-graduation-date {
+            font-size: .63rem;
+            text-transform: uppercase;
+            letter-spacing: 1.8px;
+            color: var(--yb-gold-light);
+            font-weight: 800;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .yb-graduation-title {
+            font-family: var(--yb-serif);
+            font-size: clamp(1.25rem, 2.5vw, 2rem);
+            line-height: 1.05;
+            margin: 0;
+        }
+
+        .yb-graduation-arrow {
+            position: absolute;
+            z-index: 3;
+            top: 24px;
+            right: 24px;
+            width: 42px;
+            height: 42px;
+            border: 1px solid rgba(255, 255, 255, .45);
+            display: grid;
+            place-items: center;
+            font-size: 1rem;
+        }
+
+        /* =========================================================
+        MOMENTS / PHOTO MOSAIC
+        ========================================================= */
+
+        .yb-moments {
+            padding: 135px 0;
+            background: var(--yb-paper);
+        }
+
+        .yb-moments-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 55px;
+        }
+
+        .yb-moments-header h2 {
+            font-family: var(--yb-serif);
+            font-size: clamp(3rem, 7vw, 7rem);
+            line-height: .85;
+            letter-spacing: -.07em;
+            margin: 0;
+        }
+
+        .yb-moments-header p {
+            color: var(--yb-muted);
+            font-size: .72rem;
+            text-transform: uppercase;
+            letter-spacing: 1.8px;
+            margin: 0;
+        }
+
+        .yb-photo-mosaic {
+            display: grid;
+            grid-template-columns: 1.1fr .65fr .95fr;
+            grid-template-rows: 250px 180px;
+            gap: 15px;
+        }
+
+        .yb-mosaic-item {
+            position: relative;
+            overflow: hidden;
+            background: var(--yb-blue-soft);
+        }
+
+        .yb-mosaic-item:nth-child(1) {
+            grid-row: span 2;
+        }
+
+        .yb-mosaic-item:nth-child(2) {
+            grid-row: span 1;
+        }
+
+        .yb-mosaic-item:nth-child(3) {
+            grid-row: span 2;
+        }
+
+        .yb-mosaic-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform .7s cubic-bezier(.16, 1, .3, 1);
+        }
+
+        .yb-mosaic-item:hover img {
+            transform: scale(1.06);
+        }
+
+        .yb-mosaic-label {
+            position: absolute;
+            left: 16px;
+            bottom: 15px;
+            background: var(--yb-white);
+            color: var(--yb-ink);
+            padding: 8px 11px;
+            font-size: .6rem;
+            text-transform: uppercase;
+            letter-spacing: 1.4px;
+            font-weight: 800;
+        }
+
+        /* =========================================================
+        CAMPUS / WORLD
+        ========================================================= */
+
+        .yb-campus {
+            background: var(--yb-ink);
+            color: var(--yb-white);
+            padding: 130px 0;
+            position: relative;
+        }
+
+        .yb-campus-header {
+            display: grid;
+            grid-template-columns: .65fr 1.35fr;
+            gap: 70px;
+            margin-bottom: 70px;
+        }
+
+        .yb-campus-index {
+            font-family: var(--yb-serif);
+            font-size: clamp(5rem, 10vw, 10rem);
+            line-height: .75;
+            color: var(--yb-gold-light);
+            letter-spacing: -.08em;
+        }
+
+        .yb-campus-header h2 {
+            font-family: var(--yb-serif);
+            font-size: clamp(3rem, 6vw, 6rem);
+            line-height: .9;
+            letter-spacing: -.07em;
+            margin: 0;
+        }
+
+        .yb-campus-header h2 em {
+            color: var(--yb-gold-light);
+            font-weight: 400;
+        }
+
+        .yb-campus-header p {
+            color: rgba(255, 255, 255, .62);
+            max-width: 600px;
+            line-height: 1.8;
+            font-size: .9rem;
+            margin-top: 25px;
+        }
+
+        .yb-campus-strip {
+            display: flex;
+            overflow-x: auto;
+            gap: 14px;
+            padding-bottom: 15px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--yb-gold) transparent;
+        }
+
+        .yb-campus-strip::-webkit-scrollbar {
+            height: 3px;
+        }
+
+        .yb-campus-strip::-webkit-scrollbar-thumb {
+            background: var(--yb-gold);
+        }
+
+        .yb-campus-name {
+            flex: 0 0 auto;
+            padding: 20px 27px;
+            border: 1px solid var(--yb-dark-line);
+            color: rgba(255, 255, 255, .7);
+            text-transform: uppercase;
+            letter-spacing: 1.8px;
+            font-size: .68rem;
+            font-weight: 800;
+            white-space: nowrap;
+            transition: all .25s ease;
+        }
+
+        .yb-campus-name:hover {
+            border-color: var(--yb-gold);
+            color: var(--yb-gold-light);
+            transform: translateY(-3px);
+        }
+
+        /* =========================================================
+        ARCHIVE
+        ========================================================= */
+
+        .yb-archive {
+            background: var(--yb-gold);
+            color: var(--yb-ink);
+            padding: 120px 0 130px;
+        }
+
+        .yb-archive-inner {
+            display: grid;
+            grid-template-columns: 1fr .7fr;
+            gap: 100px;
+            align-items: end;
+        }
+
+        .yb-archive-heading {
+            font-family: var(--yb-serif);
+            font-size: clamp(3.5rem, 8vw, 8rem);
+            line-height: .82;
+            letter-spacing: -.075em;
+            margin: 0;
+        }
+
+        .yb-archive-heading em {
+            font-weight: 400;
+        }
+
+        .yb-archive-copy {
+            max-width: 390px;
+            font-size: .9rem;
+            line-height: 1.8;
+            margin: 28px 0 0;
+        }
+
+        .yb-archive-link {
+            display: inline-flex;
+            align-items: center;
             gap: 16px;
+            margin-top: 30px;
+            padding: 17px 25px;
+            border: 1px solid var(--yb-ink);
+            color: var(--yb-ink);
+            text-decoration: none;
+            text-transform: uppercase;
+            font-size: .66rem;
+            font-weight: 900;
+            letter-spacing: 1.7px;
+            transition: background .25s ease, color .25s ease;
         }
 
-        .stat-item:not(:last-child)::after {
-            display: none;
+        .yb-archive-link:hover {
+            background: var(--yb-ink);
+            color: var(--yb-gold-light);
         }
-    }
-</style>
-@endsection
 
-@section('content')
-<div class="yearbook-wrapper">
+        .yb-archive-years {
+            border-top: 1px solid rgba(7, 26, 51, .3);
+        }
 
-    <!-- Hero Section -->
-    <section class="hero-container">
-        <div class="hero-glow-cyan"></div>
-        <div class="hero-glow-gold"></div>
+        .yb-archive-year {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 19px 0;
+            border-bottom: 1px solid rgba(7, 26, 51, .3);
+            text-decoration: none;
+            color: var(--yb-ink);
+            font-family: var(--yb-serif);
+            font-size: 1.35rem;
+            transition: padding .25s ease;
+        }
 
-        <div class="hero-layout">
-            <div class="hero-text-side">
-                @if($currentYear)
-                <div class="hero-badge">✦ {{ $currentYear->title }} Edition</div>
-                <h1 class="hero-title">Preserving <span>Memories</span>, Celebrating Excellence.</h1>
+        .yb-archive-year:hover {
+            padding-left: 10px;
+        }
+
+        .yb-archive-year span:last-child {
+            font-family: var(--yb-sans);
+            font-size: .65rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        /* =========================================================
+        FOOTER
+        ========================================================= */
+
+        .yb-footer {
+            background: var(--yb-ink);
+            color: var(--yb-white);
+            padding: 70px 0 35px;
+        }
+
+        .yb-footer-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 50px;
+            padding-bottom: 60px;
+            border-bottom: 1px solid var(--yb-dark-line);
+        }
+
+        .yb-footer-title {
+            font-family: var(--yb-serif);
+            font-size: clamp(3rem, 8vw, 8rem);
+            line-height: .8;
+            letter-spacing: -.07em;
+            margin: 0;
+        }
+
+        .yb-footer-title span {
+            color: var(--yb-gold-light);
+            font-style: italic;
+            font-weight: 400;
+        }
+
+        .yb-footer-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 15px;
+        }
+
+        .yb-footer-actions p {
+            color: rgba(255, 255, 255, .55);
+            font-size: .78rem;
+            max-width: 280px;
+            line-height: 1.7;
+            text-align: right;
+            margin: 0;
+        }
+
+        .yb-footer-mail {
+            color: var(--yb-gold-light);
+            text-decoration: none;
+            font-size: .72rem;
+            text-transform: uppercase;
+            letter-spacing: 1.6px;
+            font-weight: 800;
+        }
+
+        .yb-footer-bottom {
+            padding-top: 25px;
+            display: flex;
+            justify-content: space-between;
+            color: rgba(255, 255, 255, .4);
+            font-size: .62rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        /* =========================================================
+        RESPONSIVE
+        ========================================================= */
+
+        @media (max-width: 900px) {
+
+            .yb-intro-grid,
+            .yb-campus-header,
+            .yb-archive-inner {
+                grid-template-columns: 1fr;
+                gap: 45px;
+            }
+
+            .yb-intro-side {
+                position: static;
+            }
+
+            .yb-number-grid {
+                grid-template-columns: 1fr;
+                gap: 35px;
+            }
+
+            .yb-number-item,
+            .yb-number-item:first-child {
+                border-left: 0;
+                border-top: 1px solid var(--yb-dark-line);
+                padding: 30px 0 0;
+            }
+
+            .yb-number-item:first-child {
+                border-top: 0;
+                padding-top: 0;
+            }
+
+            .yb-section-header,
+            .yb-moments-header {
+                display: block;
+            }
+
+            .yb-section-header-note {
+                text-align: left;
+                margin-top: 20px;
+            }
+
+            .yb-timeline {
+                padding-left: 45px;
+            }
+
+            .yb-timeline::before {
+                left: 5px;
+            }
+
+            .yb-event {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding-bottom: 55px;
+            }
+
+            .yb-event::before {
+                left: -45px;
+            }
+
+            .yb-event-content {
+                grid-template-columns: 1fr;
+            }
+
+            .yb-people-heading {
+                grid-template-columns: 1fr;
+                gap: 25px;
+            }
+
+            .yb-people-heading p {
+                margin-left: 0;
+            }
+
+            .yb-graduation-card:nth-child(n) {
+                grid-column: span 12;
+            }
+
+            .yb-photo-mosaic {
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: 260px 200px;
+            }
+
+            .yb-mosaic-item:nth-child(1),
+            .yb-mosaic-item:nth-child(3) {
+                grid-row: span 2;
+            }
+
+            .yb-footer-top {
+                display: block;
+            }
+
+            .yb-footer-actions {
+                align-items: flex-start;
+                margin-top: 45px;
+            }
+
+            .yb-footer-actions p {
+                text-align: left;
+            }
+        }
+
+        @media (max-width: 600px) {
+
+            .yb-container,
+            .yb-cover-inner {
+                width: min(100% - 30px, 1240px);
+            }
+
+            .yb-cover {
+                min-height: 760px;
+            }
+
+            .yb-cover-inner {
+                min-height: 760px;
+                padding-top: 25px;
+                padding-bottom: 30px;
+            }
+
+            .yb-cover-top {
+                align-items: flex-start;
+            }
+
+            .yb-edition {
+                display: none;
+            }
+
+            .yb-cover-title {
+                font-size: clamp(3.7rem, 19vw, 6rem);
+            }
+
+            .yb-cover-description {
+                font-size: .92rem;
+            }
+
+            .yb-introduction,
+            .yb-timeline-section,
+            .yb-people,
+            .yb-moments,
+            .yb-campus {
+                padding: 90px 0;
+            }
+
+            .yb-numbers {
+                padding: 60px 0;
+            }
+
+            .yb-photo-mosaic {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .yb-mosaic-item {
+                min-height: 260px;
+            }
+
+            .yb-cover-bottom {
+                display: block;
+            }
+
+            .yb-cover-scroll {
+                margin-top: 18px;
+            }
+
+            .yb-footer-bottom {
+                display: block;
+                line-height: 2;
+            }
+        }
+
+        /* Reduced motion accessibility */
+
+        /* =========================================================
+   Page transitions + scroll reveals
+   ========================================================= */
+        .yb-cover {
+            height: 100svh;
+            min-height: 0;
+            max-height: 100svh;
+            overflow: hidden;
+        }
+
+        .yb-cover-image,
+        .yb-cover-image img {
+            height: 100%;
+        }
+
+        .yb-cover-image img {
+            object-fit: cover;
+        }
+
+        /* Navbar: transparent over the hero, visible after scrolling. */
+        .yb-nav {
+            background: transparent !important;
+            box-shadow: none !important;
+            transition:
+                background-color .35s ease,
+                backdrop-filter .35s ease,
+                -webkit-backdrop-filter .35s ease,
+                box-shadow .35s ease,
+                padding .35s ease,
+                height .35s ease;
+        }
+
+        .yb-nav.is-scrolled {
+            background: rgba(20, 20, 20, .90) !important;
+            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 6px 24px rgba(0, 0, 0, .12) !important;
+        }
+
+        /* Slightly reduce navbar vertical space after scrolling. */
+        .yb-nav.is-scrolled {
+            padding-top: 8px !important;
+            padding-bottom: 8px !important;
+        }
+
+        /* First-load animation. */
+        .yearbook-wrapper.page-animations .yb-cover-image img {
+            animation: ybHeroImageIn 1.25s cubic-bezier(.16, 1, .3, 1) both;
+        }
+
+        .yearbook-wrapper.page-animations .yb-cover-kicker {
+            animation: ybFadeUp .75s .08s cubic-bezier(.16, 1, .3, 1) both;
+        }
+
+        .yearbook-wrapper.page-animations .yb-cover-title {
+            animation: ybFadeUp .85s .18s cubic-bezier(.16, 1, .3, 1) both;
+        }
+
+        .yearbook-wrapper.page-animations .yb-cover-description {
+            animation: ybFadeUp .8s .32s cubic-bezier(.16, 1, .3, 1) both;
+        }
+
+        .yearbook-wrapper.page-animations .yb-cover-actions {
+            animation: ybFadeUp .8s .45s cubic-bezier(.16, 1, .3, 1) both;
+        }
+
+        .yearbook-wrapper.page-animations .yb-cover-bottom {
+            animation: ybFadeUp .8s .58s cubic-bezier(.16, 1, .3, 1) both;
+        }
+
+        @keyframes ybHeroImageIn {
+            from {
+                opacity: 0;
+                transform: scale(1.07);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes ybFadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(26px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Scroll reveal. */
+        .scroll-animations-ready .yb-reveal {
+            opacity: 0;
+            transform: translateY(38px);
+            transition:
+                opacity .75s ease,
+                transform .85s cubic-bezier(.16, 1, .3, 1);
+            transition-delay: var(--yb-delay, 0ms);
+            will-change: opacity, transform;
+        }
+
+        .scroll-animations-ready .yb-reveal.is-visible {
+            opacity: 1;
+            transform: translate3d(0, 0, 0);
+        }
+
+        .yb-scroll-pulse {
+            animation: ybScrollPulse 2.2s ease-in-out infinite;
+        }
+
+        @keyframes ybScrollPulse {
+
+            0%,
+            100% {
+                opacity: .55;
+                transform: translateY(0);
+            }
+
+            50% {
+                opacity: 1;
+                transform: translateY(5px);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            .yearbook-wrapper.page-animations .yb-cover-image img,
+            .yearbook-wrapper.page-animations .yb-cover-kicker,
+            .yearbook-wrapper.page-animations .yb-cover-title,
+            .yearbook-wrapper.page-animations .yb-cover-description,
+            .yearbook-wrapper.page-animations .yb-cover-actions,
+            .yearbook-wrapper.page-animations .yb-cover-bottom {
+                animation: none !important;
+            }
+
+            .scroll-animations-ready .yb-reveal {
+                opacity: 1 !important;
+                transform: none !important;
+                transition: none !important;
+            }
+
+            .yb-scroll-pulse {
+                animation: none !important;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html {
+                scroll-behavior: auto;
+            }
+
+            *,
+            *::before,
+            *::after {
+                transition-duration: 0.01ms !important;
+                animation-duration: 0.01ms !important;
+            }
+        }
+    </style>
+
+    @endsection
+
+    @section('content')
+
+    <div class="yearbook-wrapper">
+
+        {{-- =====================================================
+        01 — COVER
+        ===================================================== --}}
+        <section class="yb-cover" id="top">
+
+            <div class="yb-cover-image">
+                @if($heroImages->isNotEmpty())
+                <img
+                    src="{{ asset('storage/' . $heroImages->first()->path) }}"
+                    alt="Yearbook collection">
                 @else
-                <div class="hero-badge">✦ Archive Edition</div>
-                <h1 class="hero-title">Academic <span>Yearbook</span></h1>
+                <div class="yb-cover-empty"></div>
                 @endif
-
-                <p class="hero-subtitle">
-                    Discover campus history, celebrate graduating classes, and explore the landmark events that defined our journey.
-                </p>
-
-                <form method="POST" action="{{ route('search.perform') }}" class="hero-search-box">
-                    @csrf
-                    <input type="text" name="q" placeholder="Search graduates, events, or stories..." required>
-                    <button type="submit">Search</button>
-                </form>
             </div>
 
-            <div class="hero-frame-container">
-                <div class="hero-frame-card">
-                    @if($heroImages->isNotEmpty())
-                    <img src="{{ asset('storage/' . $heroImages->first()->path) }}" alt="Yearbook Preview" class="hero-frame-image">
-                    @else
-                    <div class="hero-frame-image" style="background: var(--navy-mid); display: flex; align-items: center; justify-content: center; color: var(--blue-subtitle);">
-                        Yearbook Collection
-                    </div>
-                    @endif
-                </div>
-            </div>
-        </div>
-    </section>
+            <div class="yb-cover-grid"></div>
 
-    <!-- Key Statistics Ribbon -->
-    <div class="stats-ribbon">
-        <div class="stats-grid">
-            <div class="stat-item">
-                <div class="stat-value">{{ $stats['undergraduates'] }}</div>
-                <div class="stat-tag">Undergraduates</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value">{{ $stats['graduates'] }}</div>
-                <div class="stat-tag">Postgraduates</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value">{{ $stats['events'] }}</div>
-                <div class="stat-tag">Campus Events</div>
-            </div>
-        </div>
-    </div>
+            <div class="yb-cover-inner">
 
-    <!-- Main Content Container -->
-    <div class="section-container">
+                <div class="yb-cover-top">
 
-        <!-- Navigation Shortcut Tiles -->
-        <div class="nav-tiles">
-            <a href="{{ route('public.timeline') }}" class="nav-tile">
-                <div class="nav-tile-icon">📅</div>
-                <h3 class="nav-tile-title">Timeline</h3>
-            </a>
-            <a href="{{ route('public.graduates') }}" class="nav-tile">
-                <div class="nav-tile-icon">🎓</div>
-                <h3 class="nav-tile-title">Graduates</h3>
-            </a>
-            <a href="{{ route('public.archive') }}" class="nav-tile">
-                <div class="nav-tile-icon">🖼️</div>
-                <h3 class="nav-tile-title">Galleries</h3>
-            </a>
-            <a href="{{ route('public.book.pdf', $currentYear->id ?? 0) }}" class="nav-tile">
-                <div class="nav-tile-icon">📖</div>
-                <h3 class="nav-tile-title">Print Edition</h3>
-            </a>
-        </div>
-
-        <!-- Dedication Section -->
-        @if($currentYear && $currentYear->dedication)
-        <div class="dedication-box" style="margin-top: 50px;">
-            <div class="dedication-tag">Yearbook Dedication</div>
-            <p class="dedication-quote">"{{ $currentYear->dedication }}"</p>
-        </div>
-        @endif
-
-        <!-- Featured Events Auto-Slider -->
-        @if($featuredEvents->isNotEmpty())
-        <div style="margin-top: 60px;">
-            <div class="heading-block">
-                <div class="heading-block-left">
-                    <div class="kicker">Highlights</div>
-                    <h2>Featured Events</h2>
-                </div>
-            </div>
-
-
-            <section class="campus-marquee-section" aria-label="LIU campuses">
-  <div class="container">
-    <div class="campus-marquee-intro">
-      <span class="campus-eyebrow">10 Campuses Worldwide</span>
-      <h2 class="campus-heading">Across Lebanon &amp; Beyond</h2>
-      <p class="campus-subtext">Seven campuses in Lebanon plus international campuses in Yemen, Senegal, and Mauritania bringing world-class education to every community we serve.</p>
-    </div>
-  </div>
-
-  <div class="campus-track-wrap">
-    <div class="campus-track-fade-left" aria-hidden="true"></div>
-    <div class="campus-track-fade-right" aria-hidden="true"></div>
-
-    <div class="campus-track" id="campusTrack">
-            <div class="campus-mq-card" aria-hidden="false">
-        <div class="campus-mq-img">
-          <div class="campus-mq-img-bg bg-campus-beirut" style="background-image:url('https://admincms.liu.edu.lb/Admin_CMS26/uploads/images/img_69f1edbc7976f1.75486401.jpg')"></div>
-          <div class="campus-mq-overlay"></div>
-        </div>
-        <div class="campus-mq-body">
-          <span class="campus-mq-type">Main Campus</span>
-          <h4 class="campus-mq-name">Beirut</h4>
-          <p class="campus-mq-loc">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-            Mouseitbeh, Beirut          </p>
-        </div>
-      </div>
-            <div class="campus-mq-card" aria-hidden="false">
-        <div class="campus-mq-img">
-          <div class="campus-mq-img-bg bg-campus-bekaa" style="background-image:url('https://admincms.liu.edu.lb/Admin_CMS26/uploads/images/img_69f1ede6de82a7.53351121.jpg')"></div>
-          <div class="campus-mq-overlay"></div>
-        </div>
-        <div class="campus-mq-body">
-          <span class="campus-mq-type">Bekaa Campus</span>
-          <h4 class="campus-mq-name">Bekaa</h4>
-          <p class="campus-mq-loc">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-            Bekaa Valley          </p>
-        </div>
-      </div>
-            <div class="campus-mq-card" aria-hidden="false">
-        <div class="campus-mq-img">
-          <div class="campus-mq-img-bg bg-campus-saida" style="background-image:url('https://admincms.liu.edu.lb/Admin_CMS26/uploads/images/img_69f1edc5f42380.20841864.jpg')"></div>
-          <div class="campus-mq-overlay"></div>
-        </div>
-        <div class="campus-mq-body">
-          <span class="campus-mq-type">South Campus</span>
-          <h4 class="campus-mq-name">Saida</h4>
-          <p class="campus-mq-loc">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-            Sidon, South Lebanon          </p>
-        </div>
-      </div>
-            <div class="campus-mq-card" aria-hidden="false">
-        <div class="campus-mq-img">
-          <div class="campus-mq-img-bg bg-campus-nabatieh" style="background-image:url('https://admincms.liu.edu.lb/Admin_CMS26/uploads/images/img_69f1ee031aeaa3.07545058.jpg')"></div>
-          <div class="campus-mq-overlay"></div>
-        </div>
-        <div class="campus-mq-body">
-          <span class="campus-mq-type">South Campus</span>
-          <h4 class="campus-mq-name">Nabatieh</h4>
-          <p class="campus-mq-loc">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-            Nabatieh Governorate          </p>
-        </div>
-      </div>
-            <div class="campus-mq-card" aria-hidden="false">
-        <div class="campus-mq-img">
-          <div class="campus-mq-img-bg bg-campus-tripoli" style="background-image:url('https://admincms.liu.edu.lb/Admin_CMS26/uploads/images/img_69f1eecc60f477.72673930.jpg')"></div>
-          <div class="campus-mq-overlay"></div>
-        </div>
-        <div class="campus-mq-body">
-          <span class="campus-mq-type">North Campus</span>
-          <h4 class="campus-mq-name">Tripoli</h4>
-          <p class="campus-mq-loc">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-            Tripoli, North Lebanon          </p>
-        </div>
-      </div>
-            <div class="campus-mq-card" aria-hidden="false">
-        <div class="campus-mq-img">
-          <div class="campus-mq-img-bg bg-campus-mount" style="background-image:url('https://admincms.liu.edu.lb/Admin_CMS26/uploads/images/img_69f1ef00ec4b76.22853073.jpg')"></div>
-          <div class="campus-mq-overlay"></div>
-        </div>
-        <div class="campus-mq-body">
-          <span class="campus-mq-type">Mountain Campus</span>
-          <h4 class="campus-mq-name">Mount Lebanon</h4>
-          <p class="campus-mq-loc">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-            Mount Lebanon          </p>
-        </div>
-      </div>
-            <div class="campus-mq-card" aria-hidden="false">
-        <div class="campus-mq-img">
-          <div class="campus-mq-img-bg bg-campus-tyre" style="background-image:url('https://admincms.liu.edu.lb/Admin_CMS26/uploads/images/img_69f1edccdc4bb7.85841464.jpg')"></div>
-          <div class="campus-mq-overlay"></div>
-        </div>
-        <div class="campus-mq-body">
-          <span class="campus-mq-type">South Campus</span>
-          <h4 class="campus-mq-name">Tyre</h4>
-          <p class="campus-mq-loc">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-            Tyre (Sour)          </p>
-        </div>
-      </div>
-            <div class="campus-mq-card" aria-hidden="false">
-        <div class="campus-mq-img">
-          <div class="campus-mq-img-bg bg-campus-rayak" style="background-image:url('https://admincms.liu.edu.lb/Admin_CMS26/uploads/images/img_69f1edc138b486.23271269.jpg')"></div>
-          <div class="campus-mq-overlay"></div>
-        </div>
-        <div class="campus-mq-body">
-          <span class="campus-mq-type">Bekaa Campus</span>
-          <h4 class="campus-mq-name">Rayak</h4>
-          <p class="campus-mq-loc">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-            Rayak, Bekaa          </p>
-        </div>
-      </div>
-            <div class="campus-mq-card" aria-hidden="false">
-        <div class="campus-mq-img">
-          <div class="campus-mq-img-bg bg-campus-akkar" style="background-image:url('https://admincms.liu.edu.lb/Admin_CMS26/uploads/images/img_69f1eddf0de1e5.11140105.jpg')"></div>
-          <div class="campus-mq-overlay"></div>
-        </div>
-        <div class="campus-mq-body">
-          <span class="campus-mq-type">North Campus</span>
-          <h4 class="campus-mq-name">Akkar</h4>
-          <p class="campus-mq-loc">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-            Akkar, North Lebanon          </p>
-        </div>
-      </div>
-            <div class="campus-mq-card" aria-hidden="false">
-        <div class="campus-mq-img">
-          <div class="campus-mq-img-bg bg-campus-yemen" style="background-image:url('https://admincms.liu.edu.lb/Admin_CMS26/uploads/images/img_69f1ee5d33e079.67491444.jpg')"></div>
-          <div class="campus-mq-overlay"></div>
-        </div>
-        <div class="campus-mq-body">
-          <span class="campus-mq-type">LIU Yemen</span>
-          <h4 class="campus-mq-name">Yemen</h4>
-          <p class="campus-mq-loc">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-            Sana'a, Yemen          </p>
-        </div>
-      </div>
-            <div class="campus-mq-card" aria-hidden="false">
-        <div class="campus-mq-img">
-          <div class="campus-mq-img-bg bg-campus-senegal" style="background-image:url('https://admincms.liu.edu.lb/Admin_CMS26/uploads/images/img_69f1ee5d344fc6.61631554.jpg')"></div>
-          <div class="campus-mq-overlay"></div>
-        </div>
-        <div class="campus-mq-body">
-          <span class="campus-mq-type">LIU Senegal</span>
-          <h4 class="campus-mq-name">Senegal</h4>
-          <p class="campus-mq-loc">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-            Dakar, Senegal          </p>
-        </div>
-      </div>
-            <div class="campus-mq-card" aria-hidden="false">
-        <div class="campus-mq-img">
-          <div class="campus-mq-img-bg bg-campus-mauritania" style="background-image:url('https://admincms.liu.edu.lb/Admin_CMS26/uploads/images/img_69f1ee5d349778.31520671.jpg')"></div>
-          <div class="campus-mq-overlay"></div>
-        </div>
-        <div class="campus-mq-body">
-          <span class="campus-mq-type">LIU Mauritania</span>
-          <h4 class="campus-mq-name">Mauritania</h4>
-          <p class="campus-mq-loc">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-            Nouakchott, Mauritania          </p>
-        </div>
-      </div>
-            <div class="campus-mq-card" aria-hidden="true">
-        <div class="campus-mq-img">
-          <div class="campus-mq-img-bg bg-campus-beirut" style="background-image:url('https://admincms.liu.edu.lb/Admin_CMS26/uploads/images/img_69f1edbc7976f1.75486401.jpg')"></div>
-          <div class="campus-mq-overlay"></div>
-        </div>
-        <div class="campus-mq-body">
-          <span class="campus-mq-type">Main Campus</span>
-          <h4 class="campus-mq-name">Beirut</h4>
-          <p class="campus-mq-loc">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-            Mouseitbeh, Beirut          </p>
-        </div>
-      </div>
-            <div class="campus-mq-card" aria-hidden="true">
-        <div class="campus-mq-img">
-          <div class="campus-mq-img-bg bg-campus-bekaa" style="background-image:url('https://admincms.liu.edu.lb/Admin_CMS26/uploads/images/img_69f1ede6de82a7.53351121.jpg')"></div>
-          <div class="campus-mq-overlay"></div>
-        </div>
-        <div class="campus-mq-body">
-          <span class="campus-mq-type">Bekaa Campus</span>
-          <h4 class="campus-mq-name">Bekaa</h4>
-          <p class="campus-mq-loc">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-            Bekaa Valley          </p>
-        </div>
-      </div>
-            <div class="campus-mq-card" aria-hidden="true">
-        <div class="campus-mq-img">
-          <div class="campus-mq-img-bg bg-campus-saida" style="background-image:url('https://admincms.liu.edu.lb/Admin_CMS26/uploads/images/img_69f1edc5f42380.20841864.jpg')"></div>
-          <div class="campus-mq-overlay"></div>
-        </div>
-        <div class="campus-mq-body">
-          <span class="campus-mq-type">South Campus</span>
-          <h4 class="campus-mq-name">Saida</h4>
-          <p class="campus-mq-loc">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-            Sidon, South Lebanon          </p>
-        </div>
-      </div>
-            <div class="campus-mq-card" aria-hidden="true">
-        <div class="campus-mq-img">
-          <div class="campus-mq-img-bg bg-campus-nabatieh" style="background-image:url('https://admincms.liu.edu.lb/Admin_CMS26/uploads/images/img_69f1ee031aeaa3.07545058.jpg')"></div>
-          <div class="campus-mq-overlay"></div>
-        </div>
-        <div class="campus-mq-body">
-          <span class="campus-mq-type">South Campus</span>
-          <h4 class="campus-mq-name">Nabatieh</h4>
-          <p class="campus-mq-loc">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-            Nabatieh Governorate          </p>
-        </div>
-      </div>
-            <div class="campus-mq-card" aria-hidden="true">
-        <div class="campus-mq-img">
-          <div class="campus-mq-img-bg bg-campus-tripoli" style="background-image:url('https://admincms.liu.edu.lb/Admin_CMS26/uploads/images/img_69f1eecc60f477.72673930.jpg')"></div>
-          <div class="campus-mq-overlay"></div>
-        </div>
-        <div class="campus-mq-body">
-          <span class="campus-mq-type">North Campus</span>
-          <h4 class="campus-mq-name">Tripoli</h4>
-          <p class="campus-mq-loc">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-            Tripoli, North Lebanon          </p>
-        </div>
-      </div>
-            <div class="campus-mq-card" aria-hidden="true">
-        <div class="campus-mq-img">
-          <div class="campus-mq-img-bg bg-campus-mount" style="background-image:url('https://admincms.liu.edu.lb/Admin_CMS26/uploads/images/img_69f1ef00ec4b76.22853073.jpg')"></div>
-          <div class="campus-mq-overlay"></div>
-        </div>
-        <div class="campus-mq-body">
-          <span class="campus-mq-type">Mountain Campus</span>
-          <h4 class="campus-mq-name">Mount Lebanon</h4>
-          <p class="campus-mq-loc">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-            Mount Lebanon          </p>
-        </div>
-      </div>
-            <div class="campus-mq-card" aria-hidden="true">
-        <div class="campus-mq-img">
-          <div class="campus-mq-img-bg bg-campus-tyre" style="background-image:url('https://admincms.liu.edu.lb/Admin_CMS26/uploads/images/img_69f1edccdc4bb7.85841464.jpg')"></div>
-          <div class="campus-mq-overlay"></div>
-        </div>
-        <div class="campus-mq-body">
-          <span class="campus-mq-type">South Campus</span>
-          <h4 class="campus-mq-name">Tyre</h4>
-          <p class="campus-mq-loc">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-            Tyre (Sour)          </p>
-        </div>
-      </div>
-            <div class="campus-mq-card" aria-hidden="true">
-        <div class="campus-mq-img">
-          <div class="campus-mq-img-bg bg-campus-rayak" style="background-image:url('https://admincms.liu.edu.lb/Admin_CMS26/uploads/images/img_69f1edc138b486.23271269.jpg')"></div>
-          <div class="campus-mq-overlay"></div>
-        </div>
-        <div class="campus-mq-body">
-          <span class="campus-mq-type">Bekaa Campus</span>
-          <h4 class="campus-mq-name">Rayak</h4>
-          <p class="campus-mq-loc">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-            Rayak, Bekaa          </p>
-        </div>
-      </div>
-            <div class="campus-mq-card" aria-hidden="true">
-        <div class="campus-mq-img">
-          <div class="campus-mq-img-bg bg-campus-akkar" style="background-image:url('https://admincms.liu.edu.lb/Admin_CMS26/uploads/images/img_69f1eddf0de1e5.11140105.jpg')"></div>
-          <div class="campus-mq-overlay"></div>
-        </div>
-        <div class="campus-mq-body">
-          <span class="campus-mq-type">North Campus</span>
-          <h4 class="campus-mq-name">Akkar</h4>
-          <p class="campus-mq-loc">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-            Akkar, North Lebanon          </p>
-        </div>
-      </div>
-            <div class="campus-mq-card" aria-hidden="true">
-        <div class="campus-mq-img">
-          <div class="campus-mq-img-bg bg-campus-yemen" style="background-image:url('https://admincms.liu.edu.lb/Admin_CMS26/uploads/images/img_69f1ee5d33e079.67491444.jpg')"></div>
-          <div class="campus-mq-overlay"></div>
-        </div>
-        <div class="campus-mq-body">
-          <span class="campus-mq-type">LIU Yemen</span>
-          <h4 class="campus-mq-name">Yemen</h4>
-          <p class="campus-mq-loc">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-            Sana'a, Yemen          </p>
-        </div>
-      </div>
-            <div class="campus-mq-card" aria-hidden="true">
-        <div class="campus-mq-img">
-          <div class="campus-mq-img-bg bg-campus-senegal" style="background-image:url('https://admincms.liu.edu.lb/Admin_CMS26/uploads/images/img_69f1ee5d344fc6.61631554.jpg')"></div>
-          <div class="campus-mq-overlay"></div>
-        </div>
-        <div class="campus-mq-body">
-          <span class="campus-mq-type">LIU Senegal</span>
-          <h4 class="campus-mq-name">Senegal</h4>
-          <p class="campus-mq-loc">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-            Dakar, Senegal          </p>
-        </div>
-      </div>
-            <div class="campus-mq-card" aria-hidden="true">
-        <div class="campus-mq-img">
-          <div class="campus-mq-img-bg bg-campus-mauritania" style="background-image:url('https://admincms.liu.edu.lb/Admin_CMS26/uploads/images/img_69f1ee5d349778.31520671.jpg')"></div>
-          <div class="campus-mq-overlay"></div>
-        </div>
-        <div class="campus-mq-body">
-          <span class="campus-mq-type">LIU Mauritania</span>
-          <h4 class="campus-mq-name">Mauritania</h4>
-          <p class="campus-mq-loc">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-            Nouakchott, Mauritania          </p>
-        </div>
-      </div>
-          </div>
-  </div>
-</section>
-
-
-            <div class="events-slider-wrapper">
-                <div class="events-scroll-row" id="featuredEventsRow">
-                    @foreach($featuredEvents as $event)
-                    <a href="{{ route('public.event.detail', $event->id) }}" class="event-card">
-                        @php $image = $event->media->first(); @endphp
-                        @if($image)
-                        <img src="{{ asset('storage/' . $image->path) }}" alt="{{ $event->title }}" class="event-card-img" loading="lazy">
-                        @else
-                        <div class="event-card-img"></div>
-                        @endif
-                        <div class="event-card-content">
-                            <span class="event-date-badge">{{ \Carbon\Carbon::parse($event->event_date)->format('M d, Y') }}</span>
-                            <h3 class="event-card-title">{{ $event->title }}</h3>
-                            <p class="event-card-desc">{{ Str::limit($event->description, 80) }}</p>
+                    <a href="{{ url('/') }}" class="yb-brand">
+                        <div class="yb-brand-mark">LIU</div>
+                        <div class="yb-brand-text">
+                            Digital<br>
+                            Yearbook
                         </div>
                     </a>
-                    @endforeach
-                </div>
-                <div class="slider-indicators" id="sliderIndicators"></div>
-            </div>
-        </div>
-        @endif
 
-        <!-- Graduations Section -->
-        @if($graduations->isNotEmpty())
-        <div style="margin-top: 60px;">
-            <div class="heading-block">
-                <div class="heading-block-left">
-                    <div class="kicker">Commencement</div>
-                    <h2>Graduations</h2>
-                </div>
-            </div>
-
-            <div class="graduations-grid">
-                @foreach($graduations as $graduation)
-                <a href="{{ route('public.graduation.detail', $graduation->id) }}" class="graduation-tile">
-                    @php $image = $graduation->media->first(); @endphp
-                    @if($image)
-                    <img src="{{ asset('storage/' . $image->path) }}" alt="{{ $graduation->name }}" class="graduation-tile-img" loading="lazy">
-                    @else
-                    <div class="graduation-tile-img"></div>
-                    @endif
-                    <div class="graduation-tile-info">
-                        <h3 class="graduation-tile-title">{{ $graduation->name ?? 'Graduation Ceremony' }}</h3>
-                        <span class="graduation-tile-date">{{ \Carbon\Carbon::parse($graduation->created_at)->format('F Y') }}</span>
+                    <div class="yb-edition">
+                        Current edition
+                        <strong>
+                            {{ $currentYear->title ?? 'Archive Edition' }}
+                        </strong>
                     </div>
-                </a>
-                @endforeach
+
+                </div>
+
+
+                <div class="yb-cover-main">
+
+                    <div class="yb-cover-kicker">
+                        {{ $currentYear->title ?? 'Archive Edition' }}
+                    </div>
+
+                    @if($currentYear)
+                    <h1 class="yb-cover-title">
+                        A year<br>
+                        <span>worth</span><br>
+                        remembering.
+                    </h1>
+                    @else
+                    <h1 class="yb-cover-title">
+                        The<br>
+                        <span>yearbook</span><br>
+                        archive.
+                    </h1>
+                    @endif
+
+                    <p class="yb-cover-description">
+                        A living collection of the people, places, celebrations,
+                        and moments that shaped our university year.
+                    </p>
+
+                    <div class="yb-cover-actions">
+
+                        <a
+                            href="{{ route('public.timeline') }}"
+                            class="yb-cover-link">
+                            Enter the yearbook
+                            <span class="yb-cover-link-arrow">↘</span>
+                        </a>
+
+                        <a
+                            href="{{ route('public.graduates') }}"
+                            style="color: rgba(255,255,255,.75); text-decoration:none; font-size:.68rem; text-transform:uppercase; letter-spacing:1.5px; font-weight:800;">
+                            Meet the class →
+                        </a>
+
+                    </div>
+
+                </div>
+
+
+                <div class="yb-cover-bottom">
+
+                    <div class="yb-cover-caption">
+                        People · Places · Moments · 2026
+                    </div>
+
+                    <div class="yb-cover-scroll">
+                        Scroll to explore
+                        <span class="yb-scroll-line"></span>
+                    </div>
+
+                </div>
+
             </div>
-        </div>
+        </section>
+
+
+        {{-- =====================================================
+        02 — INTRODUCTION
+        ===================================================== --}}
+        <section class="yb-introduction">
+
+            <div class="yb-container">
+
+                <div class="yb-intro-grid">
+
+                    <div class="yb-intro-side">
+
+                        <div class="yb-overline">
+                            The year in perspective
+                        </div>
+
+                        <div class="yb-intro-number">
+                            {{ $currentYear ? '01' : '00' }}
+                        </div>
+
+                        <p>
+                            Every academic year leaves behind more than dates
+                            and ceremonies. It leaves stories.
+                        </p>
+
+                    </div>
+
+
+                    <div>
+
+                        <h2 class="yb-intro-heading">
+                            This is more than an archive.
+                            <em>This is what the year looked like.</em>
+                        </h2>
+
+                        <p class="yb-intro-copy">
+                            Explore the people who graduated, the events that
+                            brought the community together, and the moments that
+                            became part of our shared history.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        {{-- =====================================================
+        03 — NUMBERS
+        ===================================================== --}}
+        <section class="yb-numbers">
+
+            <div class="yb-container">
+
+                <div class="yb-number-grid">
+
+                    <div class="yb-number-item">
+                        <div class="yb-number-value">
+                            {{ $stats['undergraduates'] ?? 0 }}
+                        </div>
+                        <div class="yb-number-label">
+                            Undergraduate graduates
+                        </div>
+                    </div>
+
+                    <div class="yb-number-item">
+                        <div class="yb-number-value">
+                            {{ $stats['graduates'] ?? 0 }}
+                        </div>
+                        <div class="yb-number-label">
+                            Postgraduate graduates
+                        </div>
+                    </div>
+
+                    <div class="yb-number-item">
+                        <div class="yb-number-value">
+                            {{ $stats['events'] ?? 0 }}
+                        </div>
+                        <div class="yb-number-label">
+                            Campus events
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        {{-- =====================================================
+        04 — THE YEAR / EVENTS TIMELINE
+        ===================================================== --}}
+        @if($featuredEvents->isNotEmpty())
+
+        <section class="yb-timeline-section" id="timeline">
+
+            <div class="yb-container">
+
+                <div class="yb-section-header">
+
+                    <div>
+                        <div class="yb-overline">
+                            Chapter one
+                        </div>
+
+                        <h2>
+                            The year<br>
+                            <em>unfolds.</em>
+                        </h2>
+                    </div>
+
+                    <p class="yb-section-header-note">
+                        A selection of moments, celebrations and events
+                        that defined the academic year.
+                    </p>
+
+                </div>
+
+
+                <div class="yb-timeline">
+
+                    @foreach($featuredEvents as $event)
+
+                    <article class="yb-event">
+
+                        <div class="yb-event-date">
+
+                            <span>
+                                Event
+                            </span>
+
+                            {{ \Carbon\Carbon::parse($event->event_date)->format('M d') }}
+
+                        </div>
+
+
+                        <div class="yb-event-content">
+
+                            <div>
+
+                                <h3 class="yb-event-title">
+                                    {{ $event->title }}
+                                </h3>
+
+                                @if($event->description)
+                                <p class="yb-event-description">
+                                    {{ Str::limit($event->description, 180) }}
+                                </p>
+                                @endif
+
+                                <a
+                                    href="{{ route('public.event.detail', $event->id) }}"
+                                    class="yb-event-link">
+                                    View this moment
+                                    <span>→</span>
+                                </a>
+
+                            </div>
+
+
+                            <div>
+
+                                @php
+                                $image = $event->media->first();
+                                @endphp
+
+                                @if($image)
+
+                                <img
+                                    src="{{ asset('storage/' . $image->path) }}"
+                                    alt="{{ $event->title }}"
+                                    class="yb-event-image"
+                                    loading="lazy">
+
+                                @else
+
+                                <div class="yb-event-placeholder">
+                                    No image available
+                                </div>
+
+                                @endif
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
+                    @endforeach
+
+                </div>
+
+            </div>
+
+        </section>
+
         @endif
+
+
+        {{-- =====================================================
+        05 — GRADUATIONS / PEOPLE
+        ===================================================== --}}
+        @if($graduations->isNotEmpty())
+
+        <section class="yb-people" id="people">
+
+            <div class="yb-container">
+
+                <div class="yb-people-heading">
+
+                    <div>
+                        <div class="yb-overline">
+                            Chapter two
+                        </div>
+
+                        <h2>
+                            The<br>
+                            <span>people.</span>
+                        </h2>
+                    </div>
+
+                    <p>
+                        Behind every ceremony is a collection of people,
+                        ambitions, friendships and stories. Explore the
+                        graduation moments that marked the end of one
+                        chapter and the beginning of another.
+                    </p>
+
+                </div>
+
+
+                <div class="yb-graduation-grid">
+
+                    @foreach($graduations as $graduation)
+
+                    <a
+                        href="{{ route('public.graduation.detail', $graduation->id) }}"
+                        class="yb-graduation-card">
+
+                        @php
+                        $image = $graduation->media->first();
+                        @endphp
+
+                        @if($image)
+
+                        <img
+                            src="{{ asset('storage/' . $image->path) }}"
+                            alt="{{ $graduation->name ?? 'Graduation Ceremony' }}"
+                            class="yb-graduation-image"
+                            loading="lazy">
+
+                        @else
+
+                        <div class="yb-graduation-placeholder"></div>
+
+                        @endif
+
+
+                        <div class="yb-graduation-arrow">
+                            ↗
+                        </div>
+
+
+                        <div class="yb-graduation-info">
+
+                            <span class="yb-graduation-date">
+                                {{ \Carbon\Carbon::parse($graduation->created_at)->format('F Y') }}
+                            </span>
+
+                            <h3 class="yb-graduation-title">
+                                {{ $graduation->name ?? 'Graduation Ceremony' }}
+                            </h3>
+
+                        </div>
+
+                    </a>
+
+                    @endforeach
+
+                </div>
+
+            </div>
+
+        </section>
+
+        @endif
+
+
+        {{-- =====================================================
+        06 — MOMENTS / VISUAL ARCHIVE
+        ===================================================== --}}
+        @if($heroImages->isNotEmpty())
+
+        <section class="yb-moments">
+
+            <div class="yb-container">
+
+                <div class="yb-moments-header">
+
+                    <h2>
+                        Moments.
+                    </h2>
+
+                    <p>
+                        From the collection
+                    </p>
+
+                </div>
+
+
+                <div class="yb-photo-mosaic">
+
+                    @foreach($heroImages->take(3) as $index => $heroImage)
+
+                    <div class="yb-mosaic-item">
+
+                        <img
+                            src="{{ asset('storage/' . $heroImage->path) }}"
+                            alt="Yearbook moment {{ $index + 1 }}"
+                            loading="lazy">
+
+                        <span class="yb-mosaic-label">
+                            {{ sprintf('%02d', $index + 1) }}
+                            / Yearbook
+                        </span>
+
+                    </div>
+
+                    @endforeach
+
+                    @if($heroImages->count() < 3)
+
+                        @for($i=$heroImages->count(); $i < 3; $i++)
+
+                            <div class="yb-mosaic-item">
+
+                            <div
+                                style="
+                                    width:100%;
+                                    height:100%;
+                                    background:
+                                        linear-gradient(
+                                            135deg,
+                                            #0b3b72,
+                                            #071a33
+                                        );
+                                "></div>
+
+                            <span class="yb-mosaic-label">
+                                {{ sprintf('%02d', $i + 1) }}
+                                / Yearbook
+                            </span>
+
+                </div>
+
+                @endfor
+
+                @endif
+
+            </div>
 
     </div>
 
-    <!-- Contact & Inquiry Banner -->
-    <section class="cta-banner">
-        <div class="cta-banner-content">
-            <h2>Have Questions?</h2>
-            <p>Reach out to the yearbook committee for questions regarding submissions, photo archives, or order requests.</p>
-            <div class="cta-actions">
-                <a href="mailto:yearbook@university.edu" class="btn-main">Send Email</a>
-                <a href="{{ route('public.events') }}" class="btn-outline">Explore Events</a>
-            </div>
-        </div>
     </section>
 
-</div>
-@endsection
+    @endif
 
-@section('extra-js')
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const slider = document.getElementById('featuredEventsRow');
-        const indicatorsContainer = document.getElementById('sliderIndicators');
-        if (!slider) return;
 
-        const cards = slider.querySelectorAll('.event-card');
-        if (cards.length === 0) return;
+    {{-- =====================================================
+        07 — CAMPUSES
+        ===================================================== --}}
+    <section class="yb-campus">
 
-        let autoSlideTimer = null;
-        let isUserHovered = false;
+        <div class="yb-container">
 
-        // 1. Calculate scroll step (Card width + Gap)
-        function getStepWidth() {
-            const card = cards[0];
-            const gap = 24; // Matches gap: 24px in CSS
-            return card.offsetWidth + gap;
-        }
+            <div class="yb-campus-header">
 
-        // 2. Perform the auto-scroll step
-        function autoScrollNext() {
-            if (isUserHovered) return;
+                <div class="yb-campus-index">
+                    10
+                </div>
 
-            // Check if content actually overflows container
-            const maxScroll = slider.scrollWidth - slider.clientWidth;
-            if (maxScroll <= 0) return;
+                <div>
 
-            const stepWidth = getStepWidth();
+                    <div class="yb-overline">
+                        Chapter three
+                    </div>
 
-            // If we reached or passed the end, loop back smoothly to start
-            if (slider.scrollLeft >= maxScroll - 10) {
-                slider.scrollTo({
-                    left: 0,
-                    behavior: 'smooth'
-                });
-            } else {
-                slider.scrollBy({
-                    left: stepWidth,
-                    behavior: 'smooth'
+                    <h2>
+                        One university.<br>
+                        <em>Many places.</em>
+                    </h2>
+
+                    <p>
+                        From Lebanon to the wider world, the year was
+                        experienced across campuses, communities and
+                        classrooms. Explore the places that make up
+                        the LIU story.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="yb-campus-strip">
+
+                <span class="yb-campus-name">Beirut</span>
+                <span class="yb-campus-name">Bekaa</span>
+                <span class="yb-campus-name">Saida</span>
+                <span class="yb-campus-name">Nabatieh</span>
+                <span class="yb-campus-name">Tripoli</span>
+                <span class="yb-campus-name">Mount Lebanon</span>
+                <span class="yb-campus-name">Tyre</span>
+                <span class="yb-campus-name">Rayak</span>
+                <span class="yb-campus-name">Akkar</span>
+                <span class="yb-campus-name">Yemen</span>
+                <span class="yb-campus-name">Senegal</span>
+                <span class="yb-campus-name">Mauritania</span>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    {{-- =====================================================
+        08 — ARCHIVE
+        ===================================================== --}}
+    <section class="yb-archive">
+
+        <div class="yb-container">
+
+            <div class="yb-archive-inner">
+
+                <div>
+
+                    <div class="yb-overline">
+                        The collection
+                    </div>
+
+                    <h2 class="yb-archive-heading">
+                        The year<br>
+                        <em>doesn't end here.</em>
+                    </h2>
+
+                    <p class="yb-archive-copy">
+                        Yesterday becomes history. Explore the archive
+                        and discover the people, moments and milestones
+                        that came before this edition.
+                    </p>
+
+                    <a
+                        href="{{ route('public.archive') }}"
+                        class="yb-archive-link">
+                        Explore the archive
+                        <span>↗</span>
+                    </a>
+
+                </div>
+
+
+                <div class="yb-archive-years">
+
+                    @if($currentYear)
+
+                    <a
+                        href="{{ route('public.timeline') }}"
+                        class="yb-archive-year">
+                        <span>{{ $currentYear->title }}</span>
+                        <span>Current edition →</span>
+                    </a>
+
+                    @endif
+
+                    <a
+                        href="{{ route('public.archive') }}"
+                        class="yb-archive-year">
+                        <span>Previous editions</span>
+                        <span>Explore →</span>
+                    </a>
+
+                    <a
+                        href="{{ route('public.graduates') }}"
+                        class="yb-archive-year">
+                        <span>Graduate directory</span>
+                        <span>People →</span>
+                    </a>
+
+                    <a
+                        href="{{ route('public.events') }}"
+                        class="yb-archive-year">
+                        <span>Event collection</span>
+                        <span>Moments →</span>
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    {{-- =====================================================
+        09 — FOOTER / FINAL STATEMENT
+        ===================================================== --}}
+    <footer class="yb-footer">
+
+        <div class="yb-container">
+
+            <div class="yb-footer-top">
+
+                <h2 class="yb-footer-title">
+                    Remember<br>
+                    <span>this year.</span>
+                </h2>
+
+
+                <div class="yb-footer-actions">
+
+                    <p>
+                        Have questions about submissions, photo archives,
+                        yearbook content or previous editions?
+                    </p>
+
+                    <a
+                        href="mailto:yearbook@university.edu"
+                        class="yb-footer-mail">
+                        Contact the yearbook committee →
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <div class="yb-footer-bottom">
+
+                <span>
+                    LIU Digital Yearbook
+                </span>
+
+                <span>
+                    {{ $currentYear->title ?? 'Archive Edition' }}
+                </span>
+
+                <span>
+                    People · Places · Moments
+                </span>
+
+            </div>
+
+        </div>
+
+    </footer>
+    ```
+
+    </div>
+    @endsection
+
+    @section('extra-js')
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const wrapper = document.querySelector('.yearbook-wrapper');
+
+            /* First-entry animation. */
+            if (wrapper) {
+                requestAnimationFrame(function() {
+                    wrapper.classList.add('page-animations');
                 });
             }
-        }
 
-        // 3. Setup dynamic navigation dots
-        if (indicatorsContainer && cards.length > 1) {
-            indicatorsContainer.innerHTML = ''; // Clear previous
+            /* Navbar: transparent at the top, visible after a small scroll. */
+            const nav = document.querySelector('.yb-nav');
 
-            cards.forEach((_, idx) => {
-                const dot = document.createElement('div');
-                dot.classList.add('slider-dot');
-                if (idx === 0) dot.classList.add('active');
+            function updateNavbar() {
+                if (!nav) return;
+                nav.classList.toggle('is-scrolled', window.scrollY > 24);
+            }
 
-                dot.addEventListener('click', () => {
-                    slider.scrollTo({
-                        left: getStepWidth() * idx,
-                        behavior: 'smooth'
-                    });
-                });
-
-                indicatorsContainer.appendChild(dot);
+            updateNavbar();
+            window.addEventListener('scroll', updateNavbar, {
+                passive: true
             });
 
-            const dots = indicatorsContainer.querySelectorAll('.slider-dot');
+            /* Smooth reveal for content as it enters the viewport. */
+            const revealItems = document.querySelectorAll(
+                '.yb-intro-side, .yb-intro-heading, .yb-intro-copy, ' +
+                '.yb-number-item, .yb-section-header, .yb-event, ' +
+                '.yb-people-heading, .yb-graduation-card, .yb-moments-header, ' +
+                '.yb-mosaic-item, .yb-campus-header, .yb-campus-name, ' +
+                '.yb-archive-inner, .yb-footer-top'
+            );
 
-            // Sync active dot state on manual or automatic scroll
-            slider.addEventListener('scroll', () => {
-                const stepWidth = getStepWidth();
-                const activeIndex = Math.min(
-                    Math.round(slider.scrollLeft / stepWidth),
-                    dots.length - 1
+            revealItems.forEach(function(item, index) {
+                item.classList.add('yb-reveal');
+                item.style.setProperty(
+                    '--yb-delay',
+                    Math.min(index * 45, 360) + 'ms'
                 );
-
-                dots.forEach((dot, idx) => {
-                    dot.classList.toggle('active', idx === activeIndex);
-                });
             });
-        }
 
-        // 4. Start automatic timer loop (every 3 seconds)
-        function startTimer() {
-            if (!autoSlideTimer) {
-                autoSlideTimer = setInterval(autoScrollNext, 3000);
+            if (!wrapper) return;
+
+            wrapper.classList.add('scroll-animations-ready');
+
+            if (!('IntersectionObserver' in window)) {
+                revealItems.forEach(function(item) {
+                    item.classList.add('is-visible');
+                });
+                return;
             }
-        }
 
-        function stopTimer() {
-            if (autoSlideTimer) {
-                clearInterval(autoSlideTimer);
-                autoSlideTimer = null;
+            const observer = new IntersectionObserver(
+                function(entries) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('is-visible');
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, {
+                    threshold: 0.12,
+                    rootMargin: '0px 0px -8% 0px'
+                }
+            );
+
+            revealItems.forEach(function(item) {
+                observer.observe(item);
+            });
+
+            const scrollHint = document.querySelector('.yb-cover-scroll');
+            if (scrollHint) {
+                scrollHint.classList.add('yb-scroll-pulse');
             }
-        }
-
-        // Pause on user interaction (hover/touch) and resume when leaving
-        slider.addEventListener('mouseenter', () => isUserHovered = true);
-        slider.addEventListener('mouseleave', () => isUserHovered = false);
-        slider.addEventListener('touchstart', () => isUserHovered = true, {
-            passive: true
         });
-        slider.addEventListener('touchend', () => isUserHovered = false, {
-            passive: true
-        });
+    </script>
 
-        // Initialize auto-scroll
-        startTimer();
-    });
-</script>
-
-@endsection
+    @endsection
