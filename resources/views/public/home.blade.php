@@ -6,14 +6,13 @@
 
 @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-
 <section class="public-hero">
     <div class="public-hero-inner">
         <p class="eyebrow eyebrow-light">{{ $currentYear->title ?? 'Digital Yearbook' }}</p>
         <h1>Every moment,<br>archived and shared.</h1>
         <p>Browse published events, graduation ceremonies, and the graduates who made this year memorable.</p>
         <div class="public-hero-actions">
-            <a href="{{ route('public.timeline') }}" class="button button-red">View the timeline <span aria-hidden="true">→</span></a>
+            <a href="{{ route('public.events') }}" class="button button-red">Explore events <span aria-hidden="true">→</span></a>
             <a href="{{ route('search.index') }}" class="button button-outline-public">Search the archive</a>
         </div>
     </div>
