@@ -9,39 +9,17 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/css/ui.css', 'resources/js/app.js'])
     @yield('extra-css')
 
     <style>
-        /* Compact public navbar */
-        .site-nav {
-            height: 60px;
-            box-shadow: none !important;
-        }
+        .site-nav { height: 60px; box-shadow: none !important; }
+        .site-nav .nav-inner { height: 60px; min-height: 60px; }
+        .site-nav .brand-mark { font-size: 22px; }
+        .site-nav .brand-copy { font-size: 11px; padding-left: 10px; }
+        .site-nav .nav-links { gap: 25px; }
+        .site-nav .nav-item { font-size: 10px; }
 
-        .site-nav .nav-inner {
-            height: 60px;
-            min-height: 60px;
-        }
-
-        .site-nav .brand-mark {
-            font-size: 22px;
-        }
-
-        .site-nav .brand-copy {
-            font-size: 11px;
-            padding-left: 10px;
-        }
-
-        .site-nav .nav-links {
-            gap: 25px;
-        }
-
-        .site-nav .nav-item {
-            font-size: 10px;
-        }
-
-        /* Homepage navbar starts completely hidden and appears on scroll */
         .site-nav.home-nav {
             position: fixed;
             top: 0;
@@ -49,220 +27,57 @@
             right: 0;
             z-index: 1000;
             transform: translateY(-100%);
-            transition: transform 0.35s ease;
+            transition: transform .35s ease;
             box-shadow: none !important;
         }
 
-        .site-nav.home-nav.is-visible {
-            transform: translateY(0);
-            box-shadow: none !important;
-        }
+        .site-nav.home-nav.is-visible { transform: translateY(0); box-shadow: none !important; }
 
-        @media (prefers-reduced-motion: reduce) {
-            .site-nav.home-nav {
-                transition: none;
-            }
-        }
-
-        /* Global responsive fallback — kept here so it works without a Vite entry */
-        html,
-        body {
-            max-width: 100%;
-            overflow-x: hidden;
-        }
-
-        img,
-        video,
-        svg,
-        canvas {
-            max-width: 100%;
-            height: auto;
-        }
+        html, body { max-width: 100%; overflow-x: hidden; }
+        img, video, svg, canvas { max-width: 100%; height: auto; }
 
         @media (max-width: 1024px) {
-            .nav-inner,
-            .dashboard-heading,
-            .dashboard-wrap {
-                padding-left: 24px;
-                padding-right: 24px;
-            }
-
-            .content-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .stat-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .welcome-banner,
-            .graduation-intro {
-                padding: 34px;
-            }
+            .nav-inner, .dashboard-heading, .dashboard-wrap { padding-left: 24px; padding-right: 24px; }
+            .content-grid { grid-template-columns: 1fr; }
+            .stat-grid { grid-template-columns: repeat(2, 1fr); }
+            .welcome-banner, .graduation-intro { padding: 34px; }
         }
 
         @media (max-width: 640px) {
-            .site-nav,
-            .site-nav .nav-inner {
-                height: auto;
-                min-height: 56px;
-            }
-
-            .nav-inner {
-                width: 100%;
-                padding: 10px 16px;
-                gap: 12px;
-            }
-
-            .site-nav .brand-mark {
-                font-size: 19px;
-            }
-
-            .site-nav .brand-copy {
-                font-size: 9px;
-                padding-left: 8px;
-                letter-spacing: 1px;
-            }
-
-            .site-nav .nav-links {
-                display: flex !important;
-                flex: 1 1 auto;
-                min-width: 0;
-                margin-left: auto;
-                gap: 14px;
-                overflow-x: auto;
-                overflow-y: hidden;
-                scrollbar-width: none;
-            }
-
-            .site-nav .nav-links::-webkit-scrollbar {
-                display: none;
-            }
-
-            .site-nav .nav-item {
-                flex: 0 0 auto;
-                height: 36px;
-                font-size: 8px;
-                letter-spacing: 0.8px;
-                white-space: nowrap;
-            }
-
-            .dashboard-heading {
-                padding: 30px 16px 22px;
-                display: block;
-            }
-
-            .dashboard-wrap {
-                padding: 0 16px 40px;
-            }
-
-            .welcome-banner,
-            .graduation-intro {
-                min-height: 0;
-                padding: 28px 22px;
-                display: block;
-            }
-
-            .stat-grid,
-            .school-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .content-grid {
-                grid-template-columns: 1fr;
-                gap: 16px;
-            }
-
-            .panel {
-                padding: 20px;
-                min-width: 0;
-            }
-
-            .panel-header {
-                flex-direction: column;
-                gap: 8px;
-            }
-
-            .workflow-row {
-                grid-template-columns: 1fr auto;
-            }
-
-            .workflow-track {
-                grid-column: 1 / -1;
-                width: 100%;
-            }
-
-            .graduation-toolbar {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .search-field input {
-                width: 100%;
-            }
-
-            .featured-edition {
-                grid-template-columns: 1fr;
-                gap: 18px;
-            }
-
-            .featured-date {
-                border-right: 0;
-                border-bottom: 1px solid rgba(192, 82, 42, 0.3);
-                padding-right: 0;
-                padding-bottom: 14px;
-            }
-
-            .button {
-                max-width: 100%;
-                justify-content: center;
-            }
-
-            .public-shell table {
-                display: block;
-                width: 100%;
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-            }
-
-            .public-shell h1,
-            .public-shell h2,
-            .public-shell h3,
-            .public-shell p,
-            .public-shell a,
-            .public-shell span,
-            .public-shell strong,
-            .public-shell td,
-            .public-shell th {
-                overflow-wrap: anywhere;
-            }
-
-            .public-shell input,
-            .public-shell select,
-            .public-shell textarea {
-                max-width: 100%;
-        		}
+            .site-nav, .site-nav .nav-inner { height: auto; min-height: 56px; }
+            .nav-inner { width: 100%; padding: 10px 16px; gap: 12px; }
+            .site-nav .brand-mark { font-size: 19px; }
+            .site-nav .brand-copy { font-size: 9px; padding-left: 8px; letter-spacing: 1px; }
+            .site-nav .nav-links { display: flex !important; flex: 1 1 auto; min-width: 0; margin-left: auto; gap: 14px; overflow-x: auto; scrollbar-width: none; }
+            .site-nav .nav-links::-webkit-scrollbar { display: none; }
+            .site-nav .nav-item { flex: 0 0 auto; height: 36px; font-size: 8px; letter-spacing: .8px; white-space: nowrap; }
+            .dashboard-heading { padding: 30px 16px 22px; display: block; }
+            .dashboard-wrap { padding: 0 16px 40px; }
+            .welcome-banner, .graduation-intro { min-height: 0; padding: 28px 22px; display: block; }
+            .stat-grid, .school-grid { grid-template-columns: 1fr; }
+            .content-grid { grid-template-columns: 1fr; gap: 16px; }
+            .panel { padding: 20px; min-width: 0; }
+            .panel-header { flex-direction: column; gap: 8px; }
+            .workflow-row { grid-template-columns: 1fr auto; }
+            .workflow-track { grid-column: 1 / -1; width: 100%; }
+            .graduation-toolbar { flex-direction: column; align-items: stretch; }
+            .search-field input { width: 100%; }
+            .featured-edition { grid-template-columns: 1fr; gap: 18px; }
+            .featured-date { border-right: 0; border-bottom: 1px solid rgba(192,82,42,.3); padding-right: 0; padding-bottom: 14px; }
+            .button { max-width: 100%; justify-content: center; }
+            .public-shell table { display: block; width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            .public-shell h1, .public-shell h2, .public-shell h3, .public-shell p, .public-shell a, .public-shell span, .public-shell strong, .public-shell td, .public-shell th { overflow-wrap: anywhere; }
+            .public-shell input, .public-shell select, .public-shell textarea { max-width: 100%; }
         }
 
         @media (max-width: 380px) {
-            .nav-inner {
-                padding-left: 12px;
-                padding-right: 12px;
-            }
-
-            .site-nav .nav-links {
-                gap: 10px;
-            }
-
-            .site-nav .nav-item {
-                font-size: 7px;
-            }
-
-            .dashboard-wrap {
-                padding-left: 12px;
-                padding-right: 12px;
-            }
+            .nav-inner { padding-left: 12px; padding-right: 12px; }
+            .site-nav .nav-links { gap: 10px; }
+            .site-nav .nav-item { font-size: 7px; }
+            .dashboard-wrap { padding-left: 12px; padding-right: 12px; }
         }
+
+        @media (prefers-reduced-motion: reduce) { .site-nav.home-nav { transition: none; } }
     </style>
 </head>
 
@@ -294,18 +109,12 @@
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 const nav = document.querySelector('.home-nav');
-
                 if (!nav) return;
-
-                const updateNavbar = () => {
-                    nav.classList.toggle('is-visible', window.scrollY > 40);
-                };
-
+                const updateNavbar = () => nav.classList.toggle('is-visible', window.scrollY > 40);
                 updateNavbar();
                 window.addEventListener('scroll', updateNavbar, { passive: true });
             });
         </script>
     @endif
 </body>
-
 </html>
