@@ -19,14 +19,28 @@ class EventController extends Controller
 {
     use SyncsOrderedMedia;
 
-    public function index()
+    public function index(Request $request)
     {
-        $events = Event::with(['academicYear', 'category', 'campuses', 'schools', 'aiGenerations'])
+        $query = Event::with(['academicYear', 'category', 'campuses', 'schools', 'aiGenerations'])
             ->when(
                 auth()->user()->role?->role_name === 'reviewer',
-                fn($query) => $query->where('status', '!=', 'draft')
-            )
-            ->get();
+                fn ($query) => $query->where('status', '!=', 'draft')
+            );
+
+        $query->when($request->filled('status') && $request->status !== 'all', fn ($q) => $q->where('status', $request->status));
+        $query->when($request->filled('year') && $request->year !== 'all', fn ($q) => $q->where('academic_year_id', $request->year));
+        $query->when($request->filled('campus') && $request->campus !== 'all', fn ($q) => $q->whereHas('campuses', fn ($campus) => $campus->where('campus_id', $request->campus)));
+        $query->when($request->filled('school') && $request->school !== 'all', fn ($q) => $q->whereHas('schools', fn ($school) => $school->where('school_id', $request->school)));
+        $query->when($request->filled('search'), function ($q) use ($request) {
+            $search = $request->search;
+            $q->where(function ($searchQuery) use ($search) {
+                $searchQuery->where('title', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhere('location', 'like', "%{$search}%");
+            });
+        });
+
+        $events = $query->latest('event_date')->paginate(12)->withQueryString();
 
         return view('events.index', [
             'events' => $events,
@@ -36,7 +50,6 @@ class EventController extends Controller
         ]);
     }
 
-    // shows the empty form (/events/create)
     public function create()
     {
         $academicYears = AcademicYear::where('status', '!=', 'archived')->get();
@@ -44,12 +57,7 @@ class EventController extends Controller
         $campuses = Campus::all();
         $schools = School::all();
 
-        return view('events.create', [
-            'academicYears' => $academicYears,
-            'categories' => $categories,
-            'campuses' => $campuses,
-            'schools' => $schools,
-        ]);
+        return view('events.create', compact('academicYears', 'categories', 'campuses', 'schools'));
     }
 
     public function edit(string $id)
@@ -60,44 +68,31 @@ class EventController extends Controller
         $campuses = Campus::all();
         $schools = School::all();
 
-        return view('events.edit', [
-            'event' => $event,
-            'academicYears' => $academicYears,
-            'categories' => $categories,
-            'campuses' => $campuses,
-            'schools' => $schools,
-        ]);
+        return view('events.edit', compact('event', 'academicYears', 'categories', 'campuses', 'schools'));
     }
 
     public function store(StoreEventRequest $request)
     {
         $validated = $request->validated();
         $validated['featured'] = $request->boolean('featured');
-
         $event = Event::create($validated);
         AuditLog::record('created', $event);
-
         $event->campuses()->sync($request->input('campus_ids', []));
         $event->schools()->sync($request->input('school_ids', []));
         $this->syncMediaWithOrder($event, $request->input('media_ids', []));
-
         return redirect()->route('events.index');
     }
 
     public function update(UpdateEventRequest $request, string $id)
     {
         $event = Event::findOrFail($id);
-
         $validated = $request->validated();
         $validated['featured'] = $request->boolean('featured');
-
         $event->update($validated);
         AuditLog::record('updated', $event);
-
         $event->campuses()->sync($request->input('campus_ids', []));
         $event->schools()->sync($request->input('school_ids', []));
         $this->syncMediaWithOrder($event, $request->input('media_ids', []));
-
         return redirect()->route('events.index');
     }
 
@@ -108,7 +103,6 @@ class EventController extends Controller
         AuditLog::record('deleted', $event);
         return redirect()->route('events.index');
     }
-
 
     public function submitForReview(string $id)
     {
@@ -142,40 +136,16 @@ class EventController extends Controller
         return redirect()->route('events.index');
     }
 
-    public function generateSummary(
-        string $id,
-        EventAiService $aiService
-    ) {
+    public function generateSummary(string $id, EventAiService $aiService)
+    {
         $event = Event::findOrFail($id);
 
         try {
-            $generatedText = $aiService->summarizeEvent(
-                $event->title,
-                $event->description ?? '',
-                $event->event_date
-            );
-        } catch (AiServiceTimeoutException $e) {
-            report($e);
-
-            AuditLog::record('ai_generation_timeout', $event);
-
-            return redirect()
-                ->route('events.index')
-                ->with(
-                    'error',
-                    'The AI summary request timed out: ' . $e->getMessage()
-                );
+            $generatedText = $aiService->summarizeEvent($event->title, $event->description ?? '', $event->event_date);
         } catch (\Throwable $e) {
             report($e);
-
             AuditLog::record('ai_generation_failed', $event);
-
-            return redirect()
-                ->route('events.index')
-                ->with(
-                    'error',
-                    'AI error: ' . $e->getMessage()
-                );
+            return redirect()->route('events.index')->with('error', 'AI error: ' . $e->getMessage());
         }
 
         AiGeneration::create([
@@ -188,12 +158,6 @@ class EventController extends Controller
         ]);
 
         AuditLog::record('ai_generation_created', $event);
-
-        return redirect()
-            ->route('events.index')
-            ->with(
-                'success',
-                'AI summary generated — pending review.'
-            );
+        return redirect()->route('events.index')->with('success', 'AI summary generated — pending review.');
     }
 }
