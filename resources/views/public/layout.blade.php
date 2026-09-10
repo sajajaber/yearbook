@@ -139,10 +139,101 @@
         }
 
         @media (prefers-reduced-motion: reduce) { .site-nav.home-nav { transition: none; } }
+
+        /* Public yearbook home enhancements. */
+        @media (prefers-reduced-motion: no-preference) {
+            body.public-index-page .yearbook-wrapper {
+                animation: publicPageIn .8s ease both;
+            }
+
+            body.public-index-page .yb-introduction,
+            body.public-index-page .yb-numbers,
+            body.public-index-page .yb-timeline-section,
+            body.public-index-page .yb-people,
+            body.public-index-page .yb-campus,
+            body.public-index-page .yb-archive,
+            body.public-index-page .yb-footer {
+                opacity: 0;
+                transform: translateY(28px);
+                transition: opacity .8s ease, transform .9s cubic-bezier(.16, 1, .3, 1);
+            }
+
+            body.public-index-page .yb-section-visible {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            body.public-index-page .yb-event-content {
+                grid-template-columns: 1fr !important;
+            }
+
+            body.public-index-page .yb-event-content > div:last-child {
+                display: none !important;
+            }
+
+            body.public-index-page .yb-campus {
+                overflow: hidden;
+            }
+
+            body.public-index-page .yb-campus-strip {
+                width: max-content;
+                max-width: none;
+                overflow: visible;
+                animation: campusMarquee 42s linear infinite;
+                will-change: transform;
+            }
+
+            body.public-index-page .yb-campus-strip:hover {
+                animation-play-state: paused;
+            }
+
+            body.public-index-page .yb-campus-name {
+                flex-shrink: 0;
+            }
+
+            @keyframes publicPageIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+
+            @keyframes campusMarquee {
+                from { transform: translateX(-50%); }
+                to { transform: translateX(0); }
+            }
+        }
+
+        /* Event images are intentionally omitted from the public yearbook index. */
+        body.public-index-page .yb-event-content {
+            grid-template-columns: 1fr !important;
+        }
+        body.public-index-page .yb-event-content > div:last-child {
+            display: none !important;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            body.public-index-page .yearbook-wrapper,
+            body.public-index-page .yb-introduction,
+            body.public-index-page .yb-numbers,
+            body.public-index-page .yb-timeline-section,
+            body.public-index-page .yb-people,
+            body.public-index-page .yb-campus,
+            body.public-index-page .yb-archive,
+            body.public-index-page .yb-footer {
+                animation: none !important;
+                opacity: 1 !important;
+                transform: none !important;
+                transition: none !important;
+            }
+
+            body.public-index-page .yb-campus-strip {
+                animation: none !important;
+                transform: none !important;
+            }
+        }
     </style>
 </head>
 
-<body>
+<body class="{{ request()->routeIs('public.index') ? 'public-index-page' : '' }}">
     <div class="site-shell public-shell">
         <nav class="site-nav {{ request()->routeIs('public.home') ? 'home-nav' : '' }}">
             <div class="nav-inner">
@@ -173,6 +264,63 @@
                 const updateNavbar = () => nav.classList.toggle('is-visible', window.scrollY > 40);
                 updateNavbar();
                 window.addEventListener('scroll', updateNavbar, { passive: true });
+            });
+        </script>
+    @endif
+
+    @if(request()->routeIs('public.index'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const wrapper = document.querySelector('.yearbook-wrapper');
+                if (!wrapper) return;
+
+                /* Show the active academic year instead of the hard-coded 01. */
+                const introNumber = document.querySelector('.yb-intro-number');
+                const edition = document.querySelector('.yb-edition strong');
+                if (introNumber && edition) {
+                    const match = edition.textContent.match(/\b(20\d{2})/);
+                    if (match) {
+                        introNumber.textContent = match[1].slice(-2);
+                    }
+                }
+
+                /* Duplicate the campus names so the strip can loop continuously. */
+                const campusStrip = document.querySelector('.yb-campus-strip');
+                if (campusStrip && campusStrip.children.length && !campusStrip.dataset.marqueeReady) {
+                    campusStrip.dataset.marqueeReady = 'true';
+                    Array.from(campusStrip.children).forEach(function (item) {
+                        const clone = item.cloneNode(true);
+                        clone.setAttribute('aria-hidden', 'true');
+                        campusStrip.appendChild(clone);
+                    });
+                }
+
+                /* Gentle section transitions as the visitor scrolls. */
+                const sections = wrapper.querySelectorAll(
+                    '.yb-introduction, .yb-numbers, .yb-timeline-section, .yb-people, .yb-campus, .yb-archive, .yb-footer'
+                );
+
+                if ('IntersectionObserver' in window) {
+                    const observer = new IntersectionObserver(function (entries) {
+                        entries.forEach(function (entry) {
+                            if (entry.isIntersecting) {
+                                entry.target.classList.add('yb-section-visible');
+                                observer.unobserve(entry.target);
+                            }
+                        });
+                    }, {
+                        threshold: 0.08,
+                        rootMargin: '0px 0px -8% 0px'
+                    });
+
+                    sections.forEach(function (section) {
+                        observer.observe(section);
+                    });
+                } else {
+                    sections.forEach(function (section) {
+                        section.classList.add('yb-section-visible');
+                    });
+                }
             });
         </script>
     @endif
