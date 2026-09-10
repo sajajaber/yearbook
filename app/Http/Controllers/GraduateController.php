@@ -23,9 +23,11 @@ class GraduateController extends Controller
 
     public function index(Request $request)
     {
+        $isReviewer = auth()->user()->role?->role_name === 'reviewer';
+
         $query = Graduate::with(['school', 'major', 'campus', 'graduation', 'aiGenerations'])
             ->when(
-                auth()->user()->role?->role_name === 'reviewer',
+                $isReviewer,
                 fn ($query) => $query->where('publish_status', '!=', 'draft')
             )
             ->orderBy('name');
@@ -47,8 +49,21 @@ class GraduateController extends Controller
 
         $graduates = $query->paginate(12)->withQueryString();
 
+        // Status counts must be calculated from the full dataset, not the current
+        // 12-record pagination page, otherwise the Published tab count is wrong.
+        $statusCounts = Graduate::selectRaw('publish_status, COUNT(*) as total')
+            ->when($isReviewer, fn ($query) => $query->where('publish_status', '!=', 'draft'))
+            ->groupBy('publish_status')
+            ->pluck('total', 'publish_status');
+
+        $consentGranted = Graduate::when($isReviewer, fn ($query) => $query->where('publish_status', '!=', 'draft'))
+            ->where('consent_status', 'granted')
+            ->count();
+
         return view('graduates.index', [
             'graduates' => $graduates,
+            'statusCounts' => $statusCounts,
+            'consentGranted' => $consentGranted,
             'schools' => School::where('status', 'active')->orderBy('name')->get(),
             'campuses' => Campus::where('status', 'active')->orderBy('name')->get(),
             'majors' => Major::orderBy('name')->get(),
