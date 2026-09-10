@@ -11,17 +11,69 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @yield('extra-css')
-</head>
 
+    <style>
+        /* Compact public navbar */
+        .site-nav {
+            height: 60px;
+        }
+
+        .site-nav .nav-inner {
+            height: 60px;
+            min-height: 60px;
+        }
+
+        .site-nav .brand-mark {
+            font-size: 22px;
+        }
+
+        .site-nav .brand-copy {
+            font-size: 11px;
+            padding-left: 10px;
+        }
+
+        .site-nav .nav-links {
+            gap: 25px;
+        }
+
+        .site-nav .nav-item {
+            font-size: 10px;
+        }
+
+        /* Homepage navbar starts completely hidden and appears on scroll */
+        .site-nav.home-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            transform: translateY(-100%);
+            transition: transform 0.35s ease, box-shadow 0.35s ease;
+            box-shadow: 0 0 0 rgba(0, 42, 92, 0);
+        }
+
+        .site-nav.home-nav.is-visible {
+            transform: translateY(0);
+            box-shadow: 0 8px 24px rgba(0, 42, 92, 0.10);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .site-nav.home-nav {
+                transition: none;
+            }
+        }
+    </style>
+</head>
 
 <body>
     <div class="site-shell public-shell">
-        <nav class="site-nav">
+        <nav class="site-nav {{ request()->routeIs('public.home') ? 'home-nav' : '' }}">
             <div class="nav-inner">
                 <a href="{{ route('public.home') }}" class="brand-lockup">
                     <span class="brand-mark">LIU</span>
                     <span class="brand-copy">Digital<br><small>Yearbook</small></span>
                 </a>
+
                 <div class="nav-links hidden sm:flex">
                     <a href="{{ route('public.timeline') }}" class="nav-item {{ request()->routeIs('public.timeline') ? 'is-active' : '' }}">Timeline</a>
                     <a href="{{ route('public.events') }}" class="nav-item {{ request()->routeIs('public.events') ? 'is-active' : '' }}">Events</a>
@@ -36,6 +88,23 @@
     </div>
 
     @stack('scripts')
+
+    @if(request()->routeIs('public.home'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const nav = document.querySelector('.home-nav');
+
+                if (!nav) return;
+
+                const updateNavbar = () => {
+                    nav.classList.toggle('is-visible', window.scrollY > 40);
+                };
+
+                updateNavbar();
+                window.addEventListener('scroll', updateNavbar, { passive: true });
+            });
+        </script>
+    @endif
 </body>
 
 </html>
