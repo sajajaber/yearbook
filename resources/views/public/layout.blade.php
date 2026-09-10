@@ -36,7 +36,6 @@
         html, body { max-width: 100%; overflow-x: hidden; }
         img, video, svg, canvas { max-width: 100%; height: auto; }
 
-        /* Public pagination fallback. */
         .pagination,
         .graduates-pagination,
         .events-pagination,
@@ -153,7 +152,6 @@
                 </a>
 
                 <div class="nav-links hidden sm:flex">
-                    <a href="{{ route('public.timeline') }}" class="nav-item {{ request()->routeIs('public.timeline') ? 'is-active' : '' }}">Timeline</a>
                     <a href="{{ route('public.events') }}" class="nav-item {{ request()->routeIs('public.events') ? 'is-active' : '' }}">Events</a>
                     <a href="{{ route('public.graduates') }}" class="nav-item {{ request()->routeIs('public.graduates') ? 'is-active' : '' }}">Graduates</a>
                     <a href="{{ route('public.archive') }}" class="nav-item {{ request()->routeIs('public.archive') ? 'is-active' : '' }}">Archive</a>
