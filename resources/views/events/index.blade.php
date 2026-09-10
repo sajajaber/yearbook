@@ -98,8 +98,25 @@
             </div>
 
             @if ($events->hasPages())
-                <div class="events-pagination" aria-label="Events pagination">
-                    {{ $events->onEachSide(1)->links() }}
+                <div class="liu-pagination" aria-label="Events pagination">
+                    <div class="liu-pagination-summary">Showing <strong>{{ $events->firstItem() }}</strong>–<strong>{{ $events->lastItem() }}</strong> of <strong>{{ $events->total() }}</strong></div>
+                    <div class="liu-pagination-controls">
+                        @if ($events->onFirstPage())
+                            <span class="liu-page-arrow is-disabled" aria-disabled="true">←</span>
+                        @else
+                            <a class="liu-page-arrow" href="{{ $events->previousPageUrl() }}" rel="prev" aria-label="Previous page">←</a>
+                        @endif
+
+                        @foreach ($events->onEachSide(1)->getUrlRange(max(1, $events->currentPage() - 1), min($events->lastPage(), $events->currentPage() + 1)) as $page => $url)
+                            <a href="{{ $url }}" class="liu-page-number {{ $page == $events->currentPage() ? 'is-current' : '' }}" aria-current="{{ $page == $events->currentPage() ? 'page' : 'false' }}">{{ $page }}</a>
+                        @endforeach
+
+                        @if ($events->hasMorePages())
+                            <a class="liu-page-arrow" href="{{ $events->nextPageUrl() }}" rel="next" aria-label="Next page">→</a>
+                        @else
+                            <span class="liu-page-arrow is-disabled" aria-disabled="true">→</span>
+                        @endif
+                    </div>
                 </div>
             @endif
         </section>
