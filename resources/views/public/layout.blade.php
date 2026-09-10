@@ -16,6 +16,7 @@
         /* Compact public navbar */
         .site-nav {
             height: 60px;
+            box-shadow: none !important;
         }
 
         .site-nav .nav-inner {
@@ -48,13 +49,13 @@
             right: 0;
             z-index: 1000;
             transform: translateY(-100%);
-            transition: transform 0.35s ease, box-shadow 0.35s ease;
-            box-shadow: 0 0 0 rgba(0, 42, 92, 0);
+            transition: transform 0.35s ease;
+            box-shadow: none !important;
         }
 
         .site-nav.home-nav.is-visible {
             transform: translateY(0);
-            box-shadow: 0 8px 24px rgba(0, 42, 92, 0.10);
+            box-shadow: none !important;
         }
 
         @media (prefers-reduced-motion: reduce) {
