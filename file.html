@@ -1,0 +1,371 @@
+<header
+    data-theme="dark"
+    data-services-open="false"
+    data-scroll-state="false"
+    style="
+        --header-fg: var(--color-base-white);
+        --header-bg: transparent;
+        --header-btn-bg: var(--color-base-white);
+        --header-btn-fg: var(--color-core-black);
+    "
+    class="fixed inset-x-0 top-0 z-50 h-[3.5rem] md:h-[5.25rem] transition-[height,background-color,color] duration-[600ms] ease-[cubic-bezier(0.22,1,0.36,1)] bg-[color:var(--header-bg)] text-[color:var(--header-fg)]"
+>
+    <div
+        class="absolute inset-x-0 top-0 flex h-[3.5rem] items-center justify-between px-[1rem] md:hidden"
+    >
+        <a
+            href="/"
+            aria-label="The Performance Lab — home"
+            class="block h-[2rem] w-[2rem] text-[color:var(--header-fg)]"
+            ><svg
+                viewBox="0 0 40 40"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+                class="block h-full w-full"
+            >
+                <path
+                    d="M3.73143 12.5293C8.00183 16.8 8.00196 23.7239 3.73143 27.9945L0.567404 24.8305C3.09046 22.3074 3.09033 18.2165 0.567404 15.6933L3.73143 12.5293ZM24.8286 39.9546C22.3055 37.4317 18.216 37.4317 15.6929 39.9546L12.5288 36.7905C16.7994 32.5202 23.7221 32.5202 27.9927 36.7905L24.8286 39.9546ZM20.3816 16.3065C22.4986 16.3065 24.2147 18.0227 24.2147 20.1397C24.2145 22.2565 22.4985 23.9728 20.3816 23.9728C18.2647 23.9728 16.5486 22.2565 16.5484 20.1397C16.5484 18.0227 18.2646 16.3066 20.3816 16.3065ZM39.9534 15.6926C37.4303 18.2158 37.4298 22.3073 39.9527 24.8305L36.7887 27.9945C32.5183 23.7238 32.5188 16.7992 36.7894 12.5286L39.9534 15.6926ZM27.9933 3.7326C23.7227 8.00305 16.7988 8.00309 12.5281 3.7326L15.6922 0.568573C18.2153 3.09159 22.3061 3.09155 24.8293 0.568573L27.9933 3.7326Z"
+                    fill="currentColor"
+                ></path></svg
+        ></a>
+        <div
+            class="flex items-center justify-between"
+            style="width: 10.6875rem"
+        >
+            <button
+                type="button"
+                aria-label="Open services menu"
+                class="inline-flex items-center gap-[0.25rem] type-mono text-[color:var(--header-fg)]"
+            >
+                <span>SERVICES</span
+                ><span
+                    aria-hidden="true"
+                    class="inline-block h-[0.625rem] w-[0.625rem]"
+                    ><svg
+                        viewBox="0 0 10 10"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="block h-full w-full transition-transform duration-300 ease-out"
+                        aria-hidden="true"
+                    >
+                        <path
+                            d="M6.78643 5.62932C6.22268 5.62932 5.76567 6.08633 5.76567 6.65008L5.76567 8.86365L4.23453 8.86365L4.23453 6.65008C4.23453 6.08633 3.77752 5.62932 3.21377 5.62932L1 5.62932L1 4.09818L3.21377 4.09818C3.77752 4.09818 4.23453 3.64117 4.23453 3.07742L4.23453 0.863653L5.76567 0.863653L5.76567 3.07742C5.76567 3.64117 6.22268 4.09818 6.78643 4.09818L9 4.09818L9 5.62932L6.78643 5.62932Z"
+                            fill="currentColor"
+                        ></path></svg
+                ></span></button
+            ><button
+                type="button"
+                aria-label="Open menu"
+                class="type-mono text-[color:var(--header-fg)]"
+            >
+                MENU
+            </button>
+        </div>
+    </div>
+    <a
+        href="/"
+        aria-label="The Performance Lab — home"
+        class="absolute left-[1.75rem] top-1/2 -translate-y-1/2 hidden md:block text-[color:var(--header-fg)]"
+        style="width: 181px; height: 40px"
+        ><span
+            aria-hidden="true"
+            class="absolute left-0 top-1/2 block -translate-y-1/2"
+            style="width: 11.3125rem; height: 0.75rem"
+            ><span
+                class="absolute block"
+                style="
+                    left: 1.25rem;
+                    top: 50%;
+                    width: 2.5rem;
+                    height: 2.5rem;
+                    transform: translate(-50%, -50%) rotate(180deg);
+                    transition-property: left, width, height, transform;
+                    transition-duration: 1250ms;
+                    transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+                "
+                ><svg
+                    viewBox="0 0 40 40"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="block h-full w-full"
+                >
+                    <path
+                        d="M3.73143 12.5293C8.00183 16.8 8.00196 23.7239 3.73143 27.9945L0.567404 24.8305C3.09046 22.3074 3.09033 18.2165 0.567404 15.6933L3.73143 12.5293ZM24.8286 39.9546C22.3055 37.4317 18.216 37.4317 15.6929 39.9546L12.5288 36.7905C16.7994 32.5202 23.7221 32.5202 27.9927 36.7905L24.8286 39.9546ZM20.3816 16.3065C22.4986 16.3065 24.2147 18.0227 24.2147 20.1397C24.2145 22.2565 22.4985 23.9728 20.3816 23.9728C18.2647 23.9728 16.5486 22.2565 16.5484 20.1397C16.5484 18.0227 18.2646 16.3066 20.3816 16.3065ZM39.9534 15.6926C37.4303 18.2158 37.4298 22.3073 39.9527 24.8305L36.7887 27.9945C32.5183 23.7238 32.5188 16.7992 36.7894 12.5286L39.9534 15.6926ZM27.9933 3.7326C23.7227 8.00305 16.7988 8.00309 12.5281 3.7326L15.6922 0.568573C18.2153 3.09159 22.3061 3.09155 24.8293 0.568573L27.9933 3.7326Z"
+                        fill="currentColor"
+                    ></path></svg></span
+            ><svg
+                viewBox="0 0 180.991 12"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                class="absolute inset-0 block h-full w-full"
+                style="
+                    opacity: 0;
+                    transition-property: opacity;
+                    transition-duration: 1250ms;
+                    transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+                "
+            >
+                <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M131.505 0.157544C132.63 0.157544 133.575 0.519467 134.283 1.20447C134.99 1.88925 135.457 2.89293 135.638 4.17031L135.645 4.2243H133.647L133.639 4.18655C133.478 3.40147 133.22 2.82906 132.862 2.45353C132.506 2.07953 132.047 1.89649 131.472 1.89649C130.6 1.89649 129.935 2.24766 129.487 2.93134C129.036 3.61809 128.801 4.64526 128.801 6.00012C128.801 7.37187 129.028 8.39904 129.471 9.08162C129.911 9.76091 130.567 10.1037 131.44 10.1037C132.039 10.1037 132.502 9.92443 132.856 9.55285C133.211 9.17951 133.461 8.60754 133.623 7.8139L133.631 7.77571H135.645L135.638 7.83014C135.449 9.1073 134.982 10.1112 134.268 10.796C133.554 11.481 132.598 11.8427 131.44 11.8427C129.962 11.8427 128.808 11.321 128.024 10.325C127.242 9.33073 126.834 7.86987 126.834 5.9999C126.834 4.1218 127.246 2.66094 128.039 1.66867C128.833 0.67464 130.003 0.157544 131.505 0.157544Z"
+                    fill="currentColor"
+                ></path>
+                <path
+                    d="M8.93439 2.01047H5.43434V11.7453H3.4836V2.01047H0V0.255066H8.93439V2.01047Z"
+                    fill="currentColor"
+                ></path>
+                <path
+                    d="M12.5662 5.04128H16.5412V0.255066H18.4917V11.7453H16.5412V6.79646H12.5662V11.7453H10.6156V0.255066H12.5662V5.04128Z"
+                    fill="currentColor"
+                ></path>
+                <path
+                    d="M27.6842 2.01047H22.2959V5.07376H26.8379V6.78022H22.2959V9.9899H27.8797V11.7451H20.329V0.254846H27.6842V2.01047Z"
+                    fill="currentColor"
+                ></path>
+                <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M40.2788 0.255066C41.4361 0.255066 42.4009 0.61238 43.0767 1.25304C43.7527 1.89393 44.1353 2.81465 44.1353 3.9329L44.1342 4.0365C44.1111 5.10032 43.7316 5.98373 43.0767 6.60661C42.4009 7.24925 41.4363 7.61052 40.2788 7.61052H38.0308V11.7453H36.0801V0.255066H40.2788ZM38.0308 5.88759H40.067C40.7087 5.88759 41.2337 5.69533 41.5976 5.35711C41.9611 5.01933 42.1683 4.53186 42.1683 3.9329C42.1683 3.32538 41.9648 2.83791 41.6036 2.50233C41.2418 2.16652 40.7173 1.97777 40.067 1.97777H38.0308V5.88737V5.88759Z"
+                    fill="currentColor"
+                ></path>
+                <path
+                    d="M52.9941 2.01047H47.6056V5.07376H52.1473V6.78022H47.6056V9.9899H53.1892V11.7451H45.6387V0.254846H52.9941V2.01047Z"
+                    fill="currentColor"
+                ></path>
+                <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M59.0128 0.255066C60.1783 0.255066 61.1552 0.61238 61.8411 1.25282C62.5274 1.89371 62.9183 2.81443 62.9183 3.9329L62.9159 4.0771C62.8638 5.5395 62.023 6.70516 60.7241 7.18143L63.145 11.7451H60.9866L60.9732 11.7201L58.789 7.6103H56.9115V11.7451H54.9606V0.254846L59.0128 0.255066ZM56.9115 5.88759H58.8337C59.4838 5.88759 60.0128 5.69511 60.3787 5.35689C60.7441 5.01911 60.9513 4.53186 60.9513 3.9329C60.9513 3.33394 60.7441 2.84647 60.3787 2.50869C60.0128 2.17047 59.4838 1.97799 58.8337 1.97799H56.9115V5.88759Z"
+                    fill="currentColor"
+                ></path>
+                <path
+                    d="M72.101 2.01047H66.6151V5.22015H71.3522V6.97556H66.6151V11.7453H64.6481V0.255066H72.101V2.01047Z"
+                    fill="currentColor"
+                ></path>
+                <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M90.857 0.255066C92.0225 0.255066 92.9994 0.61238 93.6853 1.25282C94.3716 1.89371 94.7627 2.81443 94.7627 3.9329L94.76 4.0771C94.708 5.5395 93.8672 6.70516 92.5685 7.18143L94.9523 11.6755L94.9894 11.7451H92.8308L92.8172 11.7201L90.6329 7.6103H88.7557V11.7451H86.805V0.254846L90.857 0.255066ZM88.7557 5.88759H90.6779C91.328 5.88759 91.8568 5.69511 92.2226 5.35689C92.5883 5.01911 92.7957 4.53186 92.7957 3.9329C92.7957 3.33394 92.5883 2.84647 92.2226 2.50869C91.8796 2.19154 91.3934 2.00279 90.7982 1.9804L90.6779 1.97799H88.7557V5.88759Z"
+                    fill="currentColor"
+                ></path>
+                <path
+                    d="M98.5045 0.283818L100.707 5.39135L102.894 0.283818L102.906 0.254846H104.857V11.7451H103.167V3.52269L101.288 7.77732L101.275 7.80563H100.091L100.078 7.77754L98.183 3.52137V11.7453H96.4926V0.255066H98.4922L98.5045 0.283818Z"
+                    fill="currentColor"
+                ></path>
+                <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M115.807 11.7453H113.77L113.76 11.7119L112.908 8.92916H109.006L108.153 11.7119L108.143 11.7453H106.171L106.19 11.6836L109.798 0.255066H112.18L115.807 11.7453ZM109.49 7.23894H112.423L110.941 2.43473L109.49 7.23894Z"
+                    fill="currentColor"
+                ></path>
+                <path
+                    d="M118.961 0.279867L123.234 8.15746V0.255066H125.022V11.7453H123.221L123.207 11.7207L118.934 3.84291V11.7453H117.146V0.255066H118.947L118.961 0.279867Z"
+                    fill="currentColor"
+                ></path>
+                <path
+                    d="M144.968 2.01047H139.579V5.07376H144.121V6.78022H139.579V9.9899H145.163V11.7451H137.612V0.254846H144.968V2.01047Z"
+                    fill="currentColor"
+                ></path>
+                <path
+                    d="M155.721 9.99012H160.996V11.7453H153.771V0.255066H155.721V9.99012Z"
+                    fill="currentColor"
+                ></path>
+                <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M168.15 0.288207L171.767 11.7451H169.73L169.72 11.7117L168.867 8.92894H164.966L164.113 11.7117L164.103 11.7451H162.131L165.759 0.254846H168.14L168.15 0.288207ZM165.45 7.23872H168.382L166.901 2.43495L165.45 7.23872Z"
+                    fill="currentColor"
+                ></path>
+                <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M176.792 0.255066C178.02 0.255066 178.96 0.545439 179.594 1.07592C180.229 1.60729 180.551 2.37481 180.551 3.31419L180.549 3.43929C180.528 4.05866 180.349 4.56874 180.038 4.96709C179.742 5.34767 179.327 5.62246 178.823 5.79432C179.414 5.92403 179.933 6.17797 180.316 6.57764C180.739 7.01902 180.991 7.63378 180.991 8.44191L180.99 8.53716C180.969 9.51407 180.623 10.3088 179.96 10.8632C179.277 11.4345 178.264 11.7453 176.939 11.7453H173.049V0.255066H176.792ZM174.984 10.1038H176.922C177.64 10.1038 178.165 9.94228 178.51 9.65695C178.853 9.37273 179.024 8.9601 179.024 8.44213C179.024 7.88333 178.84 7.45447 178.491 7.16409C178.162 6.89084 177.681 6.73523 177.05 6.71701L176.922 6.71526H174.984V10.1038ZM174.984 5.10646H176.825C177.436 5.10646 177.886 4.94975 178.184 4.67343C178.481 4.39754 178.633 3.99633 178.633 3.49328C178.633 2.99023 178.485 2.59297 178.19 2.32148C177.913 2.06644 177.5 1.91609 176.939 1.89832L176.825 1.89634H174.984V5.10624V5.10646Z"
+                    fill="currentColor"
+                ></path></svg></span
+    ></a>
+    <nav
+        class="absolute hidden md:block left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+        aria-label="Primary"
+    >
+        <ul class="flex items-center gap-[1.75rem]">
+            <li>
+                <a
+                    href="/"
+                    class="type-mono text-[color:var(--header-fg)] hover:text-[color:var(--color-performance-red)] transition-colors"
+                    ><span aria-label="HOME"
+                        ><span aria-hidden="true" style="white-space: pre"
+                            >H</span
+                        ><span aria-hidden="true" style="white-space: pre"
+                            >O</span
+                        ><span aria-hidden="true" style="white-space: pre"
+                            >M</span
+                        ><span aria-hidden="true" style="white-space: pre"
+                            >E</span
+                        ></span
+                    ></a
+                >
+            </li>
+            <li>
+                <a
+                    href="/about"
+                    class="type-mono text-[color:var(--header-fg)] hover:text-[color:var(--color-performance-red)] transition-colors"
+                    ><span aria-label="WHO WE ARE"
+                        ><span aria-hidden="true" style="white-space: pre"
+                            >W</span
+                        ><span aria-hidden="true" style="white-space: pre"
+                            >H</span
+                        ><span aria-hidden="true" style="white-space: pre"
+                            >O</span
+                        ><span aria-hidden="true" style="white-space: pre">
+                        </span
+                        ><span aria-hidden="true" style="white-space: pre"
+                            >W</span
+                        ><span aria-hidden="true" style="white-space: pre"
+                            >E</span
+                        ><span aria-hidden="true" style="white-space: pre">
+                        </span
+                        ><span aria-hidden="true" style="white-space: pre"
+                            >A</span
+                        ><span aria-hidden="true" style="white-space: pre"
+                            >R</span
+                        ><span aria-hidden="true" style="white-space: pre"
+                            >E</span
+                        ></span
+                    ></a
+                >
+            </li>
+            <li>
+                <a
+                    href="/blog"
+                    class="type-mono text-[color:var(--header-fg)] hover:text-[color:var(--color-performance-red)] transition-colors"
+                    ><span aria-label="BLOG"
+                        ><span aria-hidden="true" style="white-space: pre"
+                            >B</span
+                        ><span aria-hidden="true" style="white-space: pre"
+                            >L</span
+                        ><span aria-hidden="true" style="white-space: pre"
+                            >O</span
+                        ><span aria-hidden="true" style="white-space: pre"
+                            >G</span
+                        ></span
+                    ></a
+                >
+            </li>
+            <li>
+                <a
+                    href="/contact"
+                    class="type-mono text-[color:var(--header-fg)] hover:text-[color:var(--color-performance-red)] transition-colors"
+                    ><span aria-label="CONTACT"
+                        ><span aria-hidden="true" style="white-space: pre"
+                            >C</span
+                        ><span aria-hidden="true" style="white-space: pre"
+                            >O</span
+                        ><span aria-hidden="true" style="white-space: pre"
+                            >N</span
+                        ><span aria-hidden="true" style="white-space: pre"
+                            >T</span
+                        ><span aria-hidden="true" style="white-space: pre"
+                            >A</span
+                        ><span aria-hidden="true" style="white-space: pre"
+                            >C</span
+                        ><span aria-hidden="true" style="white-space: pre"
+                            >T</span
+                        ></span
+                    ></a
+                >
+            </li>
+        </ul>
+    </nav>
+    <div
+        class="absolute hidden md:block top-1/2 -translate-y-1/2"
+        style="left: calc(50% + 13.9375rem)"
+    >
+        <button
+            type="button"
+            aria-expanded="false"
+            aria-label="Open services"
+            data-open="false"
+            class="group inline-flex items-center gap-[0.25rem] type-mono text-[color:var(--header-fg)] hover:text-[color:var(--color-performance-red)] transition-colors"
+        >
+            <span aria-label="SERVICES"
+                ><span aria-hidden="true" style="white-space: pre">S</span
+                ><span aria-hidden="true" style="white-space: pre">E</span
+                ><span aria-hidden="true" style="white-space: pre">R</span
+                ><span aria-hidden="true" style="white-space: pre">V</span
+                ><span aria-hidden="true" style="white-space: pre">I</span
+                ><span aria-hidden="true" style="white-space: pre">C</span
+                ><span aria-hidden="true" style="white-space: pre">E</span
+                ><span aria-hidden="true" style="white-space: pre"
+                    >S</span
+                ></span
+            ><span
+                aria-hidden="true"
+                class="relative inline-block h-[0.625rem] w-[0.625rem] transition-transform duration-300 ease-out group-hover:rotate-90"
+                ><svg
+                    viewBox="0 0 10 10"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="block h-full w-full"
+                    aria-hidden="true"
+                >
+                    <path
+                        d="M6.78643 5.62932C6.22268 5.62932 5.76567 6.08633 5.76567 6.65008L5.76567 8.86365L4.23453 8.86365L4.23453 6.65008C4.23453 6.08633 3.77752 5.62932 3.21377 5.62932L1 5.62932L1 4.09818L3.21377 4.09818C3.77752 4.09818 4.23453 3.64117 4.23453 3.07742L4.23453 0.863653L5.76567 0.863653L5.76567 3.07742C5.76567 3.64117 6.22268 4.09818 6.78643 4.09818L9 4.09818L9 5.62932L6.78643 5.62932Z"
+                        fill="currentColor"
+                    ></path></svg
+            ></span>
+        </button>
+    </div>
+    <a
+        href="https://myperformancelab.janeapp.com/"
+        style="
+            right: 1.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            transition-property: height, padding, background-color, color, gap;
+            transition-duration: 600ms;
+            transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+        "
+        class="absolute hidden md:inline-flex items-center justify-center type-mono whitespace-nowrap overflow-hidden h-[4.25rem] px-[1.25rem] gap-0 bg-[color:var(--header-btn-bg)] text-[color:var(--header-btn-fg)] hover:bg-[color:var(--color-performance-red)] hover:text-[color:var(--color-base-white)]"
+        ><span aria-label="BOOK A CONSULTATION"
+            ><span aria-hidden="true" style="white-space: pre">B</span
+            ><span aria-hidden="true" style="white-space: pre">O</span
+            ><span aria-hidden="true" style="white-space: pre">O</span
+            ><span aria-hidden="true" style="white-space: pre">K</span
+            ><span aria-hidden="true" style="white-space: pre"> </span
+            ><span aria-hidden="true" style="white-space: pre">A</span
+            ><span aria-hidden="true" style="white-space: pre"> </span
+            ><span aria-hidden="true" style="white-space: pre">C</span
+            ><span aria-hidden="true" style="white-space: pre">O</span
+            ><span aria-hidden="true" style="white-space: pre">N</span
+            ><span aria-hidden="true" style="white-space: pre">S</span
+            ><span aria-hidden="true" style="white-space: pre">U</span
+            ><span aria-hidden="true" style="white-space: pre">L</span
+            ><span aria-hidden="true" style="white-space: pre">T</span
+            ><span aria-hidden="true" style="white-space: pre">A</span
+            ><span aria-hidden="true" style="white-space: pre">T</span
+            ><span aria-hidden="true" style="white-space: pre">I</span
+            ><span aria-hidden="true" style="white-space: pre">O</span
+            ><span aria-hidden="true" style="white-space: pre">N</span></span
+        ><span
+            aria-hidden="true"
+            style="
+                transition-property: width, opacity;
+                transition-duration: 600ms;
+                transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+            "
+            class="shrink-0 inline-flex items-center overflow-hidden opacity-0 w-0"
+            ><svg
+                viewBox="0 0 20 20"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+                class="rotate-90 block h-[10px] w-[10px]"
+            >
+                <path
+                    d="M10.8345 6.52203V16.6654H9.16786V6.52203L4.69786 10.992L3.51953 9.8137L10.0012 3.33203L16.4829 9.8137L15.3045 10.992L10.8345 6.52203Z"
+                    fill="currentColor"
+                ></path></svg></span
+    ></a>
+</header>

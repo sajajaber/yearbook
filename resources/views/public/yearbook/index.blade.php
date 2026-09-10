@@ -1228,7 +1228,7 @@
             background: rgba(20, 20, 20, .90) !important;
             -webkit-backdrop-filter: blur(12px);
             backdrop-filter: blur(12px);
-            box-shadow: 0 6px 24px rgba(0, 0, 0, .12) !important;
+            box-shadow: none !important;
         }
 
         /* Slightly reduce navbar vertical space after scrolling. */
@@ -1479,7 +1479,7 @@
                         </div>
 
                         <div class="yb-intro-number">
-                            {{ $currentYear ? '01' : '00' }}
+                            {{ $currentYear ? substr($currentYear->title, -2) : '00' }}
                         </div>
 
                         <p>
@@ -1515,6 +1515,7 @@
         {{-- =====================================================
         03 — NUMBERS
         ===================================================== --}}
+        
         <section class="yb-numbers">
 
             <div class="yb-container">
@@ -1754,276 +1755,199 @@
         @endif
 
 
-        {{-- =====================================================
-        06 — MOMENTS / VISUAL ARCHIVE
-        ===================================================== --}}
-        @if($heroImages->isNotEmpty())
 
-        <section class="yb-moments">
+
+
+        {{-- =====================================================
+        07 — CAMPUSES
+        ===================================================== --}}
+        <section class="yb-campus">
 
             <div class="yb-container">
 
-                <div class="yb-moments-header">
+                <div class="yb-campus-header">
 
-                    <h2>
-                        Moments.
-                    </h2>
+                    <div class="yb-campus-index">
+                        10
+                    </div>
 
-                    <p>
-                        From the collection
-                    </p>
+                    <div>
 
-                </div>
+                        <div class="yb-overline">
+                            Chapter three
+                        </div>
 
+                        <h2>
+                            One university.<br>
+                            <em>Many places.</em>
+                        </h2>
 
-                <div class="yb-photo-mosaic">
-
-                    @foreach($heroImages->take(3) as $index => $heroImage)
-
-                    <div class="yb-mosaic-item">
-
-                        <img
-                            src="{{ asset('storage/' . $heroImage->path) }}"
-                            alt="Yearbook moment {{ $index + 1 }}"
-                            loading="lazy">
-
-                        <span class="yb-mosaic-label">
-                            {{ sprintf('%02d', $index + 1) }}
-                            / Yearbook
-                        </span>
+                        <p>
+                            From Lebanon to the wider world, the year was
+                            experienced across campuses, communities and
+                            classrooms. Explore the places that make up
+                            the LIU story.
+                        </p>
 
                     </div>
 
-                    @endforeach
-
-                    @if($heroImages->count() < 3)
-
-                        @for($i=$heroImages->count(); $i < 3; $i++)
-
-                            <div class="yb-mosaic-item">
-
-                            <div
-                                style="
-                                    width:100%;
-                                    height:100%;
-                                    background:
-                                        linear-gradient(
-                                            135deg,
-                                            #0b3b72,
-                                            #071a33
-                                        );
-                                "></div>
-
-                            <span class="yb-mosaic-label">
-                                {{ sprintf('%02d', $i + 1) }}
-                                / Yearbook
-                            </span>
-
                 </div>
 
-                @endfor
 
-                @endif
+                <div class="yb-campus-strip">
 
-            </div>
-
-    </div>
-
-    </section>
-
-    @endif
-
-
-    {{-- =====================================================
-        07 — CAMPUSES
-        ===================================================== --}}
-    <section class="yb-campus">
-
-        <div class="yb-container">
-
-            <div class="yb-campus-header">
-
-                <div class="yb-campus-index">
-                    10
-                </div>
-
-                <div>
-
-                    <div class="yb-overline">
-                        Chapter three
-                    </div>
-
-                    <h2>
-                        One university.<br>
-                        <em>Many places.</em>
-                    </h2>
-
-                    <p>
-                        From Lebanon to the wider world, the year was
-                        experienced across campuses, communities and
-                        classrooms. Explore the places that make up
-                        the LIU story.
-                    </p>
+                    <span class="yb-campus-name">Beirut</span>
+                    <span class="yb-campus-name">Bekaa</span>
+                    <span class="yb-campus-name">Saida</span>
+                    <span class="yb-campus-name">Nabatieh</span>
+                    <span class="yb-campus-name">Tripoli</span>
+                    <span class="yb-campus-name">Mount Lebanon</span>
+                    <span class="yb-campus-name">Tyre</span>
+                    <span class="yb-campus-name">Rayak</span>
+                    <span class="yb-campus-name">Akkar</span>
+                    <span class="yb-campus-name">Yemen</span>
+                    <span class="yb-campus-name">Senegal</span>
+                    <span class="yb-campus-name">Mauritania</span>
 
                 </div>
 
             </div>
 
-
-            <div class="yb-campus-strip">
-
-                <span class="yb-campus-name">Beirut</span>
-                <span class="yb-campus-name">Bekaa</span>
-                <span class="yb-campus-name">Saida</span>
-                <span class="yb-campus-name">Nabatieh</span>
-                <span class="yb-campus-name">Tripoli</span>
-                <span class="yb-campus-name">Mount Lebanon</span>
-                <span class="yb-campus-name">Tyre</span>
-                <span class="yb-campus-name">Rayak</span>
-                <span class="yb-campus-name">Akkar</span>
-                <span class="yb-campus-name">Yemen</span>
-                <span class="yb-campus-name">Senegal</span>
-                <span class="yb-campus-name">Mauritania</span>
-
-            </div>
-
-        </div>
-
-    </section>
+        </section>
 
 
-    {{-- =====================================================
+        {{-- =====================================================
         08 — ARCHIVE
         ===================================================== --}}
-    <section class="yb-archive">
+        <section class="yb-archive">
 
-        <div class="yb-container">
+            <div class="yb-container">
 
-            <div class="yb-archive-inner">
+                <div class="yb-archive-inner">
 
-                <div>
+                    <div>
 
-                    <div class="yb-overline">
-                        The collection
+                        <div class="yb-overline">
+                            The collection
+                        </div>
+
+                        <h2 class="yb-archive-heading">
+                            The year<br>
+                            <em>doesn't end here.</em>
+                        </h2>
+
+                        <p class="yb-archive-copy">
+                            Yesterday becomes history. Explore the archive
+                            and discover the people, moments and milestones
+                            that came before this edition.
+                        </p>
+
+                        <a
+                            href="{{ route('public.archive') }}"
+                            class="yb-archive-link">
+                            Explore the archive
+                            <span>↗</span>
+                        </a>
+
                     </div>
 
-                    <h2 class="yb-archive-heading">
-                        The year<br>
-                        <em>doesn't end here.</em>
-                    </h2>
 
-                    <p class="yb-archive-copy">
-                        Yesterday becomes history. Explore the archive
-                        and discover the people, moments and milestones
-                        that came before this edition.
-                    </p>
+                    <div class="yb-archive-years">
 
-                    <a
-                        href="{{ route('public.archive') }}"
-                        class="yb-archive-link">
-                        Explore the archive
-                        <span>↗</span>
-                    </a>
+                        @if($currentYear)
 
-                </div>
+                        <a
+                            href="{{ route('public.timeline') }}"
+                            class="yb-archive-year">
+                            <span>{{ $currentYear->title }}</span>
+                            <span>Current edition →</span>
+                        </a>
 
+                        @endif
 
-                <div class="yb-archive-years">
+                        <a
+                            href="{{ route('public.archive') }}"
+                            class="yb-archive-year">
+                            <span>Previous editions</span>
+                            <span>Explore →</span>
+                        </a>
 
-                    @if($currentYear)
+                        <a
+                            href="{{ route('public.graduates') }}"
+                            class="yb-archive-year">
+                            <span>Graduate directory</span>
+                            <span>People →</span>
+                        </a>
 
-                    <a
-                        href="{{ route('public.timeline') }}"
-                        class="yb-archive-year">
-                        <span>{{ $currentYear->title }}</span>
-                        <span>Current edition →</span>
-                    </a>
+                        <a
+                            href="{{ route('public.events') }}"
+                            class="yb-archive-year">
+                            <span>Event collection</span>
+                            <span>Moments →</span>
+                        </a>
 
-                    @endif
-
-                    <a
-                        href="{{ route('public.archive') }}"
-                        class="yb-archive-year">
-                        <span>Previous editions</span>
-                        <span>Explore →</span>
-                    </a>
-
-                    <a
-                        href="{{ route('public.graduates') }}"
-                        class="yb-archive-year">
-                        <span>Graduate directory</span>
-                        <span>People →</span>
-                    </a>
-
-                    <a
-                        href="{{ route('public.events') }}"
-                        class="yb-archive-year">
-                        <span>Event collection</span>
-                        <span>Moments →</span>
-                    </a>
+                    </div>
 
                 </div>
 
             </div>
 
-        </div>
-
-    </section>
+        </section>
 
 
-    {{-- =====================================================
+        {{-- =====================================================
         09 — FOOTER / FINAL STATEMENT
         ===================================================== --}}
-    <footer class="yb-footer">
+        <footer class="yb-footer">
 
-        <div class="yb-container">
+            <div class="yb-container">
 
-            <div class="yb-footer-top">
+                <div class="yb-footer-top">
 
-                <h2 class="yb-footer-title">
-                    Remember<br>
-                    <span>this year.</span>
-                </h2>
+                    <h2 class="yb-footer-title">
+                        Remember<br>
+                        <span>this year.</span>
+                    </h2>
 
 
-                <div class="yb-footer-actions">
+                    <div class="yb-footer-actions">
 
-                    <p>
-                        Have questions about submissions, photo archives,
-                        yearbook content or previous editions?
-                    </p>
+                        <p>
+                            Have questions about submissions, photo archives,
+                            yearbook content or previous editions?
+                        </p>
 
-                    <a
-                        href="mailto:yearbook@university.edu"
-                        class="yb-footer-mail">
-                        Contact the yearbook committee →
-                    </a>
+                        <a
+                            href="mailto:yearbook@university.edu"
+                            class="yb-footer-mail">
+                            Contact the yearbook committee →
+                        </a>
+
+                    </div>
+
+                </div>
+
+
+                <div class="yb-footer-bottom">
+
+                    <span>
+                        LIU Digital Yearbook
+                    </span>
+
+                    <span>
+                        {{ $currentYear->title ?? 'Archive Edition' }}
+                    </span>
+
+                    <span>
+                        People · Places · Moments
+                    </span>
 
                 </div>
 
             </div>
 
+        </footer>
 
-            <div class="yb-footer-bottom">
-
-                <span>
-                    LIU Digital Yearbook
-                </span>
-
-                <span>
-                    {{ $currentYear->title ?? 'Archive Edition' }}
-                </span>
-
-                <span>
-                    People · Places · Moments
-                </span>
-
-            </div>
-
-        </div>
-
-    </footer>
-    ```
 
     </div>
     @endsection
