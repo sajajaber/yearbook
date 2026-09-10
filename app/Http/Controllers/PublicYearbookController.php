@@ -152,12 +152,12 @@ class PublicYearbookController extends Controller
         $sort = $request->input('sort', 'name');
 
         // The graduate filter is a graduation/calendar year. By default it follows
-        // the graduation date belonging to the active academic year.
+        // the ceremony date belonging to the active academic year.
         $activeAcademicYear = AcademicYear::where('status', 'active')->latest()->first();
-        $activeGraduationDate = $activeAcademicYear
-            ? Graduation::where('academic_year_id', $activeAcademicYear->id)->value('graduation_date')
+        $activeCeremonyDate = $activeAcademicYear
+            ? Graduation::where('academic_year_id', $activeAcademicYear->id)->value('ceremony_date')
             : null;
-        $defaultYear = $activeGraduationDate ? Carbon::parse($activeGraduationDate)->year : null;
+        $defaultYear = $activeCeremonyDate ? Carbon::parse($activeCeremonyDate)->year : null;
         $year = $request->has('year') ? $request->input('year') : $defaultYear;
 
         $baseFilters = function ($query) use ($search, $school, $major, $campus, $year) {
@@ -167,7 +167,7 @@ class PublicYearbookController extends Controller
             if ($campus) $query->where('campus_id', $campus);
             if ($year) {
                 $query->whereHas('graduation', function ($q) use ($year) {
-                    $q->whereYear('graduation_date', $year);
+                    $q->whereYear('ceremony_date', $year);
                 });
             }
         };
@@ -195,7 +195,7 @@ class PublicYearbookController extends Controller
             ->whereNotNull('graduation_id')
             ->with('graduation')
             ->get()
-            ->map(fn($graduate) => $graduate->graduation?->graduation_date ? Carbon::parse($graduate->graduation->graduation_date)->year : null)
+            ->map(fn($graduate) => $graduate->graduation?->ceremony_date ? Carbon::parse($graduate->graduation->ceremony_date)->year : null)
             ->filter()->unique()->sort()->reverse()->values();
 
         return view('public.yearbook.graduates', compact('graduates', 'namedOnly', 'schools', 'majors', 'campuses', 'years', 'search', 'school', 'major', 'campus', 'year', 'sort'));
