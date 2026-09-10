@@ -22,26 +22,6 @@
     </div>
 </section>
 
-@if ($featuredEvents->isNotEmpty())
-<section class="public-section">
-    <div class="section-heading">
-        <div>
-            <p class="eyebrow">Highlights</p>
-            <h2>Featured moments</h2>
-        </div>
-    </div>
-    <div class="public-event-grid">
-        @foreach ($featuredEvents as $event)
-        <a href="{{ route('public.event.detail', $event) }}" class="public-event-card">
-            <div class="public-event-date">{{ $event->event_date?->format('M d') }}</div>
-            <h3>{{ $event->title }}</h3>
-            <p>{{ Str::limit($event->description, 110) }}</p>
-        </a>
-        @endforeach
-    </div>
-</section>
-@endif
-
 <section class="public-section">
     <div class="section-heading">
         <div>
