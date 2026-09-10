@@ -1,0 +1,318 @@
+/* =========================================================
+   LIU DIGITAL YEARBOOK — RESPONSIVE OVERRIDES
+   ========================================================= */
+
+html {
+    width: 100%;
+    overflow-x: hidden;
+}
+
+body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+img,
+video,
+svg,
+canvas {
+    max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+    max-width: 100%;
+}
+
+/* Tablets */
+@media (max-width: 1024px) {
+    .nav-inner,
+    .dashboard-heading,
+    .dashboard-wrap {
+        padding-left: 24px;
+        padding-right: 24px;
+    }
+
+    .nav-links {
+        gap: 18px;
+        margin-left: 24px;
+    }
+
+    .content-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .stat-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .welcome-banner,
+    .graduation-intro {
+        padding: 34px;
+    }
+
+    .featured-edition {
+        grid-template-columns: 90px 1fr;
+    }
+
+    .featured-edition > :last-child {
+        grid-column: 2;
+    }
+}
+
+/* Phones */
+@media (max-width: 640px) {
+    .site-nav,
+    .site-nav .nav-inner {
+        height: auto;
+        min-height: 56px;
+    }
+
+    .nav-inner {
+        width: 100%;
+        padding: 10px 16px;
+        gap: 12px;
+    }
+
+    .brand-lockup {
+        flex: 0 0 auto;
+        gap: 8px;
+    }
+
+    .site-nav .brand-mark {
+        font-size: 19px;
+    }
+
+    .site-nav .brand-copy {
+        font-size: 9px;
+        padding-left: 8px;
+        letter-spacing: 1px;
+    }
+
+    .site-nav .brand-copy small {
+        font-size: 7px;
+        letter-spacing: 1.3px;
+    }
+
+    /* Keep navigation usable on small screens instead of letting it disappear. */
+    .site-nav .nav-links {
+        display: flex !important;
+        flex: 1 1 auto;
+        min-width: 0;
+        width: auto;
+        margin-left: auto;
+        gap: 16px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .site-nav .nav-links::-webkit-scrollbar {
+        display: none;
+    }
+
+    .site-nav .nav-item {
+        flex: 0 0 auto;
+        height: 36px;
+        font-size: 8px;
+        letter-spacing: 0.8px;
+        white-space: nowrap;
+    }
+
+    .dashboard-heading {
+        padding: 30px 16px 22px;
+        display: block;
+    }
+
+    .dashboard-heading h1 {
+        font-size: clamp(24px, 8vw, 32px);
+        line-height: 1.15;
+    }
+
+    .dashboard-wrap {
+        padding: 0 16px 40px;
+    }
+
+    .welcome-banner,
+    .graduation-intro {
+        min-height: 0;
+        padding: 28px 22px;
+        display: block;
+    }
+
+    .welcome-banner h2,
+    .graduation-intro h2 {
+        font-size: clamp(24px, 8vw, 34px);
+        line-height: 1.2;
+    }
+
+    .banner-mark,
+    .edition-count {
+        margin-top: 28px;
+        text-align: left;
+    }
+
+    .banner-mark {
+        font-size: 40px;
+    }
+
+    .edition-count strong {
+        font-size: 46px;
+    }
+
+    .stat-grid {
+        grid-template-columns: 1fr;
+        margin: 18px 0 28px;
+    }
+
+    .stat-card {
+        min-height: 120px;
+        padding: 20px 18px;
+    }
+
+    .content-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .panel {
+        padding: 20px;
+        min-width: 0;
+    }
+
+    .panel-header {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .workflow-row {
+        grid-template-columns: 1fr auto;
+        gap: 8px;
+    }
+
+    .workflow-track {
+        grid-column: 1 / -1;
+        width: 100%;
+    }
+
+    .school-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .mini-stats {
+        flex-wrap: wrap;
+        gap: 18px;
+    }
+
+    .graduation-toolbar {
+        padding: 14px 16px;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .search-field input {
+        width: 100%;
+    }
+
+    .featured-edition {
+        grid-template-columns: 1fr;
+        gap: 18px;
+        padding: 22px;
+    }
+
+    .featured-edition > :last-child {
+        grid-column: auto;
+    }
+
+    .featured-date {
+        border-right: 0;
+        border-bottom: 1px solid rgba(192, 82, 42, 0.3);
+        padding-right: 0;
+        padding-bottom: 14px;
+    }
+
+    .button {
+        max-width: 100%;
+        justify-content: center;
+    }
+
+    .mobile-menu {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    /* Prevent long names, URLs and labels from forcing horizontal overflow. */
+    .public-shell h1,
+    .public-shell h2,
+    .public-shell h3,
+    .public-shell p,
+    .public-shell a,
+    .public-shell span,
+    .public-shell strong,
+    .public-shell td,
+    .public-shell th {
+        overflow-wrap: anywhere;
+    }
+
+    /* Tables become horizontally scrollable rather than breaking the page. */
+    .public-shell table {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .public-shell form {
+        max-width: 100%;
+    }
+
+    .public-shell input,
+    .public-shell select,
+    .public-shell textarea {
+        width: 100%;
+    }
+}
+
+/* Very small phones */
+@media (max-width: 380px) {
+    .nav-inner {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .site-nav .nav-links {
+        gap: 12px;
+    }
+
+    .site-nav .nav-item {
+        font-size: 7px;
+    }
+
+    .dashboard-wrap {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .panel,
+    .welcome-banner,
+    .graduation-intro {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+}
+
+/* Accessibility: respect reduced-motion preferences. */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}
