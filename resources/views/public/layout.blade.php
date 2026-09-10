@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
-    @vite(['resources/css/app.css', 'resources/css/ui.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     @yield('extra-css')
 
     <style>
@@ -35,6 +35,66 @@
 
         html, body { max-width: 100%; overflow-x: hidden; }
         img, video, svg, canvas { max-width: 100%; height: auto; }
+
+        /* Public pagination fallback. */
+        .pagination,
+        .graduates-pagination,
+        .events-pagination,
+        .media-pagination {
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            flex-wrap:wrap;
+            gap:6px;
+            margin-top:32px;
+        }
+        .pagination a,
+        .pagination span,
+        .graduates-pagination a,
+        .graduates-pagination span,
+        .events-pagination a,
+        .events-pagination span,
+        .media-pagination a,
+        .media-pagination span {
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            min-width:36px;
+            height:36px;
+            padding:0 10px;
+            border:1px solid var(--line);
+            border-radius:0;
+            background:#fff;
+            color:var(--ink);
+            font:600 10px/1 "Inter",sans-serif;
+            letter-spacing:.4px;
+            text-decoration:none;
+            transition:background .18s ease,color .18s ease,border-color .18s ease;
+        }
+        .pagination a:hover,
+        .graduates-pagination a:hover,
+        .events-pagination a:hover,
+        .media-pagination a:hover {
+            border-color:var(--ink);
+            background:var(--ink);
+            color:#fff;
+        }
+        .pagination .active span,
+        .graduates-pagination .active,
+        .events-pagination .active,
+        .media-pagination .active {
+            border-color:var(--ink);
+            background:var(--ink);
+            color:#fff;
+        }
+        .pagination .disabled span,
+        .graduates-pagination .disabled,
+        .events-pagination .disabled,
+        .media-pagination .disabled {
+            color:#a7b3c0;
+            background:#f8fafc;
+            cursor:not-allowed;
+        }
 
         @media (max-width: 1024px) {
             .nav-inner, .dashboard-heading, .dashboard-wrap { padding-left: 24px; padding-right: 24px; }
@@ -68,6 +128,8 @@
             .public-shell table { display: block; width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
             .public-shell h1, .public-shell h2, .public-shell h3, .public-shell p, .public-shell a, .public-shell span, .public-shell strong, .public-shell td, .public-shell th { overflow-wrap: anywhere; }
             .public-shell input, .public-shell select, .public-shell textarea { max-width: 100%; }
+            .pagination, .graduates-pagination, .events-pagination, .media-pagination { gap:5px; }
+            .pagination a, .pagination span, .graduates-pagination a, .graduates-pagination span, .events-pagination a, .events-pagination span, .media-pagination a, .media-pagination span { min-width:34px; height:34px; padding:0 8px; }
         }
 
         @media (max-width: 380px) {
