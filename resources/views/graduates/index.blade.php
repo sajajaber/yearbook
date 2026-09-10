@@ -66,8 +66,25 @@
             </div>
 
             @if ($graduates->hasPages())
-                <div class="graduates-pagination" aria-label="Graduate pagination">
-                    {{ $graduates->onEachSide(1)->links() }}
+                <div class="liu-pagination" aria-label="Graduate pagination">
+                    <div class="liu-pagination-summary">Showing <strong>{{ $graduates->firstItem() }}</strong>–<strong>{{ $graduates->lastItem() }}</strong> of <strong>{{ $graduates->total() }}</strong></div>
+                    <div class="liu-pagination-controls">
+                        @if ($graduates->onFirstPage())
+                            <span class="liu-page-arrow is-disabled" aria-disabled="true">←</span>
+                        @else
+                            <a class="liu-page-arrow" href="{{ $graduates->previousPageUrl() }}" rel="prev" aria-label="Previous page">←</a>
+                        @endif
+
+                        @foreach ($graduates->getUrlRange(max(1, $graduates->currentPage() - 1), min($graduates->lastPage(), $graduates->currentPage() + 1)) as $page => $url)
+                            <a href="{{ $url }}" class="liu-page-number {{ $page == $graduates->currentPage() ? 'is-current' : '' }}" aria-current="{{ $page == $graduates->currentPage() ? 'page' : 'false' }}">{{ $page }}</a>
+                        @endforeach
+
+                        @if ($graduates->hasMorePages())
+                            <a class="liu-page-arrow" href="{{ $graduates->nextPageUrl() }}" rel="next" aria-label="Next page">→</a>
+                        @else
+                            <span class="liu-page-arrow is-disabled" aria-disabled="true">→</span>
+                        @endif
+                    </div>
                 </div>
             @endif
         </section>
