@@ -6,12 +6,7 @@
         </div>
     </x-slot>
 
-    @php
-        $statusCounts = $graduates->groupBy('publish_status')->map->count();
-        $consentGranted = $graduates->where('consent_status', 'granted')->count();
-    @endphp
-
-    <div class="dashboard-wrap graduate-wrap" x-data="{ search: '', status: 'all', year: 'all', campus: 'all', school: 'all', major: 'all', view: 'grid' }">
+    <div class="dashboard-wrap graduate-wrap" x-data="{ search: '', status: '{{ request('status', 'all') }}', year: 'all', campus: 'all', school: 'all', major: 'all', view: 'grid' }">
         <section class="graduate-intro">
             <div><p class="eyebrow eyebrow-light">The people behind the year</p><h2>Make every<br>story count.</h2><p>Review, refine, and publish the voices that will define this year's yearbook.</p></div>
             <div class="graduate-intro-stats"><div><strong>{{ $graduates->total() }}</strong><span>profiles</span></div><div><strong>{{ $consentGranted }}</strong><span>consents</span></div></div>
@@ -20,11 +15,11 @@
         @if (session('success') || session('error'))<div class="notice {{ session('error') ? 'notice-error' : 'notice-success' }}">{{ session('error') ?? session('success') }}</div>@endif
 
         <section class="filter-ribbon" aria-label="Graduate profile filters">
-            <div class="filter-ribbon-heading"><div><p class="eyebrow">Filter profiles</p><span>Focus the directory by edition, place, or discipline.</span></div><button type="button" class="clear-filters" x-show="status !== 'all' || year !== 'all' || campus !== 'all' || school !== 'all' || major !== 'all'" @click="status = 'all'; year = 'all'; campus = 'all'; school = 'all'; major = 'all'">Clear filters</button></div>
+            <div class="filter-ribbon-heading"><div><p class="eyebrow">Filter profiles</p><span>Focus the directory by edition, place, or discipline.</span></div><a href="{{ route('graduates.index') }}" class="clear-filters" x-show="status !== 'all' || year !== 'all' || campus !== 'all' || school !== 'all' || major !== 'all'">Clear filters</a></div>
             <div class="graduate-filters">
-                <button type="button" class="filter-button" :class="{ 'is-selected': status === 'all' }" @click="status = 'all'">All <span>{{ $graduates->total() }}</span></button>
+                <a href="{{ request()->fullUrlWithQuery(['status' => null, 'page' => 1]) }}" class="filter-button {{ request('status', 'all') === 'all' ? 'is-selected' : '' }}">All <span>{{ $statusCounts->sum() }}</span></a>
                 @foreach (['draft' => 'Draft', 'reviewed' => 'Review', 'approved' => 'Approved', 'published' => 'Published', 'rejected' => 'Rejected'] as $key => $label)
-                    <button type="button" class="filter-button" :class="{ 'is-selected': status === '{{ $key }}' }" @click="status = '{{ $key }}'">{{ $label }} <span>{{ $statusCounts->get($key, 0) }}</span></button>
+                    <a href="{{ request()->fullUrlWithQuery(['status' => $key, 'page' => 1]) }}" class="filter-button {{ request('status') === $key ? 'is-selected' : '' }}">{{ $label }} <span>{{ $statusCounts->get($key, 0) }}</span></a>
                 @endforeach
             </div>
             <div class="ribbon-fields">
