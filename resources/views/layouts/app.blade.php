@@ -8,20 +8,17 @@
 
     <title>{{ config('app.name', 'Laravel') }}</title>
 
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
 
-    <!-- Scripts -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/css/ui.css', 'resources/js/app.js'])
 </head>
 
 <body>
     <div class="site-shell">
         @include('layouts.navigation')
 
-        <!-- Page Heading -->
         @isset($header)
         <header class="page-header">
             <div class="page-header-inner">
@@ -30,7 +27,6 @@
         </header>
         @endisset
 
-        <!-- Page Content -->
         <main class="page-content">
             {{ $slot }}
         </main>
