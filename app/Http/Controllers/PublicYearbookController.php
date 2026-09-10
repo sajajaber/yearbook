@@ -26,7 +26,10 @@ class PublicYearbookController extends Controller
         $recentEvents = Event::where('status', 'published')->latest('event_date')->limit(8)->with(['media', 'category'])->get();
         $graduations = Graduation::where('academic_year_id', $currentYear->id ?? null)->latest('created_at')->with(['media', 'academicYear', 'campuses', 'schools'])->get();
         $latestGraduation = $graduations->first();
-        $publishedGraduates = Graduate::where('publish_status', 'published')->with('graduation.academicYear')->get();
+        $publishedGraduates = Graduate::where('publish_status', 'published')
+            ->where('consent_status', 'granted')
+            ->with('graduation.academicYear')
+            ->get();
 
         $stats = [
             'undergraduates' => $publishedGraduates->where('degree_level', 'undergraduate')->count(),
@@ -44,7 +47,10 @@ class PublicYearbookController extends Controller
     {
         $academicYears = AcademicYear::where('status', '!=', 'draft')->orderByDesc('start_date')->get()->map(function ($year) {
             $graduationIds = Graduation::where('academic_year_id', $year->id)->pluck('id');
-            $year->graduate_count = Graduate::whereIn('graduation_id', $graduationIds)->where('publish_status', 'published')->count();
+            $year->graduate_count = Graduate::whereIn('graduation_id', $graduationIds)
+                ->where('publish_status', 'published')
+                ->where('consent_status', 'granted')
+                ->count();
             $year->event_count = Event::where('academic_year_id', $year->id)->where('status', 'published')->count();
             return $year;
         });
@@ -61,6 +67,7 @@ class PublicYearbookController extends Controller
 
         $baseQuery = fn($level) => Graduate::whereIn('graduation_id', $graduationIds)
             ->where('publish_status', 'published')
+            ->where('consent_status', 'granted')
             ->where('degree_level', $level)
             ->with(['school', 'major', 'campus', 'media'])
             ->orderBy('name')
@@ -92,7 +99,10 @@ class PublicYearbookController extends Controller
 
     public function graduateDetail($id)
     {
-        $graduate = Graduate::where('publish_status', 'published')->where('consent_status', 'granted')->with(['media', 'school', 'major', 'campus', 'graduation.academicYear'])->findOrFail($id);
+        $graduate = Graduate::where('publish_status', 'published')
+            ->where('consent_status', 'granted')
+            ->with(['media', 'school', 'major', 'campus', 'graduation.academicYear'])
+            ->findOrFail($id);
         $qrUrl = route('public.graduate.detail', $graduate->id);
         return view('public.yearbook.graduate-detail', compact('graduate', 'qrUrl'));
     }
@@ -172,7 +182,9 @@ class PublicYearbookController extends Controller
             }
         };
 
-        $query = Graduate::where('publish_status', 'published')->where('consent_status', 'granted')->with(['media', 'school', 'major', 'campus', 'graduation.academicYear']);
+        $query = Graduate::where('publish_status', 'published')
+            ->where('consent_status', 'granted')
+            ->with(['media', 'school', 'major', 'campus', 'graduation.academicYear']);
         $baseFilters($query);
 
         match ($sort) {
