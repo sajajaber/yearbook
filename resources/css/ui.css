@@ -1,0 +1,174 @@
+/* =========================================================
+   LIU DIGITAL YEARBOOK — SHARED UI DETAILS
+   Dropdowns, pagination and small form controls
+   ========================================================= */
+
+:root {
+    --ui-ink: #002a5c;
+    --ui-muted: #64748b;
+    --ui-accent: #ffb034;
+    --ui-paper: #f7fbff;
+    --ui-white: #ffffff;
+    --ui-line: #d8e3ef;
+}
+
+select,
+.ui-select {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 42px 10px 13px;
+    border: 1px solid var(--ui-line);
+    border-radius: 0;
+    background-color: var(--ui-white);
+    background-image: linear-gradient(45deg, transparent 50%, var(--ui-ink) 50%), linear-gradient(135deg, var(--ui-ink) 50%, transparent 50%);
+    background-position: calc(100% - 18px) 19px, calc(100% - 13px) 19px;
+    background-size: 5px 5px, 5px 5px;
+    background-repeat: no-repeat;
+    color: var(--ui-ink);
+    font: 500 12px/1.4 "Inter", sans-serif;
+    outline: none;
+    cursor: pointer;
+    transition: border-color .2s ease, background-color .2s ease;
+}
+
+select:hover,
+.ui-select:hover {
+    border-color: #aebfd2;
+}
+
+select:focus,
+.ui-select:focus {
+    border-color: var(--ui-ink);
+    box-shadow: 0 0 0 2px rgba(0, 42, 92, .08);
+}
+
+select option {
+    color: var(--ui-ink);
+    background: var(--ui-white);
+}
+
+/* Public filter selects often sit inside compact toolbars. */
+.directory-filter,
+.graduates-filter,
+.events-filter,
+.year-filter {
+    min-width: 150px;
+    width: auto;
+}
+
+/* Laravel/custom pagination */
+.pagination,
+.graduates-pagination,
+.events-pagination,
+.media-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 32px;
+}
+
+.pagination a,
+.pagination span,
+.graduates-pagination a,
+.graduates-pagination span,
+.events-pagination a,
+.events-pagination span,
+.media-pagination a,
+.media-pagination span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 36px;
+    padding: 0 10px;
+    border: 1px solid var(--ui-line);
+    border-radius: 0;
+    background: var(--ui-white);
+    color: var(--ui-ink);
+    font: 600 10px/1 "Inter", sans-serif;
+    letter-spacing: .4px;
+    text-decoration: none;
+    transition: background .18s ease, color .18s ease, border-color .18s ease;
+}
+
+.pagination a:hover,
+.graduates-pagination a:hover,
+.events-pagination a:hover,
+.media-pagination a:hover {
+    border-color: var(--ui-ink);
+    background: var(--ui-ink);
+    color: var(--ui-white);
+}
+
+.pagination .active span,
+.graduates-pagination .active,
+.events-pagination .active,
+.media-pagination .active {
+    border-color: var(--ui-ink);
+    background: var(--ui-ink);
+    color: var(--ui-white);
+}
+
+.pagination .disabled span,
+.graduates-pagination .disabled,
+.events-pagination .disabled,
+.media-pagination .disabled {
+    color: #a7b3c0;
+    background: #f8fafc;
+    cursor: not-allowed;
+}
+
+/* Tailwind pagination markup */
+nav[aria-label="Pagination Navigation"] svg {
+    width: 14px;
+    height: 14px;
+}
+
+nav[aria-label="Pagination Navigation"] > div {
+    gap: 6px;
+}
+
+nav[aria-label="Pagination Navigation"] a,
+nav[aria-label="Pagination Navigation"] span {
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+@media (max-width: 640px) {
+    select,
+    .ui-select {
+        min-height: 42px;
+    }
+
+    .directory-filter,
+    .graduates-filter,
+    .events-filter,
+    .year-filter {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .pagination,
+    .graduates-pagination,
+    .events-pagination,
+    .media-pagination {
+        gap: 5px;
+    }
+
+    .pagination a,
+    .pagination span,
+    .graduates-pagination a,
+    .graduates-pagination span,
+    .events-pagination a,
+    .events-pagination span,
+    .media-pagination a,
+    .media-pagination span {
+        min-width: 34px;
+        height: 34px;
+        padding: 0 8px;
+    }
+}
