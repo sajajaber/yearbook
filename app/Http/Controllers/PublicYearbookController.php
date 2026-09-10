@@ -20,40 +20,13 @@ class PublicYearbookController extends Controller
 {
     public function index()
     {
-        // Get the latest active academic year
         $currentYear = AcademicYear::where('status', 'active')->latest()->first();
-
-        // Get hero images
         $heroImages = HeroImage::orderedMedia();
-
-        // Get featured events
-        $featuredEvents = Event::where('status', 'published')
-            ->where('featured', true)
-            ->latest('event_date')
-            ->limit(6)
-            ->with(['media', 'category'])
-            ->get();
-
-        // Get recent events
-        $recentEvents = Event::where('status', 'published')
-            ->latest('event_date')
-            ->limit(8)
-            ->with(['media', 'category'])
-            ->get();
-
-        // Get all graduations for this year
-        $graduations = Graduation::where('academic_year_id', $currentYear->id ?? null)
-            ->latest('created_at')
-            ->with(['media', 'academicYear', 'campuses', 'schools'])
-            ->get();
-
-        // Get latest graduation
+        $featuredEvents = Event::where('status', 'published')->where('featured', true)->latest('event_date')->limit(6)->with(['media', 'category'])->get();
+        $recentEvents = Event::where('status', 'published')->latest('event_date')->limit(8)->with(['media', 'category'])->get();
+        $graduations = Graduation::where('academic_year_id', $currentYear->id ?? null)->latest('created_at')->with(['media', 'academicYear', 'campuses', 'schools'])->get();
         $latestGraduation = $graduations->first();
-
-        // Get statistics - separate undergrads from graduate students
-        $publishedGraduates = Graduate::where('publish_status', 'published')
-            ->with('graduation.academicYear')
-            ->get();
+        $publishedGraduates = Graduate::where('publish_status', 'published')->with('graduation.academicYear')->get();
 
         $stats = [
             'undergraduates' => $publishedGraduates->where('degree_level', 'undergraduate')->count(),
@@ -64,33 +37,19 @@ class PublicYearbookController extends Controller
             'schools' => School::count(),
         ];
 
-        return view('public.yearbook.index', compact(
-            'currentYear',
-            'heroImages',
-            'featuredEvents',
-            'recentEvents',
-            'graduations',
-            'latestGraduation',
-            'stats'
-        ));
+        return view('public.yearbook.index', compact('currentYear', 'heroImages', 'featuredEvents', 'recentEvents', 'graduations', 'latestGraduation', 'stats'));
     }
 
     public function archive()
     {
-        $academicYears = AcademicYear::where('status', '!=', 'draft')
-            ->orderByDesc('start_date')
-            ->get()
-            ->map(function ($year) {
-                $graduationIds = Graduation::where('academic_year_id', $year->id)->pluck('id');
-                $year->graduate_count = Graduate::whereIn('graduation_id', $graduationIds)
-                    ->where('publish_status', 'published')->count();
-                $year->event_count = Event::where('academic_year_id', $year->id)
-                    ->where('status', 'published')->count();
-                return $year;
-            });
+        $academicYears = AcademicYear::where('status', '!=', 'draft')->orderByDesc('start_date')->get()->map(function ($year) {
+            $graduationIds = Graduation::where('academic_year_id', $year->id)->pluck('id');
+            $year->graduate_count = Graduate::whereIn('graduation_id', $graduationIds)->where('publish_status', 'published')->count();
+            $year->event_count = Event::where('academic_year_id', $year->id)->where('status', 'published')->count();
+            return $year;
+        });
 
         $currentYear = $academicYears->firstWhere('status', 'active');
-
         return view('public.yearbook.archive', compact('academicYears', 'currentYear'));
     }
 
@@ -98,7 +57,6 @@ class PublicYearbookController extends Controller
     {
         $academicYear = AcademicYear::findOrFail($academicYearId);
         $graduation = Graduation::where('academic_year_id', $academicYear->id)->first();
-
         $graduationIds = Graduation::where('academic_year_id', $academicYear->id)->pluck('id');
 
         $baseQuery = fn($level) => Graduate::whereIn('graduation_id', $graduationIds)
@@ -110,61 +68,32 @@ class PublicYearbookController extends Controller
 
         $undergraduates = $this->groupBySchoolWithConsent($baseQuery('undergraduate'));
         $graduates = $this->groupBySchoolWithConsent($baseQuery('graduate'));
+        $events = Event::where('academic_year_id', $academicYear->id)->where('status', 'published')->orderBy('event_date')->with(['category', 'media', 'campuses'])->get();
 
-        $events = Event::where('academic_year_id', $academicYear->id)
-            ->where('status', 'published')
-            ->orderBy('event_date')
-            ->with(['category', 'media', 'campuses'])
-            ->get();
-
-        return view('public.yearbook.book', compact(
-            'academicYear',
-            'graduation',
-            'undergraduates',
-            'graduates',
-            'events'
-        ));
+        return view('public.yearbook.book', compact('academicYear', 'graduation', 'undergraduates', 'graduates', 'events'));
     }
 
     private function groupBySchoolWithConsent(Collection $graduates): Collection
     {
-        return $graduates
-            ->groupBy(fn($g) => $g->school?->name ?? 'Unassigned')
-            ->map(function ($students) {
-                return [
-                    'visible' => $students->where('consent_status', 'granted')->values(),
-                    'named' => $students->where('consent_status', '!=', 'granted')->values(),
-                ];
-            })
-            ->sortKeys();
+        return $graduates->groupBy(fn($g) => $g->school?->name ?? 'Unassigned')->map(function ($students) {
+            return [
+                'visible' => $students->where('consent_status', 'granted')->values(),
+                'named' => $students->where('consent_status', '!=', 'granted')->values(),
+            ];
+        })->sortKeys();
     }
 
     public function eventDetail($id)
     {
-        $event = Event::where('status', 'published')
-            ->with(['media', 'category', 'campuses', 'schools', 'academicYear'])
-            ->findOrFail($id);
-
-        $relatedEvents = Event::where('status', 'published')
-            ->where('id', '!=', $event->id)
-            ->where('category_id', $event->category_id)
-            ->latest('event_date')
-            ->limit(4)
-            ->with(['media'])
-            ->get();
-
+        $event = Event::where('status', 'published')->with(['media', 'category', 'campuses', 'schools', 'academicYear'])->findOrFail($id);
+        $relatedEvents = Event::where('status', 'published')->where('id', '!=', $event->id)->where('category_id', $event->category_id)->latest('event_date')->limit(4)->with(['media'])->get();
         return view('public.yearbook.event-detail', compact('event', 'relatedEvents'));
     }
 
     public function graduateDetail($id)
     {
-        $graduate = Graduate::where('publish_status', 'published')
-            ->where('consent_status', 'granted')
-            ->with(['media', 'school', 'major', 'campus', 'graduation.academicYear'])
-            ->findOrFail($id);
-
+        $graduate = Graduate::where('publish_status', 'published')->where('consent_status', 'granted')->with(['media', 'school', 'major', 'campus', 'graduation.academicYear'])->findOrFail($id);
         $qrUrl = route('public.graduate.detail', $graduate->id);
-
         return view('public.yearbook.graduate-detail', compact('graduate', 'qrUrl'));
     }
 
@@ -183,10 +112,9 @@ class PublicYearbookController extends Controller
         $sort = $request->input('sort', 'latest');
 
         $activeAcademicYear = AcademicYear::where('status', 'active')->latest()->first();
-        $year = $request->has('year') ? $request->input('year') : ($activeAcademicYear?->id);
+        $year = $request->has('year') ? $request->input('year') : $activeAcademicYear?->id;
 
-        $query = Event::where('status', 'published')
-            ->with(['media', 'category', 'campuses', 'schools', 'academicYear']);
+        $query = Event::where('status', 'published')->with(['media', 'category', 'campuses', 'schools', 'academicYear']);
 
         if ($search) {
             $query->where(function ($q) use ($search) {
@@ -195,26 +123,10 @@ class PublicYearbookController extends Controller
                     ->orWhere('location', 'like', "%{$search}%");
             });
         }
-
-        if ($category) {
-            $query->where('category_id', $category);
-        }
-
-        if ($school) {
-            $query->whereHas('schools', function ($q) use ($school) {
-                $q->where('school_id', $school);
-            });
-        }
-
-        if ($campus) {
-            $query->whereHas('campuses', function ($q) use ($campus) {
-                $q->where('campus_id', $campus);
-            });
-        }
-
-        if ($year) {
-            $query->where('academic_year_id', $year);
-        }
+        if ($category) $query->where('category_id', $category);
+        if ($school) $query->whereHas('schools', fn($q) => $q->where('school_id', $school));
+        if ($campus) $query->whereHas('campuses', fn($q) => $q->where('campus_id', $campus));
+        if ($year) $query->where('academic_year_id', $year);
 
         match ($sort) {
             'oldest' => $query->orderBy('event_date'),
@@ -223,27 +135,12 @@ class PublicYearbookController extends Controller
         };
 
         $events = $query->paginate(12)->withQueryString();
-
         $categories = EventCategory::all();
         $campuses = Campus::orderBy('name')->get();
         $schools = School::orderBy('name')->get();
-        $years = AcademicYear::where('status', '!=', 'draft')
-            ->orderByDesc('start_date')
-            ->get();
+        $years = AcademicYear::where('status', '!=', 'draft')->orderByDesc('start_date')->get();
 
-        return view('public.yearbook.events', compact(
-            'events',
-            'categories',
-            'campuses',
-            'schools',
-            'years',
-            'search',
-            'category',
-            'school',
-            'campus',
-            'year',
-            'sort'
-        ));
+        return view('public.yearbook.events', compact('events', 'categories', 'campuses', 'schools', 'years', 'search', 'category', 'school', 'campus', 'year', 'sort'));
     }
 
     public function graduates(Request $request)
@@ -254,32 +151,28 @@ class PublicYearbookController extends Controller
         $campus = $request->input('campus');
         $sort = $request->input('sort', 'name');
 
+        // The graduate filter is a graduation/calendar year. By default it follows
+        // the graduation date belonging to the active academic year.
         $activeAcademicYear = AcademicYear::where('status', 'active')->latest()->first();
-        $year = $request->has('year') ? $request->input('year') : ($activeAcademicYear?->id);
+        $activeGraduationDate = $activeAcademicYear
+            ? Graduation::where('academic_year_id', $activeAcademicYear->id)->value('graduation_date')
+            : null;
+        $defaultYear = $activeGraduationDate ? Carbon::parse($activeGraduationDate)->year : null;
+        $year = $request->has('year') ? $request->input('year') : $defaultYear;
 
         $baseFilters = function ($query) use ($search, $school, $major, $campus, $year) {
-            if ($search) {
-                $query->where('name', 'like', "%{$search}%");
-            }
-            if ($school) {
-                $query->where('school_id', $school);
-            }
-            if ($major) {
-                $query->where('major_id', $major);
-            }
-            if ($campus) {
-                $query->where('campus_id', $campus);
-            }
+            if ($search) $query->where('name', 'like', "%{$search}%");
+            if ($school) $query->where('school_id', $school);
+            if ($major) $query->where('major_id', $major);
+            if ($campus) $query->where('campus_id', $campus);
             if ($year) {
                 $query->whereHas('graduation', function ($q) use ($year) {
-                    $q->where('academic_year_id', $year);
+                    $q->whereYear('graduation_date', $year);
                 });
             }
         };
 
-        $query = Graduate::where('publish_status', 'published')
-            ->where('consent_status', 'granted')
-            ->with(['media', 'school', 'major', 'campus', 'graduation.academicYear']);
+        $query = Graduate::where('publish_status', 'published')->where('consent_status', 'granted')->with(['media', 'school', 'major', 'campus', 'graduation.academicYear']);
         $baseFilters($query);
 
         match ($sort) {
@@ -290,8 +183,7 @@ class PublicYearbookController extends Controller
 
         $graduates = $query->paginate(12)->withQueryString();
 
-        $namedOnlyQuery = Graduate::where('publish_status', 'published')
-            ->where('consent_status', '!=', 'granted');
+        $namedOnlyQuery = Graduate::where('publish_status', 'published')->where('consent_status', '!=', 'granted');
         $baseFilters($namedOnlyQuery);
         $namedOnly = $namedOnlyQuery->orderBy('name')->pluck('name');
 
@@ -299,134 +191,65 @@ class PublicYearbookController extends Controller
         $majors = Major::orderBy('name')->get();
         $campuses = Campus::orderBy('name')->get();
 
-        $years = AcademicYear::where('status', '!=', 'draft')
-            ->orderByDesc('start_date')
-            ->get();
+        $years = Graduate::where('publish_status', 'published')
+            ->whereNotNull('graduation_id')
+            ->with('graduation')
+            ->get()
+            ->map(fn($graduate) => $graduate->graduation?->graduation_date ? Carbon::parse($graduate->graduation->graduation_date)->year : null)
+            ->filter()->unique()->sort()->reverse()->values();
 
-        return view('public.yearbook.graduates', compact(
-            'graduates',
-            'namedOnly',
-            'schools',
-            'majors',
-            'campuses',
-            'years',
-            'search',
-            'school',
-            'major',
-            'campus',
-            'year',
-            'sort'
-        ));
+        return view('public.yearbook.graduates', compact('graduates', 'namedOnly', 'schools', 'majors', 'campuses', 'years', 'search', 'school', 'major', 'campus', 'year', 'sort'));
     }
 
     public function timeline()
     {
-        $events = Event::where('status', 'published')
-            ->orderByDesc('event_date')
-            ->with(['media', 'category', 'academicYear'])
-            ->get();
-
-        $years = $events->map(function ($event) {
-            return Carbon::parse($event->event_date)->year;
-        })->unique()->sort()->reverse()->values();
-
+        $events = Event::where('status', 'published')->orderByDesc('event_date')->with(['media', 'category', 'academicYear'])->get();
+        $years = $events->map(fn($event) => Carbon::parse($event->event_date)->year)->unique()->sort()->reverse()->values();
         $categories = EventCategory::all();
-
         return view('public.yearbook.timeline', compact('events', 'years', 'categories'));
     }
 
     public function graduations()
     {
-        $graduations = Graduation::orderByDesc('created_at')
-            ->with(['media', 'academicYear', 'campuses', 'schools'])
-            ->paginate(12);
-
+        $graduations = Graduation::orderByDesc('created_at')->with(['media', 'academicYear', 'campuses', 'schools'])->paginate(12);
         return view('public.yearbook.graduations', compact('graduations'));
     }
 
     public function search(Request $request, SemanticSearchService $semanticSearch)
     {
         $query = trim((string) $request->input('q', ''));
+        if ($query === '') return view('public.yearbook.search-results', ['query' => $query, 'results' => []]);
 
-        if ($query === '') {
-            return view('public.yearbook.search-results', [
-                'query' => $query,
-                'results' => [],
-            ]);
-        }
+        $events = Event::where('status', 'published')->where(function ($q) use ($query) {
+            $q->where('title', 'like', "%{$query}%")->orWhere('description', 'like', "%{$query}%")->orWhere('location', 'like', "%{$query}%");
+        })->with(['media', 'category'])->limit(12)->get();
 
-        $events = Event::where('status', 'published')
-            ->where(function ($q) use ($query) {
-                $q->where('title', 'like', "%{$query}%")
-                    ->orWhere('description', 'like', "%{$query}%")
-                    ->orWhere('location', 'like', "%{$query}%");
-            })
-            ->with(['media', 'category'])
-            ->limit(12)
-            ->get();
+        $graduatesVisible = Graduate::where('publish_status', 'published')->where('consent_status', 'granted')->where(function ($q) use ($query) {
+            $q->where('name', 'like', "%{$query}%")->orWhere('profile_text', 'like', "%{$query}%")->orWhere('quote', 'like', "%{$query}%");
+        })->with(['media', 'major', 'school'])->limit(12)->get();
 
-        $graduatesVisible = Graduate::where('publish_status', 'published')
-            ->where('consent_status', 'granted')
-            ->where(function ($q) use ($query) {
-                $q->where('name', 'like', "%{$query}%")
-                    ->orWhere('profile_text', 'like', "%{$query}%")
-                    ->orWhere('quote', 'like', "%{$query}%");
-            })
-            ->with(['media', 'major', 'school'])
-            ->limit(12)
-            ->get();
-
-        $graduatesNamedOnly = Graduate::where('publish_status', 'published')
-            ->where('consent_status', '!=', 'granted')
-            ->where('name', 'like', "%{$query}%")
-            ->orderBy('name')
-            ->limit(20)
-            ->pluck('name');
-
+        $graduatesNamedOnly = Graduate::where('publish_status', 'published')->where('consent_status', '!=', 'granted')->where('name', 'like', "%{$query}%")->orderBy('name')->limit(20)->pluck('name');
         $graduations = Graduation::where(function ($q) use ($query) {
-            $q->where('venue', 'like', "%{$query}%")
-                ->orWhere('description', 'like', "%{$query}%");
-        })
-            ->with('media')
-            ->limit(12)
-            ->get();
+            $q->where('venue', 'like', "%{$query}%")->orWhere('description', 'like', "%{$query}%");
+        })->with('media')->limit(12)->get();
 
         if ($events->count() + $graduatesVisible->count() < 3) {
             try {
                 $semanticMatches = $semanticSearch->search($query, 10);
-
-                $extraEventIds = $semanticMatches->where('type', 'event')
-                    ->pluck('id')->diff($events->pluck('id'));
-
-                $extraGraduateIds = $semanticMatches->where('type', 'graduate')
-                    ->pluck('id')->diff($graduatesVisible->pluck('id'));
+                $extraEventIds = $semanticMatches->where('type', 'event')->pluck('id')->diff($events->pluck('id'));
+                $extraGraduateIds = $semanticMatches->where('type', 'graduate')->pluck('id')->diff($graduatesVisible->pluck('id'));
 
                 if ($extraEventIds->isNotEmpty()) {
-                    $events = $events->concat(
-                        Event::whereIn('id', $extraEventIds)->with(['media', 'category'])->get()
-                    );
+                    $events = $events->concat(Event::whereIn('id', $extraEventIds)->with(['media', 'category'])->get());
                 }
-
                 if ($extraGraduateIds->isNotEmpty()) {
-                    $graduatesVisible = $graduatesVisible->concat(
-                        Graduate::whereIn('id', $extraGraduateIds)
-                            ->where('publish_status', 'published')
-                            ->where('consent_status', 'granted')
-                            ->with(['media', 'major', 'school'])
-                            ->get()
-                    );
+                    $graduatesVisible = $graduatesVisible->concat(Graduate::whereIn('id', $extraGraduateIds)->where('publish_status', 'published')->where('consent_status', 'granted')->with(['media', 'major', 'school'])->get());
                 }
             } catch (\Throwable $e) {
                 // Keyword results remain available if semantic search is unavailable.
             }
         }
 
-        return view('public.yearbook.search-results', compact(
-            'query',
-            'events',
-            'graduatesVisible',
-            'graduatesNamedOnly',
-            'graduations'
-        ));
+        return view('public.yearbook.search-results', compact('query', 'events', 'graduatesVisible', 'graduatesNamedOnly', 'graduations'));
     }
 }
