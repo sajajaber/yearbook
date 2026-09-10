@@ -12,6 +12,7 @@ use App\Models\School;
 use App\Models\Major;
 use Illuminate\Support\Collection;
 use App\Models\HeroImage;
+use App\Services\SemanticSearchService;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
@@ -158,7 +159,13 @@ class PublicYearbookController extends Controller
 
     public function graduateDetail($id)
     {
+        // Consent gate: a graduate's full profile (portrait, bio, quote)
+        // is only ever directly viewable when consent_status is granted.
+        // Without granted consent they may still appear by name elsewhere
+        // (directory "named only" list, book chapters), but never have a
+        // dedicated, linkable profile page.
         $graduate = Graduate::where('publish_status', 'published')
+            ->where('consent_status', 'granted')
             ->with(['media', 'school', 'major', 'campus', 'graduation.academicYear'])
             ->findOrFail($id);
 
@@ -236,37 +243,36 @@ class PublicYearbookController extends Controller
         $year = $request->input('year');
         $sort = $request->input('sort', 'name');
 
+        // Shared filter logic applied to both the "visible" (consented)
+        // query and the "named only" (published but not consented) query,
+        // so a filter narrows both lists consistently.
+        $baseFilters = function ($query) use ($search, $school, $major, $campus, $year) {
+            if ($search) {
+                $query->where('name', 'like', "%{$search}%");
+            }
+            if ($school) {
+                $query->where('school_id', $school);
+            }
+            if ($major) {
+                $query->where('major_id', $major);
+            }
+            if ($campus) {
+                $query->where('campus_id', $campus);
+            }
+            if ($year) {
+                $query->whereHas('graduation', function ($q) use ($year) {
+                    $q->whereYear('graduation_date', $year);
+                });
+            }
+        };
+
+        // Full profiles: published AND consent granted. These get portraits,
+        // pagination, and a link to the detail page.
         $query = Graduate::where('publish_status', 'published')
+            ->where('consent_status', 'granted')
             ->with(['media', 'school', 'major', 'campus', 'graduation.academicYear']);
+        $baseFilters($query);
 
-        // Search filter
-        if ($search) {
-            $query->where('name', 'like', "%{$search}%");
-        }
-
-        // School filter
-        if ($school) {
-            $query->where('school_id', $school);
-        }
-
-        // Major filter
-        if ($major) {
-            $query->where('major_id', $major);
-        }
-
-        // Campus filter
-        if ($campus) {
-            $query->where('campus_id', $campus);
-        }
-
-        // Year filter
-        if ($year) {
-            $query->whereHas('graduation', function ($q) use ($year) {
-                $q->whereYear('graduation_date', $year);
-            });
-        }
-
-        // Sorting
         match ($sort) {
             'latest' => $query->orderByDesc('created_at'),
             'oldest' => $query->orderBy('created_at'),
@@ -275,12 +281,21 @@ class PublicYearbookController extends Controller
 
         $graduates = $query->paginate(12);
 
+        // Named-only mentions: published but consent not granted. No
+        // portraits, no links, no pagination — just an acknowledgement by
+        // name, same treatment as the printed yearbook chapters.
+        $namedOnlyQuery = Graduate::where('publish_status', 'published')
+            ->where('consent_status', '!=', 'granted');
+        $baseFilters($namedOnlyQuery);
+        $namedOnly = $namedOnlyQuery->orderBy('name')->pluck('name');
+
         $schools = School::orderBy('name')->get();
         $majors = Major::orderBy('name')->get();
         $campuses = Campus::orderBy('name')->get();
 
-        // Extract unique years from graduates for the filter
+        // Extract unique years from consented graduates for the filter
         $allGraduates = Graduate::where('publish_status', 'published')
+            ->where('consent_status', 'granted')
             ->with('graduation.academicYear')
             ->get();
         $years = $allGraduates->map(function ($graduate) {
@@ -290,6 +305,7 @@ class PublicYearbookController extends Controller
 
         return view('public.yearbook.graduates', compact(
             'graduates',
+            'namedOnly',
             'schools',
             'majors',
             'campuses',
@@ -327,5 +343,107 @@ class PublicYearbookController extends Controller
             ->paginate(12);
 
         return view('public.yearbook.graduations', compact('graduations'));
+    }
+
+    /**
+     * Public keyword search across published events, graduates, and
+     * graduations. Graduates are split by consent, same as everywhere
+     * else in the public site: consented graduates get full cards
+     * (portrait + link to profile), non-consented matches are surfaced
+     * as a name-only list.
+     *
+     * When the keyword pass turns up little, we quietly layer in
+     * AI-ranked semantic matches (events/graduates only —
+     * SemanticSearchService doesn't cover graduations) so the page
+     * degrades gracefully if the AI provider is slow or unavailable.
+     * SemanticSearchService's own candidate pool already restricts
+     * graduates to consent_status = 'granted', so no extra filtering
+     * is needed on the semantic side.
+     */
+    public function search(Request $request, SemanticSearchService $semanticSearch)
+    {
+        $query = trim((string) $request->input('q', ''));
+
+        if ($query === '') {
+            return view('public.yearbook.search-results', [
+                'query' => $query,
+                'results' => [],
+            ]);
+        }
+
+        $events = Event::where('status', 'published')
+            ->where(function ($q) use ($query) {
+                $q->where('title', 'like', "%{$query}%")
+                    ->orWhere('description', 'like', "%{$query}%")
+                    ->orWhere('location', 'like', "%{$query}%");
+            })
+            ->with(['media', 'category'])
+            ->limit(12)
+            ->get();
+
+        $graduatesVisible = Graduate::where('publish_status', 'published')
+            ->where('consent_status', 'granted')
+            ->where(function ($q) use ($query) {
+                $q->where('name', 'like', "%{$query}%")
+                    ->orWhere('profile_text', 'like', "%{$query}%")
+                    ->orWhere('quote', 'like', "%{$query}%");
+            })
+            ->with(['media', 'major', 'school'])
+            ->limit(12)
+            ->get();
+
+        // Name-only match: consent not granted, so we only match on name
+        // (surfacing bio/quote text for someone without granted consent
+        // would defeat the point of the consent gate).
+        $graduatesNamedOnly = Graduate::where('publish_status', 'published')
+            ->where('consent_status', '!=', 'granted')
+            ->where('name', 'like', "%{$query}%")
+            ->orderBy('name')
+            ->limit(20)
+            ->pluck('name');
+
+        $graduations = Graduation::where(function ($q) use ($query) {
+            $q->where('venue', 'like', "%{$query}%")
+                ->orWhere('description', 'like', "%{$query}%");
+        })
+            ->with('media')
+            ->limit(12)
+            ->get();
+
+        if ($events->count() + $graduatesVisible->count() < 3) {
+            try {
+                $semanticMatches = $semanticSearch->search($query, 10);
+
+                $extraEventIds = $semanticMatches->where('type', 'event')
+                    ->pluck('id')->diff($events->pluck('id'));
+
+                $extraGraduateIds = $semanticMatches->where('type', 'graduate')
+                    ->pluck('id')->diff($graduatesVisible->pluck('id'));
+
+                if ($extraEventIds->isNotEmpty()) {
+                    $events = $events->concat(
+                        Event::whereIn('id', $extraEventIds)->with(['media', 'category'])->get()
+                    );
+                }
+
+                if ($extraGraduateIds->isNotEmpty()) {
+                    $graduatesVisible = $graduatesVisible->concat(
+                        Graduate::whereIn('id', $extraGraduateIds)->with(['media', 'major', 'school'])->get()
+                    );
+                }
+            } catch (\Throwable $e) {
+                report($e);
+            }
+        }
+
+        return view('public.yearbook.search-results', [
+            'query' => $query,
+            'results' => [
+                'events' => $events,
+                'graduates' => $graduatesVisible,
+                'graduatesNamedOnly' => $graduatesNamedOnly,
+                'graduations' => $graduations,
+            ],
+        ]);
     }
 }

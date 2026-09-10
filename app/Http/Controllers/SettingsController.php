@@ -26,7 +26,13 @@ class SettingsController extends Controller
             'eventCategories' => EventCategory::orderBy('name')->get(),
             'users' => User::orderBy('name')->get(),
             'roles' => Role::get(),
-            'heroImagePool' => Media::where('type', 'image')->latest()->get(),
+            'heroImagePool' => Media::where('type', 'image')
+                ->where(function ($q) {
+                    $q->whereJsonDoesntContain('tags', 'graduate-portrait')
+                        ->orWhereNull('tags');
+                })
+                ->latest()
+                ->get(),
             'selectedHeroImages' => HeroImage::orderedMedia(),
         ]);
     }

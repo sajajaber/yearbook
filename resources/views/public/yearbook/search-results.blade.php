@@ -7,7 +7,7 @@
 <div class="hero">
     <div class="container">
         <h1>Search Results</h1>
-        <p @if($query) >Found results for "{{ $query }}"@endif</p>
+        <p @if($query)>Found results for "{{ $query }}"@endif</p>
     </div>
 </div>
 
@@ -34,13 +34,13 @@
                 <a href="{{ route('public.event.detail', $event->id) }}" style="text-decoration: none; color: inherit;">
                     <div class="card">
                         @php
-                            $image = $event->media->first();
+                        $image = $event->media->first();
                         @endphp
                         <div class="card-image">
                             @if($image)
-                                <img src="{{ Storage::disk('public')->url($image->path) }}" alt="{{ $event->title }}">
+                            <img src="{{ Storage::disk('public')->url($image->path) }}" alt="{{ $event->title }}">
                             @else
-                                <div style="width: 100%; height: 100%; background: linear-gradient(135deg, var(--ink) 0%, #1a3f7f 100%);"></div>
+                            <div style="width: 100%; height: 100%; background: linear-gradient(135deg, var(--ink) 0%, #1a3f7f 100%);"></div>
                             @endif
                         </div>
                         <div class="card-body">
@@ -67,13 +67,13 @@
                 <a href="{{ route('public.graduate.detail', $graduate->id) }}" style="text-decoration: none; color: inherit;">
                     <div class="card" style="text-align: center;">
                         @php
-                            $portrait = $graduate->media->first();
+                        $portrait = $graduate->media->first();
                         @endphp
                         <div class="card-image" style="height: 200px;">
                             @if($portrait)
-                                <img src="{{ Storage::disk('public')->url($portrait->path) }}" alt="{{ $graduate->name }}">
+                            <img src="{{ Storage::disk('public')->url($portrait->path) }}" alt="{{ $graduate->name }}">
                             @else
-                                <div style="width: 100%; height: 100%; background: linear-gradient(135deg, var(--ink) 0%, #1a3f7f 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 3rem;">{{ strtoupper(substr($graduate->name, 0, 1)) }}</div>
+                            <div style="width: 100%; height: 100%; background: linear-gradient(135deg, var(--ink) 0%, #1a3f7f 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 3rem;">{{ strtoupper(substr($graduate->name, 0, 1)) }}</div>
                             @endif
                         </div>
                         <div class="card-body">
@@ -90,6 +90,12 @@
         </div>
         @endif
 
+        @if(!empty($results['graduatesNamedOnly']) && $results['graduatesNamedOnly']->isNotEmpty())
+        <p style="margin-top: 15px; color: var(--ink-soft); font-size: 0.9rem;">
+            Also mentioned by name: {{ $results['graduatesNamedOnly']->implode(', ') }}
+        </p>
+        @endif
+
         <!-- Graduations -->
         @if(isset($results['graduations']) && $results['graduations']->count() > 0)
         <div>
@@ -99,13 +105,13 @@
                 <a href="{{ route('public.graduation.detail', $graduation->id) }}" style="text-decoration: none; color: inherit;">
                     <div class="card">
                         @php
-                            $image = $graduation->media->first();
+                        $image = $graduation->media->first();
                         @endphp
                         <div class="card-image">
                             @if($image)
-                                <img src="{{ Storage::disk('public')->url($image->path) }}" alt="Graduation">
+                            <img src="{{ Storage::disk('public')->url($image->path) }}" alt="Graduation">
                             @else
-                                <div style="width: 100%; height: 100%; background: linear-gradient(135deg, var(--ink) 0%, #1a3f7f 100%);"></div>
+                            <div style="width: 100%; height: 100%; background: linear-gradient(135deg, var(--ink) 0%, #1a3f7f 100%);"></div>
                             @endif
                         </div>
                         <div class="card-body">
@@ -121,9 +127,9 @@
 
         <!-- No Results -->
         @if(
-            (empty($results['events']) || $results['events']->count() === 0) &&
-            (empty($results['graduates']) || $results['graduates']->count() === 0) &&
-            (empty($results['graduations']) || $results['graduations']->count() === 0)
+        (empty($results['events']) || $results['events']->count() === 0) &&
+        (empty($results['graduates']) || $results['graduates']->count() === 0) &&
+        (empty($results['graduations']) || $results['graduations']->count() === 0)
         )
         <div style="text-align: center; padding: 60px 20px;">
             <p style="font-size: 1.2rem; color: var(--ink-soft); margin-bottom: 20px;">No results found for "{{ $query }}"</p>
