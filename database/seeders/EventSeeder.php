@@ -8,138 +8,65 @@ use App\Models\AcademicYear;
 use App\Models\EventCategory;
 use App\Models\Campus;
 use App\Models\School;
+use Illuminate\Support\Facades\DB;
 
 class EventSeeder extends Seeder
 {
     public function run(): void
     {
+        // Clear existing event data and its many-to-many relationships.
+        DB::table('event_media')->delete();
+        DB::table('event_campuses')->delete();
+        DB::table('event_schools')->delete();
+        Event::query()->delete();
+
         $year = AcademicYear::where('title', '2025-2026')->firstOrFail();
 
         $events = [
-            [
-                'title' => 'Underground Man Symposium: On Free Will and Spite',
-                'category' => 'Academic',
-                'event_date' => '2026-03-12',
-                'description' => 'A philosophy department roundtable on rational egoism, spite as agency, and why 2+2=5 might sound better than 2+2=4.',
-                'location' => 'Main Campus Auditorium',
-                'status' => 'published',
-                'featured' => true,
-                'campus_codes' => ['BEY'],
-                'school_codes' => ['ART'],
-            ],
-            [
-                'title' => 'Raskolnikov Debate Night: Do Extraordinary Men Have the Right?',
-                'category' => 'Academic',
-                'event_date' => '2026-03-20',
-                'description' => 'Annual ethics debate competition; this year\'s controversial resolution drew the largest audience in club history.',
-                'location' => 'Debate Hall',
-                'status' => 'published',
-                'featured' => true,
-                'campus_codes' => ['BEY', 'TRI'],
-                'school_codes' => ['ART', 'BUS'],
-            ],
-            [
-                'title' => 'R test',
-                'category' => 'Academic',
-                'event_date' => '2026-03-20',
-                'description' => 'Annual ethics debate competition; this years controversial resolution drew the largest audience in club history.',
-                'location' => 'Recreation Center',
-                'status' => 'approved',
-                'featured' => true,
-                'campus_codes' => ['TRI', 'RAY'],
-                'school_codes' => ['ENG'],
-            ],
-
-            [
-                'title' => 'The Grand Inquisitor Reading & Discussion Circle',
-                'category' => 'Academic',
-                'event_date' => '2026-04-02',
-                'description' => 'Monthly literature circle session, open to all majors. Free coffee, mandatory existential dread.',
-                'location' => 'Library Reading Room',
-                'status' => 'reviewed',
-                'featured' => false,
-                'campus_codes' => ['SAI'],
-                'school_codes' => ['ART'],
-            ],
-            [
-                'title' => 'Karamazov Family Talent Showcase',
-                'category' => 'Social',
-                'event_date' => '2026-04-18',
-                'description' => 'Student-run variety show; three brothers from the drama club promised not to fight on stage this year.',
-                'location' => 'Student Center Stage',
-                'status' => 'draft',
-                'featured' => false,
-                'campus_codes' => ['MTL'],
-                'school_codes' => [],
-            ],
-            [
-                'title' => 'Petrashevsky Circle Alumni Mixer',
-                'category' => 'Social',
-                'event_date' => '2026-02-14',
-                'description' => 'Networking mixer for graduating seniors and alumni in publishing, journalism, and public policy.',
-                'location' => 'Alumni Hall',
-                'status' => 'archived',
-                'featured' => false,
-                'campus_codes' => ['BEY'],
-                'school_codes' => ['ART', 'BUS'],
-            ],
-            [
-                'title' => 'Idiot Chess Open: Prince Myshkin Invitational',
-                'category' => 'Sports',
-                'event_date' => '2026-03-05',
-                'description' => 'Campus-wide chess tournament; named for the one competitor who always announces his strategy in advance and still wins.',
-                'location' => 'Recreation Center',
-                'status' => 'approved',
-                'featured' => true,
-                'campus_codes' => ['TRI', 'RAY'],
-                'school_codes' => ['ENG'],
-            ],
-            [
-                'title' => 'Demons Marathon: Midnight Relay Run',
-                'category' => 'Sports',
-                'event_date' => '2026-05-01',
-                'description' => 'Late-night charity relay race across campus; proceeds fund the student emergency fund.',
-                'location' => 'Campus Track',
-                'status' => 'published',
-                'featured' => false,
-                'campus_codes' => ['TYR', 'AKK'],
-                'school_codes' => [],
-            ],
-            [
-                'title' => 'Class of 2026 Commencement Rehearsal',
-                'category' => 'Ceremony',
-                'event_date' => '2026-06-15',
-                'description' => 'Mandatory rehearsal for all graduating seniors ahead of the official ceremony.',
-                'location' => 'Main Campus Auditorium',
-                'status' => 'reviewed',
-                'featured' => true,
-                'campus_codes' => ['BEY', 'SAI', 'NAB', 'TRI', 'MTL', 'TYR', 'RAY', 'AKK'],
-                'school_codes' => [],
-            ],
+            ['Annual Research & Innovation Forum', 'Academic', '2026-03-04', 'Faculty members and students presented research projects, prototypes, and practical solutions developed throughout the academic year.', 'Main Campus Auditorium', 'published', true, ['BEY', 'SAI'], ['ENG', 'ART']],
+            ['Career Development Week', 'Academic', '2026-03-10', 'A week of employer talks, CV workshops, mock interviews, and networking sessions connecting students with professionals from different industries.', 'Student Center', 'published', true, ['BEY', 'TRI'], []],
+            ['Digital Media & Storytelling Workshop', 'Academic', '2026-03-18', 'A hands-on workshop covering interview techniques, visual storytelling, short-form video, and responsible digital publishing.', 'Media Lab', 'published', false, ['BEY'], ['ART']],
+            ['Entrepreneurship Challenge 2026', 'Academic', '2026-03-26', 'Student teams presented business ideas to a panel of alumni and industry mentors during the annual entrepreneurship challenge.', 'Innovation Hub', 'published', true, ['BEY'], ['BUS', 'ART']],
+            ['Engineering Design Showcase', 'Academic', '2026-04-08', 'Senior engineering students demonstrated capstone projects ranging from renewable-energy systems to robotics and smart devices.', 'Engineering Building', 'published', true, ['TRI', 'RAY'], ['ENG']],
+            ['Community Health Awareness Day', 'Academic', '2026-04-15', 'Students from health-related programs organized free educational activities focused on nutrition, medication awareness, and healthy habits.', 'Main Campus Courtyard', 'published', false, ['BEY', 'NAB'], ['PHA', 'ART']],
+            ['Student Research Poster Exhibition', 'Academic', '2026-04-22', 'An open exhibition featuring undergraduate and graduate research posters from science, business, education, and technology programs.', 'Library Atrium', 'published', false, ['SAI'], []],
+            ['Alumni Career Networking Evening', 'Social', '2026-02-19', 'Graduating students met alumni working across technology, finance, education, engineering, hospitality, and communications.', 'Alumni Hall', 'published', true, ['BEY'], []],
+            ['International Food & Culture Fair', 'Social', '2026-03-06', 'Students shared food, music, traditions, and stories representing the diverse communities that make up the university.', 'Student Plaza', 'published', true, ['BEY', 'MTL'], []],
+            ['Spring Student Club Fair', 'Social', '2026-03-12', 'Student organizations introduced their activities and welcomed new members through demonstrations, games, and information booths.', 'Student Plaza', 'published', false, ['BEY', 'TRI'], []],
+            ['Photography Walk: Campus in Spring', 'Social', '2026-04-03', 'A guided photography walk exploring architecture, student life, and everyday moments across campus.', 'Main Campus Gate', 'published', false, ['BEY'], ['ART']],
+            ['Student Volunteer Appreciation Evening', 'Social', '2026-05-07', 'The university recognized students who contributed their time to community initiatives, mentoring programs, and campus activities.', 'University Garden', 'published', false, ['BEY', 'SAI', 'NAB'], []],
+            ['Interfaculty Football Tournament', 'Sports', '2026-03-21', 'Teams representing different faculties competed in the annual interfaculty football tournament.', 'University Sports Field', 'published', true, ['TYR', 'RAY'], []],
+            ['University Basketball Championship', 'Sports', '2026-04-11', 'The university basketball teams competed in the spring championship in front of students, staff, and alumni.', 'Sports Complex', 'published', false, ['TYR'], []],
+            ['5K Campus Charity Run', 'Sports', '2026-04-25', 'Students, staff, and alumni took part in a five-kilometer charity run supporting local community initiatives.', 'Sports Complex', 'published', true, ['TYR', 'AKK'], []],
+            ['Class of 2026 Graduation Ceremony', 'Ceremony', '2026-06-20', 'The university celebrated the Class of 2026 as graduates gathered with their families, faculty members, and friends for the annual commencement ceremony.', 'University Main Auditorium', 'published', true, ['BEY', 'SAI', 'NAB', 'TRI', 'MTL', 'TYR', 'RAY', 'AKK'], []],
+            ['Honors & Awards Ceremony', 'Ceremony', '2026-06-10', 'Students receiving academic, leadership, research, service, and extracurricular awards were recognized during the annual honors ceremony.', 'Main Campus Auditorium', 'published', true, ['BEY'], []],
+            ['Senior Project Presentation Day', 'Ceremony', '2026-05-28', 'Final-year students presented their capstone and senior projects to faculty committees, industry guests, and fellow students.', 'Faculty Presentation Halls', 'reviewed', false, ['BEY', 'TRI', 'RAY'], ['ENG', 'BUS', 'ART']],
+            ['New Student Orientation', 'Ceremony', '2025-09-22', 'New students attended orientation sessions covering university services, academic advising, student life, and campus resources.', 'Main Campus', 'archived', false, ['BEY', 'SAI', 'TRI'], []],
+            ['Spring Arts Exhibition', 'Social', '2026-05-15', 'An exhibition of student photography, graphic design, illustration, and mixed-media work celebrating the creative side of campus life.', 'Arts Gallery', 'draft', false, ['BEY'], ['ART']],
         ];
 
         foreach ($events as $data) {
-            $category = EventCategory::where('name', $data['category'])->first();
+            [$title, $categoryName, $date, $description, $location, $status, $featured, $campusCodes, $schoolCodes] = $data;
+
+            $category = EventCategory::where('name', $categoryName)->first();
 
             if (! $category) {
                 continue;
             }
 
-            $event = Event::updateOrCreate(
-                ['title' => $data['title']],
-                [
-                    'academic_year_id' => $year->id,
-                    'category_id' => $category->id,
-                    'event_date' => $data['event_date'],
-                    'description' => $data['description'],
-                    'location' => $data['location'],
-                    'status' => $data['status'],
-                    'featured' => $data['featured'],
-                ]
-            );
+            $event = Event::create([
+                'academic_year_id' => $year->id,
+                'category_id' => $category->id,
+                'title' => $title,
+                'event_date' => $date,
+                'description' => $description,
+                'location' => $location,
+                'status' => $status,
+                'featured' => $featured,
+            ]);
 
-            $campusIds = Campus::whereIn('code', $data['campus_codes'])->pluck('id');
-            $schoolIds = School::whereIn('code', $data['school_codes'])->pluck('id');
+            $campusIds = Campus::whereIn('code', $campusCodes)->pluck('id');
+            $schoolIds = School::whereIn('code', $schoolCodes)->pluck('id');
 
             $event->campuses()->sync($campusIds);
             $event->schools()->sync($schoolIds);
