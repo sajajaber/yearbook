@@ -11,7 +11,13 @@
         </div>
     </x-slot>
 
-    @php $statusCounts = $events->groupBy('status')->map->count(); @endphp
+    @php
+        $statusCounts = \App\Models\Event::query()
+            ->when(Auth::user()->role?->role_name === 'reviewer', fn ($query) => $query->where('status', '!=', 'draft'))
+            ->selectRaw('status, COUNT(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status');
+    @endphp
 
     <div class="dashboard-wrap event-wrap" x-data="{ search: '', status: 'all', year: 'all', campus: 'all', school: 'all' }">
         <section class="event-intro">
@@ -106,11 +112,9 @@
                         @else
                             <a class="liu-page-arrow" href="{{ $events->previousPageUrl() }}" rel="prev" aria-label="Previous page">←</a>
                         @endif
-
                         @foreach ($events->onEachSide(1)->getUrlRange(max(1, $events->currentPage() - 1), min($events->lastPage(), $events->currentPage() + 1)) as $page => $url)
                             <a href="{{ $url }}" class="liu-page-number {{ $page == $events->currentPage() ? 'is-current' : '' }}" aria-current="{{ $page == $events->currentPage() ? 'page' : 'false' }}">{{ $page }}</a>
                         @endforeach
-
                         @if ($events->hasMorePages())
                             <a class="liu-page-arrow" href="{{ $events->nextPageUrl() }}" rel="next" aria-label="Next page">→</a>
                         @else
