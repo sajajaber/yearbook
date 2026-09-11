@@ -40,7 +40,7 @@ class PublicYearbookController extends Controller
             'schools' => School::count(),
         ];
 
-        return view('public.yearbook.index', compact('currentYear', 'heroImages', 'featuredEvents', 'recentEvents', 'graduations', 'latestGraduation', 'stats'));
+        return view('public.home', compact('currentYear', 'heroImages', 'featuredEvents', 'recentEvents', 'graduations', 'latestGraduation', 'stats'));
     }
 
     public function archive()
