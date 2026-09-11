@@ -13,6 +13,58 @@
   </x-slot>
 
   <div class="dashboard-wrap media-wrap">
+    <style>
+      .media-empty-state {
+        min-height: 360px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        padding: 56px 24px;
+        border: 1px dashed #cbd8e6;
+        border-radius: 24px;
+        background: linear-gradient(180deg, #fff 0%, #f7fbff 100%);
+        text-align: center;
+      }
+      .media-empty-icon {
+        width: 72px;
+        height: 72px;
+        display: grid;
+        place-items: center;
+        margin-bottom: 8px;
+        border-radius: 20px;
+        background: #eaf2fb;
+        color: #002a5c;
+      }
+      .media-empty-state h3 {
+        margin: 0;
+        color: #002a5c;
+        font-size: 1.25rem;
+        font-weight: 800;
+      }
+      .media-empty-state p {
+        max-width: 430px;
+        margin: 0 0 12px;
+        color: #64748b;
+        line-height: 1.7;
+      }
+      .media-preview {
+        overflow: hidden;
+        aspect-ratio: 4 / 3;
+      }
+      .media-preview .media-img {
+        width: 100%;
+        height: 100%;
+        display: block;
+        object-fit: cover;
+        transition: transform .45s cubic-bezier(.16,1,.3,1), opacity .3s ease;
+      }
+      .media-card:hover .media-preview .media-img {
+        transform: scale(1.035);
+      }
+    </style>
+
     @if ($errors->any())
     <div class="alert alert-error" role="alert"><ul>@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>
     @endif
@@ -39,14 +91,23 @@
     </div>
 
     @if ($mediaItems->isEmpty())
-    <div class="media-empty-state"><p>No media found</p>@if (in_array(Auth::user()->role?->role_name, ['admin', 'editor']))<a href="{{ route('media.create') }}" class="button button-red button-small"><span aria-hidden="true">+</span> Upload media</a>@endif</div>
+    <div class="media-empty-state">
+      <div class="media-empty-icon" aria-hidden="true">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-4.5-4.5L8 19"/></svg>
+      </div>
+      <h3>No media found</h3>
+      <p>There are no media assets matching the current filter or search. Upload a photo to start building the yearbook archive.</p>
+      @if (in_array(Auth::user()->role?->role_name, ['admin', 'editor']))
+      <a href="{{ route('media.create') }}" class="button button-red button-small"><span aria-hidden="true">+</span> Upload media</a>
+      @endif
+    </div>
     @else
     <div class="media-grid" role="list">
       @foreach ($mediaItems as $mediaItem)
       <div class="media-card" role="listitem">
         <div class="media-preview" aria-label="Preview of {{ $mediaItem->file_name }}">
           @if ($mediaItem->type === 'image')
-          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 200'%3E%3Crect fill='%23e7f0fa' width='300' height='200'/%3E%3C/svg%3E" data-src="{{ asset('storage/' . $mediaItem->path) }}" alt="{{ $mediaItem->alt_text ?? $mediaItem->file_name }}" class="media-img lazy" loading="lazy">
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 200'%3E%3Crect fill='%23e7f0fa' width='300' height='200'/%3E%3C/svg%3E" data-src="{{ $mediaItem->thumbnailUrl() }}" alt="{{ $mediaItem->alt_text ?? $mediaItem->file_name }}" class="media-img lazy" loading="lazy">
           @elseif ($mediaItem->type === 'video')
           <div class="media-video-placeholder"><svg class="video-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg><p>Video</p></div><video controls class="media-video" style="display: none;" preload="metadata"><source src="{{ asset('storage/' . $mediaItem->path) }}">{{ __('Your browser does not support video playback.') }}</video>
           @elseif ($mediaItem->type === 'document')
