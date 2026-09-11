@@ -17,6 +17,7 @@ use App\Services\ImageProcessor;
 use App\Http\Requests\StoreGraduateRequest;
 use App\Http\Requests\UpdateGraduateRequest;
 use App\Http\Controllers\Concerns\SyncsOrderedMedia;
+use Illuminate\Support\Facades\Storage;
 
 class GraduateController extends Controller
 {
@@ -174,8 +175,21 @@ class GraduateController extends Controller
         if (! $request->hasFile('portrait')) return;
 
         $portrait = $request->file('portrait');
-        $path = $portrait->store('media/portraits', 'public');
-        $thumbnailPath = app(ImageProcessor::class)->createThumbnail($path, 'public');
+        $storage = Storage::disk('public');
+        $uploadedPath = $portrait->store('media/portraits', 'public');
+        $processor = app(ImageProcessor::class);
+
+        // Keep the stored graduate portrait lightweight and consistently framed.
+        $optimizedPath = $processor->createPortrait($uploadedPath, 'public');
+        $path = $optimizedPath ?: $uploadedPath;
+
+        // The optimized portrait replaces the temporary original when available.
+        if ($optimizedPath && $optimizedPath !== $uploadedPath) {
+            $storage->delete($uploadedPath);
+        }
+
+        // Generate the smaller preview used by the media library and other grids.
+        $thumbnailPath = $processor->createThumbnail($path, 'public');
 
         $media = Media::create([
             'file_name' => $portrait->getClientOriginalName(),
