@@ -6,24 +6,14 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * Generates a resized thumbnail for an uploaded image using PHP's GD
- * extension. Deliberately dependency-free (no Intervention/Image or
- * similar composer package) so it works with the stack already in
- * composer.lock.
+ * Server-side image processing for the yearbook media library.
  *
- * Every public method here is non-fatal by design: if GD is missing,
- * the source format is unsupported, or anything goes wrong, methods
- * return null / no-op rather than throwing, so a thumbnail failure
- * never blocks the underlying media upload.
+ * Images are resized rather than upscaled, thumbnails are generated for
+ * previews, and graduate portraits get a consistent 4:5 crop so they fit
+ * the yearbook's portrait cards cleanly.
  */
 class ImageProcessor
 {
-    /**
-     * Maximum width (px) of the generated thumbnail. Height is scaled
-     * proportionally. Images already narrower than this are left alone
-     * (no upscaling, and no pointless "thumbnail" that's the same size
-     * as the original).
-     */
     protected int $maxWidth;
 
     public function __construct(int $maxWidth = 480)
@@ -32,9 +22,7 @@ class ImageProcessor
     }
 
     /**
-     * Create a thumbnail for the image stored at $diskPath on $disk and
-     * return the thumbnail's own disk-relative path, or null if no
-     * thumbnail was created (unsupported type, already small, or error).
+     * Create a proportional thumbnail and return its disk-relative path.
      */
     public function createThumbnail(string $diskPath, string $disk = 'public'): ?string
     {
@@ -61,39 +49,22 @@ class ImageProcessor
             }
 
             [$originalWidth, $originalHeight, $imageType] = $imageInfo;
-
-            $source = match ($imageType) {
-                IMAGETYPE_JPEG => imagecreatefromjpeg($absolutePath),
-                IMAGETYPE_PNG => imagecreatefrompng($absolutePath),
-                IMAGETYPE_WEBP => function_exists('imagecreatefromwebp')
-                    ? imagecreatefromwebp($absolutePath)
-                    : false,
-                default => false,
-            };
+            $source = $this->createSource($absolutePath, $imageType);
 
             if ($source === false) {
                 return null;
             }
 
-            // Don't upscale small images; only shrink larger ones.
             if ($originalWidth <= $this->maxWidth) {
                 imagedestroy($source);
-
                 return null;
             }
 
             $thumbWidth = $this->maxWidth;
             $thumbHeight = (int) round($originalHeight * ($thumbWidth / $originalWidth));
-
             $thumbnail = imagecreatetruecolor($thumbWidth, $thumbHeight);
 
-            // Preserve transparency for PNG/WEBP sources.
-            if (in_array($imageType, [IMAGETYPE_PNG, IMAGETYPE_WEBP], true)) {
-                imagealphablending($thumbnail, false);
-                imagesavealpha($thumbnail, true);
-                $transparent = imagecolorallocatealpha($thumbnail, 0, 0, 0, 127);
-                imagefilledrectangle($thumbnail, 0, 0, $thumbWidth, $thumbHeight, $transparent);
-            }
+            $this->prepareTransparency($thumbnail, $imageType);
 
             imagecopyresampled(
                 $thumbnail,
@@ -111,18 +82,8 @@ class ImageProcessor
             $thumbPath = $this->thumbnailPathFor($diskPath);
             $thumbAbsolutePath = $storage->path($thumbPath);
 
-            if (! is_dir(dirname($thumbAbsolutePath))) {
-                mkdir(dirname($thumbAbsolutePath), 0755, true);
-            }
-
-            $saved = match ($imageType) {
-                IMAGETYPE_JPEG => imagejpeg($thumbnail, $thumbAbsolutePath, 82),
-                IMAGETYPE_PNG => imagepng($thumbnail, $thumbAbsolutePath, 6),
-                IMAGETYPE_WEBP => function_exists('imagewebp')
-                    ? imagewebp($thumbnail, $thumbAbsolutePath, 82)
-                    : false,
-                default => false,
-            };
+            $this->ensureDirectory($thumbAbsolutePath);
+            $saved = $this->saveImage($thumbnail, $thumbAbsolutePath, $imageType, 82);
 
             imagedestroy($source);
             imagedestroy($thumbnail);
@@ -139,9 +100,104 @@ class ImageProcessor
     }
 
     /**
-     * Delete a previously generated thumbnail, if any. Safe to call with
-     * null (e.g. when the media item never got a thumbnail).
+     * Create an optimized graduate portrait with a consistent 4:5 ratio.
+     *
+     * The original upload is center-cropped to the requested portrait ratio,
+     * resized to at most 800x1000, and stored as a compressed JPEG. This keeps
+     * profile images lightweight while ensuring they fill the library cards
+     * without distortion or awkward empty space.
      */
+    public function createPortrait(string $diskPath, string $disk = 'public'): ?string
+    {
+        if (! extension_loaded('gd')) {
+            Log::warning('ImageProcessor: GD extension not available, skipping portrait optimization.', [
+                'path' => $diskPath,
+            ]);
+
+            return null;
+        }
+
+        try {
+            $storage = Storage::disk($disk);
+
+            if (! $storage->exists($diskPath)) {
+                return null;
+            }
+
+            $absolutePath = $storage->path($diskPath);
+            $imageInfo = @getimagesize($absolutePath);
+
+            if ($imageInfo === false) {
+                return null;
+            }
+
+            [$originalWidth, $originalHeight, $imageType] = $imageInfo;
+            $source = $this->createSource($absolutePath, $imageType);
+
+            if ($source === false || $originalWidth <= 0 || $originalHeight <= 0) {
+                return null;
+            }
+
+            // Target ratio: 4:5 (portrait).
+            $targetRatio = 4 / 5;
+            $sourceRatio = $originalWidth / $originalHeight;
+
+            if ($sourceRatio > $targetRatio) {
+                // Source is too wide: crop equally from the left/right.
+                $cropHeight = $originalHeight;
+                $cropWidth = (int) round($originalHeight * $targetRatio);
+                $cropX = (int) floor(($originalWidth - $cropWidth) / 2);
+                $cropY = 0;
+            } else {
+                // Source is too tall: crop equally from the top/bottom.
+                $cropWidth = $originalWidth;
+                $cropHeight = (int) round($originalWidth / $targetRatio);
+                $cropX = 0;
+                $cropY = (int) floor(($originalHeight - $cropHeight) / 2);
+            }
+
+            $maxWidth = 800;
+            $maxHeight = 1000;
+            $scale = min($maxWidth / $cropWidth, $maxHeight / $cropHeight, 1);
+            $targetWidth = max(1, (int) round($cropWidth * $scale));
+            $targetHeight = max(1, (int) round($cropHeight * $scale));
+
+            $portrait = imagecreatetruecolor($targetWidth, $targetHeight);
+            imagecopyresampled(
+                $portrait,
+                $source,
+                0,
+                0,
+                $cropX,
+                $cropY,
+                $targetWidth,
+                $targetHeight,
+                $cropWidth,
+                $cropHeight
+            );
+
+            $directory = dirname($diskPath);
+            $filename = pathinfo(basename($diskPath), PATHINFO_FILENAME);
+            $optimizedPath = ($directory === '.' ? '' : $directory . '/') . 'optimized/' . $filename . '.jpg';
+            $optimizedAbsolutePath = $storage->path($optimizedPath);
+
+            $this->ensureDirectory($optimizedAbsolutePath);
+            $saved = imagejpeg($portrait, $optimizedAbsolutePath, 84);
+
+            imagedestroy($source);
+            imagedestroy($portrait);
+
+            return $saved ? $optimizedPath : null;
+        } catch (\Throwable $e) {
+            Log::warning('ImageProcessor: failed to optimize portrait.', [
+                'path' => $diskPath,
+                'error' => $e->getMessage(),
+            ]);
+
+            return null;
+        }
+    }
+
     public function deleteThumbnail(?string $thumbnailPath, string $disk = 'public'): void
     {
         if ($thumbnailPath) {
@@ -149,10 +205,47 @@ class ImageProcessor
         }
     }
 
-    /**
-     * Build the thumbnail's disk-relative path from the original's path,
-     * e.g. "media/images/photo.jpg" -> "media/images/thumbs/photo.jpg".
-     */
+    protected function createSource(string $absolutePath, int $imageType)
+    {
+        return match ($imageType) {
+            IMAGETYPE_JPEG => imagecreatefromjpeg($absolutePath),
+            IMAGETYPE_PNG => imagecreatefrompng($absolutePath),
+            IMAGETYPE_WEBP => function_exists('imagecreatefromwebp')
+                ? imagecreatefromwebp($absolutePath)
+                : false,
+            default => false,
+        };
+    }
+
+    protected function prepareTransparency($image, int $imageType): void
+    {
+        if (in_array($imageType, [IMAGETYPE_PNG, IMAGETYPE_WEBP], true)) {
+            imagealphablending($image, false);
+            imagesavealpha($image, true);
+            $transparent = imagecolorallocatealpha($image, 0, 0, 0, 127);
+            imagefilledrectangle($image, 0, 0, imagesx($image), imagesy($image), $transparent);
+        }
+    }
+
+    protected function saveImage($image, string $absolutePath, int $imageType, int $quality): bool
+    {
+        return match ($imageType) {
+            IMAGETYPE_JPEG => imagejpeg($image, $absolutePath, $quality),
+            IMAGETYPE_PNG => imagepng($image, $absolutePath, 6),
+            IMAGETYPE_WEBP => function_exists('imagewebp')
+                ? imagewebp($image, $absolutePath, $quality)
+                : false,
+            default => false,
+        };
+    }
+
+    protected function ensureDirectory(string $absolutePath): void
+    {
+        if (! is_dir(dirname($absolutePath))) {
+            mkdir(dirname($absolutePath), 0755, true);
+        }
+    }
+
     protected function thumbnailPathFor(string $diskPath): string
     {
         $directory = dirname($diskPath);
