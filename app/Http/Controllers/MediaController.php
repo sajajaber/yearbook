@@ -17,10 +17,10 @@ class MediaController extends Controller
         $filter = request('filter', 'all');
         $search = request('search', '');
         $sortBy = request('sort', 'latest');
-
+        
         $mediaItems = Media::with(['portraitGraduates', 'graduates'])
             ->when($filter === 'graduate-portraits', fn ($query) => $query->whereHas('portraitGraduates'))
-            ->when($search, fn ($query) =>
+            ->when($search, fn ($query) => 
                 $query->where('file_name', 'like', "%{$search}%")
                     ->orWhere('caption', 'like', "%{$search}%")
                     ->orWhere('alt_text', 'like', "%{$search}%")
@@ -43,8 +43,13 @@ class MediaController extends Controller
     public function store(StoreMediaRequest $request, MediaTypeResolver $resolver, ImageProcessor $imageProcessor)
     {
         $validated = $request->validated();
+
         $uploadedFile = $request->file('file');
 
+        // StoreMediaRequest resolves the type (image/video/document) during
+        // validation so the mimes/size rules match what was actually
+        // uploaded; reuse that same resolution here rather than guessing
+        // again, and fail closed if it somehow comes back empty.
         $type = $request->resolvedType() ?? $resolver->resolveType($uploadedFile);
 
         if (! $type) {
@@ -55,16 +60,18 @@ class MediaController extends Controller
 
         $path = $uploadedFile->store("media/{$type}s", 'public');
 
+        // Thumbnails are only generated for images; createThumbnail() is
+        // non-fatal and returns null for anything it can't handle (missing
+        // GD, unsupported format, already-small image), so it's safe to
+        // call unconditionally here.
+        $thumbnailPath = $type === 'image' ? $imageProcessor->createThumbnail($path) : null;
+
         $userId = auth()->id();
-        if (! $userId) {
+        if (!$userId) {
             return redirect()->route('media.index')->with('error', 'User not authenticated');
         }
 
         try {
-            $thumbnailPath = $type === 'image'
-                ? $imageProcessor->createThumbnail($path, 'public')
-                : null;
-
             $media = Media::create([
                 'file_name' => $uploadedFile->getClientOriginalName(),
                 'path' => $path,
@@ -108,11 +115,11 @@ class MediaController extends Controller
         return redirect()->route('media.index');
     }
 
-    public function destroy(string $id)
+    public function destroy(string $id, ImageProcessor $imageProcessor)
     {
         $mediaItem = Media::findOrFail($id);
         Storage::disk('public')->delete($mediaItem->path);
-        Storage::disk('public')->delete($mediaItem->thumbnail_path);
+        $imageProcessor->deleteThumbnail($mediaItem->thumbnail_path);
         $mediaItem->delete();
         AuditLog::record('deleted', $mediaItem);
 

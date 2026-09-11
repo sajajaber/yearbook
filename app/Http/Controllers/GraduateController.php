@@ -27,33 +27,36 @@ class GraduateController extends Controller
     {
         $isReviewer = auth()->user()->role?->role_name === 'reviewer';
 
-        $query = Graduate::with(['school', 'major', 'campus', 'graduation', 'aiGenerations'])
-            ->when($isReviewer, fn ($query) => $query->where('publish_status', '!=', 'draft'))
+        $query = Graduate::with(['school', 'major', 'campus', 'graduation', 'aiGenerations', 'portraitMedia'])
+            ->when(
+                $isReviewer,
+                fn($query) => $query->where('publish_status', '!=', 'draft')
+            )
             ->orderBy('name');
 
-        $query->when($request->filled('status') && $request->status !== 'all', fn ($q) => $q->where('publish_status', $request->status));
-        $query->when($request->filled('year') && $request->year !== 'all', fn ($q) => $q->whereHas('graduation', fn ($graduation) => $graduation->where('academic_year_id', $request->year)));
-        $query->when($request->filled('campus') && $request->campus !== 'all', fn ($q) => $q->where('campus_id', $request->campus));
-        $query->when($request->filled('school') && $request->school !== 'all', fn ($q) => $q->where('school_id', $request->school));
-        $query->when($request->filled('major') && $request->major !== 'all', fn ($q) => $q->where('major_id', $request->major));
+        $query->when($request->filled('status') && $request->status !== 'all', fn($q) => $q->where('publish_status', $request->status));
+        $query->when($request->filled('year') && $request->year !== 'all', fn($q) => $q->whereHas('graduation', fn($graduation) => $graduation->where('academic_year_id', $request->year)));
+        $query->when($request->filled('campus') && $request->campus !== 'all', fn($q) => $q->where('campus_id', $request->campus));
+        $query->when($request->filled('school') && $request->school !== 'all', fn($q) => $q->where('school_id', $request->school));
+        $query->when($request->filled('major') && $request->major !== 'all', fn($q) => $q->where('major_id', $request->major));
         $query->when($request->filled('search'), function ($q) use ($request) {
             $search = $request->search;
             $q->where(function ($searchQuery) use ($search) {
                 $searchQuery->where('name', 'like', "%{$search}%")
                     ->orWhere('student_reference', 'like', "%{$search}%")
-                    ->orWhereHas('school', fn ($school) => $school->where('name', 'like', "%{$search}%"))
-                    ->orWhereHas('major', fn ($major) => $major->where('name', 'like', "%{$search}%"));
+                    ->orWhereHas('school', fn($school) => $school->where('name', 'like', "%{$search}%"))
+                    ->orWhereHas('major', fn($major) => $major->where('name', 'like', "%{$search}%"));
             });
         });
 
         $graduates = $query->paginate(12)->withQueryString();
 
         $statusCounts = Graduate::selectRaw('publish_status, COUNT(*) as total')
-            ->when($isReviewer, fn ($query) => $query->where('publish_status', '!=', 'draft'))
+            ->when($isReviewer, fn($query) => $query->where('publish_status', '!=', 'draft'))
             ->groupBy('publish_status')
             ->pluck('total', 'publish_status');
 
-        $consentGranted = Graduate::when($isReviewer, fn ($query) => $query->where('publish_status', '!=', 'draft'))
+        $consentGranted = Graduate::when($isReviewer, fn($query) => $query->where('publish_status', '!=', 'draft'))
             ->where('consent_status', 'granted')
             ->count();
 
@@ -81,8 +84,15 @@ class GraduateController extends Controller
     {
         $graduate = Graduate::create($request->validated());
         $this->savePortrait($graduate, $request);
+        // The graduate form has no gallery-media picker yet, so media_ids is
+        // never actually submitted. Only touch the pivot when it is present —
+        // otherwise sync([]) would immediately detach the portrait that
+        // savePortrait() just attached (this is what was breaking every
+        // graduate profile photo on the public site).
+        if ($request->has('media_ids')) {
+            $this->syncMediaWithOrder($graduate, $request->input('media_ids', []));
+        }
         AuditLog::record('created', $graduate);
-        $this->syncMediaWithOrder($graduate, request()->input('media_ids', []));
         return redirect()->route('graduates.index');
     }
 
@@ -91,8 +101,13 @@ class GraduateController extends Controller
         $graduate = Graduate::findOrFail($id);
         $graduate->update($request->validated());
         $this->savePortrait($graduate, $request);
+        // See store(): don't wipe the existing media pivot (including the
+        // portrait) on every edit just because the form doesn't submit a
+        // media_ids field.
+        if ($request->has('media_ids')) {
+            $this->syncMediaWithOrder($graduate, $request->input('media_ids', []));
+        }
         AuditLog::record('updated', $graduate);
-        $this->syncMediaWithOrder($graduate, request()->input('media_ids', []));
         return redirect()->route('graduates.index');
     }
 
