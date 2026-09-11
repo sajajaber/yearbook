@@ -60,4 +60,9 @@ class Graduation extends Model
     {
         return $this->update(['status' => 'active']);
     }
+
+    public function graduates()
+    {
+        return $this->hasMany(Graduate::class);
+    }
 }

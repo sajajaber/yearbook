@@ -99,18 +99,48 @@ class PublicYearbookController extends Controller
 
     public function graduateDetail($id)
     {
-        $graduate = Graduate::where('publish_status', 'published')
+        $graduate = Graduate::with([
+            'media',
+            'school',
+            'major',
+            'campus',
+            'graduation.academicYear',
+        ])
+            ->where('id', $id)
+            ->where('publish_status', 'published')
             ->where('consent_status', 'granted')
-            ->with(['media', 'school', 'major', 'campus', 'graduation.academicYear'])
-            ->findOrFail($id);
-        $qrUrl = route('public.graduate.detail', $graduate->id);
-        return view('public.yearbook.graduate-detail', compact('graduate', 'qrUrl'));
+            ->firstOrFail();
+
+        $qrUrl = route('public.graduate.detail', [
+            'id' => $graduate->id,
+        ]);
+
+        return view('public.yearbook.graduate-detail', [
+            'graduate' => $graduate,
+            'qrUrl' => $qrUrl,
+        ]);
     }
 
     public function graduationDetail($id)
     {
-        $graduation = Graduation::with(['campuses', 'schools', 'graduates', 'media'])->findOrFail($id);
-        return view('public.yearbook.graduation-detail', ['graduation' => $graduation]);
+        $graduation = Graduation::with([
+            'campuses',
+            'schools',
+            'media',
+        ])->findOrFail($id);
+
+        $graduates = $graduation->graduates()
+            ->where('publish_status', 'published')
+            ->where('consent_status', 'granted')
+            ->with(['school', 'major', 'campus', 'media'])
+            ->orderBy('name')
+            ->paginate(12)
+            ->withQueryString();
+
+        return view('public.yearbook.graduation-detail', compact(
+            'graduation',
+            'graduates'
+        ));
     }
 
     public function events(Request $request)
