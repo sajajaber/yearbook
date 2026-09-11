@@ -13,6 +13,7 @@ use App\Models\AuditLog;
 use App\Models\AiGeneration;
 use App\Models\Media;
 use App\Services\GraduateAiService;
+use App\Services\ImageProcessor;
 use App\Http\Requests\StoreGraduateRequest;
 use App\Http\Requests\UpdateGraduateRequest;
 use App\Http\Controllers\Concerns\SyncsOrderedMedia;
@@ -26,10 +27,7 @@ class GraduateController extends Controller
         $isReviewer = auth()->user()->role?->role_name === 'reviewer';
 
         $query = Graduate::with(['school', 'major', 'campus', 'graduation', 'aiGenerations'])
-            ->when(
-                $isReviewer,
-                fn ($query) => $query->where('publish_status', '!=', 'draft')
-            )
+            ->when($isReviewer, fn ($query) => $query->where('publish_status', '!=', 'draft'))
             ->orderBy('name');
 
         $query->when($request->filled('status') && $request->status !== 'all', fn ($q) => $q->where('publish_status', $request->status));
@@ -49,8 +47,6 @@ class GraduateController extends Controller
 
         $graduates = $query->paginate(12)->withQueryString();
 
-        // Status counts must be calculated from the full dataset, not the current
-        // 12-record pagination page, otherwise the Published tab count is wrong.
         $statusCounts = Graduate::selectRaw('publish_status, COUNT(*) as total')
             ->when($isReviewer, fn ($query) => $query->where('publish_status', '!=', 'draft'))
             ->groupBy('publish_status')
@@ -176,10 +172,15 @@ class GraduateController extends Controller
     private function savePortrait(Graduate $graduate, Request $request): void
     {
         if (! $request->hasFile('portrait')) return;
+
         $portrait = $request->file('portrait');
+        $path = $portrait->store('media/portraits', 'public');
+        $thumbnailPath = app(ImageProcessor::class)->createThumbnail($path, 'public');
+
         $media = Media::create([
             'file_name' => $portrait->getClientOriginalName(),
-            'path' => $portrait->store('media/portraits', 'public'),
+            'path' => $path,
+            'thumbnail_path' => $thumbnailPath,
             'type' => 'image',
             'caption' => $graduate->name . ' profile photo',
             'alt_text' => 'Profile photo of ' . $graduate->name,
@@ -188,6 +189,7 @@ class GraduateController extends Controller
             'uploaded_by' => $request->user()->id,
             'checksum' => md5_file($portrait->getRealPath()),
         ]);
+
         $graduate->update(['portrait_media_id' => $media->id]);
         $graduate->media()->syncWithoutDetaching([$media->id => ['display_order' => 0]]);
     }
