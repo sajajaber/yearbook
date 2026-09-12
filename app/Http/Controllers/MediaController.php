@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Media;
+use App\Models\Event;
 use App\Models\AuditLog;
 use App\Services\MediaTypeResolver;
 use App\Services\ImageProcessor;
@@ -18,7 +19,7 @@ class MediaController extends Controller
         $search = request('search', '');
         $sortBy = request('sort', 'latest');
 
-        $mediaItems = Media::with(['portraitGraduates', 'graduates'])
+        $mediaItems = Media::with(['portraitGraduates', 'graduates', 'events'])
             ->when($filter === 'graduate-portraits', fn ($query) => $query->whereHas('portraitGraduates'))
             ->when($search, fn ($query) =>
                 $query->where('file_name', 'like', "%{$search}%")
@@ -28,11 +29,13 @@ class MediaController extends Controller
             ->when($sortBy === 'oldest', fn ($query) => $query->oldest())
             ->when($sortBy === 'name', fn ($query) => $query->orderBy('file_name'))
             ->when($sortBy === 'latest', fn ($query) => $query->latest())
-            ->paginate(12);
+            ->paginate(12)
+            ->withQueryString();
 
         $totalMedia = Media::count();
+        $events = Event::orderByDesc('event_date')->orderBy('title')->get(['id', 'title', 'event_date']);
 
-        return view('media.index', compact('mediaItems', 'filter', 'search', 'sortBy', 'totalMedia'));
+        return view('media.index', compact('mediaItems', 'filter', 'search', 'sortBy', 'totalMedia', 'events'));
     }
 
     public function create()
@@ -84,6 +87,36 @@ class MediaController extends Controller
         }
 
         return redirect()->route('media.index')->with('success', 'Media uploaded successfully');
+    }
+
+    public function attachToEvent(Request $request, string $id)
+    {
+        $validated = $request->validate([
+            'event_id' => 'required|integer|exists:events,id',
+        ]);
+
+        $mediaItem = Media::findOrFail($id);
+        if (! in_array($mediaItem->type, ['image', 'video'], true)) {
+            return redirect()->route('media.index')->with('error', 'Only images and videos can be attached to events.');
+        }
+
+        $event = Event::findOrFail($validated['event_id']);
+
+        if ($event->media()->whereKey($mediaItem->id)->exists()) {
+            return redirect()->route('media.index')->with('success', 'Media is already attached to that event.');
+        }
+
+        $lastOrder = $event->media()
+            ->orderByDesc('event_media.display_order')
+            ->value('event_media.display_order');
+
+        $event->media()->attach($mediaItem->id, [
+            'display_order' => is_null($lastOrder) ? 0 : ((int) $lastOrder + 1),
+        ]);
+
+        AuditLog::record('media_attached', $event);
+
+        return redirect()->route('media.index')->with('success', "{$mediaItem->file_name} was added to {$event->title}.");
     }
 
     public function edit(string $id)
