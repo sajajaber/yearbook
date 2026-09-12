@@ -31,6 +31,8 @@ class UpdateEventRequest extends FormRequest
             'location' => 'nullable|string|max:255',
             'status' => 'required|in:draft,reviewed,approved,published,archived,rejected',
             'featured' => 'nullable|boolean',
+            'media_ids' => 'nullable|array',
+            'media_ids.*' => 'integer|exists:media,id',
         ];
     }
 }
