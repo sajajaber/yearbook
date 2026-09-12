@@ -25,8 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
 /**
  * Rotate through every hero image selected by the admin.
  * Uses two stacked image layers so the outgoing image remains visible
- * underneath the incoming image during the cross-fade. This avoids the
- * brief dark/empty flash caused by changing the src of a single <img>.
+ * underneath the incoming image during a long, gentle cross-fade.
  */
 function initYearbookHeroSlideshow() {
     const wrapper = document.querySelector('.yearbook-wrapper');
@@ -77,19 +76,20 @@ function initYearbookHeroSlideshow() {
                 0
             );
 
-            // Create the second layer once. Both images stay mounted, which
-            // makes the transition a true cross-fade instead of a fade-out,
-            // src replacement, and fade-in sequence.
+            // Keep both images mounted. The incoming image fades in while the
+            // outgoing image fades out, so there is never an empty frame.
             const secondImage = firstImage.cloneNode(true);
             secondImage.removeAttribute('srcset');
             secondImage.removeAttribute('sizes');
             secondImage.classList.add('yb-hero-slideshow-layer');
             secondImage.style.opacity = '0';
             secondImage.style.zIndex = '1';
+            secondImage.style.willChange = 'opacity';
             secondImage.setAttribute('aria-hidden', 'true');
 
             firstImage.classList.add('yb-hero-slideshow-layer');
             firstImage.style.zIndex = '2';
+            firstImage.style.willChange = 'opacity';
 
             heroContainer.appendChild(secondImage);
 
@@ -97,8 +97,15 @@ function initYearbookHeroSlideshow() {
             let activeLayer = 0;
             let isChanging = false;
 
-            // Preload all selected images so the browser has them ready before
-            // they ever become visible.
+            // A single transition rule keeps the movement calm and consistent.
+            // Do not animate transform here because the existing hero parallax
+            // also controls transform on the active image.
+            layers.forEach((layer) => {
+                layer.style.transition = 'opacity 1800ms cubic-bezier(0.22, 0.61, 0.36, 1)';
+            });
+
+            // Preload all selected images so every transition is ready before
+            // the image becomes visible.
             urls.forEach((url) => {
                 const preload = new Image();
                 preload.src = url;
@@ -121,17 +128,14 @@ function initYearbookHeroSlideshow() {
 
                 nextImage.onload = () => {
                     incomingLayer.src = nextUrl;
-                    incomingLayer.style.transform = 'scale(1.035)';
                     incomingLayer.style.opacity = '0';
 
-                    // Wait until the new image is painted before starting the
-                    // fade. This prevents a visible blank frame.
+                    // Give the browser a frame to paint the new image before
+                    // starting the fade. This creates a true overlap.
                     requestAnimationFrame(() => {
                         requestAnimationFrame(() => {
                             incomingLayer.style.opacity = '1';
-                            incomingLayer.style.transform = 'scale(1)';
                             outgoingLayer.style.opacity = '0';
-                            outgoingLayer.style.transform = 'scale(1.015)';
                         });
                     });
 
@@ -139,7 +143,7 @@ function initYearbookHeroSlideshow() {
                         currentIndex = nextIndex;
                         activeLayer = incomingLayerIndex;
                         isChanging = false;
-                    }, 1250);
+                    }, 1850);
                 };
 
                 nextImage.onerror = () => {
