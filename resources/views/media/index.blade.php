@@ -63,6 +63,65 @@
       .media-card:hover .media-preview .media-img {
         transform: scale(1.035);
       }
+      .media-event-assignment {
+        margin-top: 16px;
+        padding: 14px;
+        border: 1px solid #d8e3ef;
+        border-radius: 14px;
+        background: #f7fbff;
+      }
+      .media-event-assignment-label {
+        display: block;
+        margin-bottom: 8px;
+        color: #002a5c;
+        font-size: .72rem;
+        font-weight: 800;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+      }
+      .media-event-assignment select {
+        width: 100%;
+        min-height: 82px;
+        padding: 8px 10px;
+        border: 1px solid #cbd8e6;
+        border-radius: 10px;
+        background: #fff;
+        color: #002a5c;
+        font-size: .82rem;
+      }
+      .media-event-assignment select:focus {
+        outline: 3px solid rgba(255,176,52,.18);
+        border-color: #ffb034;
+      }
+      .media-event-assignment-actions {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-top: 10px;
+      }
+      .media-event-current {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        margin-top: 8px;
+      }
+      .media-event-tag {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 8px;
+        border-radius: 999px;
+        background: #eaf2fb;
+        color: #002a5c;
+        font-size: .68rem;
+        font-weight: 700;
+      }
+      @media (max-width: 520px) {
+        .media-event-assignment-actions {
+          align-items: stretch;
+          flex-direction: column;
+        }
+      }
     </style>
 
     @if ($errors->any())
@@ -124,6 +183,34 @@
             @if ($fileSize)<span class="media-meta"><span class="meta-label">Size:</span> {{ number_format($fileSize / 1024, 0) }}KB</span>@endif
             @if ($mediaItem->uploader)<span class="media-meta"><span class="meta-label">By:</span> {{ $mediaItem->uploader->name }}</span>@endif
           </div>
+
+          @if ($mediaItem->events->isNotEmpty())
+          <div class="media-event-current" aria-label="Events using this media">
+            @foreach ($mediaItem->events as $event)
+              <span class="media-event-tag">{{ $event->title }}</span>
+            @endforeach
+          </div>
+          @endif
+
+          @if (in_array(Auth::user()->role?->role_name, ['admin', 'editor']))
+          <form action="{{ route('media.update', $mediaItem->id) }}" method="POST" class="media-event-assignment">
+            @csrf
+            @method('PUT')
+            <span class="media-event-assignment-label">Assign to event</span>
+            <select name="event_ids[]" multiple aria-label="Events assigned to {{ $mediaItem->file_name }}">
+              @foreach ($events as $event)
+                <option value="{{ $event->id }}" @selected($mediaItem->events->contains('id', $event->id))>
+                  {{ $event->title }}{{ $event->event_date ? ' · ' . \Carbon\Carbon::parse($event->event_date)->format('M d, Y') : '' }}
+                </option>
+              @endforeach
+            </select>
+            <div class="media-event-assignment-actions">
+              <span class="media-meta">Hold Ctrl/Cmd to select multiple.</span>
+              <button type="submit" class="button button-navy button-small">Save events</button>
+            </div>
+          </form>
+          @endif
+
           @if ($mediaItem->portraitGraduates->isNotEmpty())
           <div class="portrait-links" role="group" aria-label="Associated graduates"><span class="portrait-links-title">Graduate profile</span>@foreach ($mediaItem->portraitGraduates as $graduate)<a href="{{ route('graduates.edit', $graduate) }}" class="portrait-link">{{ $graduate->name }} <span aria-hidden="true">→</span></a>@endforeach</div>
           @endif

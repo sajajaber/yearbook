@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Media;
+use App\Models\Event;
 use App\Models\AuditLog;
 use App\Services\MediaTypeResolver;
 use App\Services\ImageProcessor;
@@ -18,7 +19,7 @@ class MediaController extends Controller
         $search = request('search', '');
         $sortBy = request('sort', 'latest');
         
-        $mediaItems = Media::with(['portraitGraduates', 'graduates'])
+        $mediaItems = Media::with(['portraitGraduates', 'graduates', 'events'])
             ->when($filter === 'graduate-portraits', fn ($query) => $query->whereHas('portraitGraduates'))
             ->when($search, fn ($query) => 
                 $query->where('file_name', 'like', "%{$search}%")
@@ -31,8 +32,9 @@ class MediaController extends Controller
             ->paginate(12);
 
         $totalMedia = Media::count();
+        $events = Event::orderByDesc('event_date')->orderBy('title')->get(['id', 'title', 'event_date', 'status']);
 
-        return view('media.index', compact('mediaItems', 'filter', 'search', 'sortBy', 'totalMedia'));
+        return view('media.index', compact('mediaItems', 'filter', 'search', 'sortBy', 'totalMedia', 'events'));
     }
 
     public function create()
@@ -95,8 +97,10 @@ class MediaController extends Controller
 
     public function edit(string $id)
     {
-        $mediaItem = Media::findOrFail($id);
-        return view('media.edit', ['mediaItem' => $mediaItem]);
+        $mediaItem = Media::with('events')->findOrFail($id);
+        $events = Event::orderByDesc('event_date')->orderBy('title')->get(['id', 'title', 'event_date', 'status']);
+
+        return view('media.edit', compact('mediaItem', 'events'));
     }
 
     public function update(Request $request, string $id)
@@ -107,12 +111,20 @@ class MediaController extends Controller
             'caption' => 'nullable|string|max:255',
             'alt_text' => 'nullable|string|max:255',
             'credit' => 'nullable|string|max:255',
+            'event_ids' => 'nullable|array',
+            'event_ids.*' => 'integer|exists:events,id',
         ]);
 
-        $mediaItem->update($validated);
+        $mediaItem->update([
+            'caption' => $validated['caption'] ?? $mediaItem->caption,
+            'alt_text' => $validated['alt_text'] ?? $mediaItem->alt_text,
+            'credit' => $validated['credit'] ?? $mediaItem->credit,
+        ]);
+
+        $mediaItem->events()->sync($validated['event_ids'] ?? []);
         AuditLog::record('updated', $mediaItem);
 
-        return redirect()->route('media.index');
+        return redirect()->route('media.index')->with('success', 'Media updated successfully.');
     }
 
     public function destroy(string $id, ImageProcessor $imageProcessor)

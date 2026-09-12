@@ -8,6 +8,7 @@ use App\Models\AcademicYear;
 use App\Models\EventCategory;
 use App\Models\Campus;
 use App\Models\School;
+use App\Models\Media;
 use App\Models\AuditLog;
 use App\Services\EventAiService;
 use App\Models\AiGeneration;
@@ -56,8 +57,9 @@ class EventController extends Controller
         $categories = EventCategory::all();
         $campuses = Campus::all();
         $schools = School::all();
+        $mediaItems = Media::orderByDesc('created_at')->orderBy('file_name')->get();
 
-        return view('events.create', compact('academicYears', 'categories', 'campuses', 'schools'));
+        return view('events.create', compact('academicYears', 'categories', 'campuses', 'schools', 'mediaItems'));
     }
 
     public function edit(string $id)
@@ -67,8 +69,9 @@ class EventController extends Controller
         $categories = EventCategory::all();
         $campuses = Campus::all();
         $schools = School::all();
+        $mediaItems = Media::orderByDesc('created_at')->orderBy('file_name')->get();
 
-        return view('events.edit', compact('event', 'academicYears', 'categories', 'campuses', 'schools'));
+        return view('events.edit', compact('event', 'academicYears', 'categories', 'campuses', 'schools', 'mediaItems'));
     }
 
     public function store(StoreEventRequest $request)

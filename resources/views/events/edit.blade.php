@@ -33,6 +33,7 @@
                     </div>
                 </section>
                 @include('events._coverage', ['selectedCampuses' => $event->campuses->pluck('id')->all(), 'selectedSchools' => $event->schools->pluck('id')->all()])
+                @include('events._media', ['selectedMediaIds' => $event->media->pluck('id')->all()])
             </div>
             <aside class="form-aside">
                 <section class="portrait-upload event-note">
