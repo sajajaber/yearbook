@@ -1,4 +1,5 @@
 @php($isAdmin = Auth::user()->role?->role_name === 'admin')
+@php($canManageMedia = in_array(Auth::user()->role?->role_name, ['admin', 'editor'], true))
 <x-app-layout>
     <x-slot name="header">
         <div class="dashboard-heading event-heading">
@@ -33,6 +34,26 @@
                     </div>
                 </section>
                 @include('events._coverage', ['selectedCampuses' => $event->campuses->pluck('id')->all(), 'selectedSchools' => $event->schools->pluck('id')->all()])
+                @if ($canManageMedia)
+                    @include('events._media-picker', ['selectedMediaIds' => old('media_ids', $event->media->pluck('id')->all())])
+                @else
+                    <section class="form-section event-media-section">
+                        <div class="form-section-heading"><p class="eyebrow">Event media</p><h2>Attached visual story.</h2></div>
+                        <p class="upload-note">Only administrators and editors can change event media assignments.</p>
+                        @if ($event->media->isNotEmpty())
+                            <div class="event-media-grid">
+                                @foreach ($event->media as $mediaItem)
+                                    <div class="event-media-choice is-selected">
+                                        <span class="event-media-thumb">@if($mediaItem->type === 'image')<img src="{{ $mediaItem->thumbnailUrl() }}" alt="{{ $mediaItem->alt_text ?? $mediaItem->file_name }}">@else<span class="event-media-video-icon">▶</span>@endif</span>
+                                        <span class="event-media-info"><strong>{{ $mediaItem->file_name }}</strong><small>{{ ucfirst($mediaItem->type) }}</small></span>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <p class="upload-note">No media is currently assigned to this event.</p>
+                        @endif
+                    </section>
+                @endif
             </div>
             <aside class="form-aside">
                 <section class="portrait-upload event-note">
