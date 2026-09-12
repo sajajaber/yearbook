@@ -77,8 +77,6 @@ function initYearbookHeroSlideshow() {
                 0
             );
 
-            // Keep both images mounted. The incoming image fades in while the
-            // outgoing image fades out, so there is never an empty frame.
             const secondImage = firstImage.cloneNode(true);
             secondImage.removeAttribute('srcset');
             secondImage.removeAttribute('sizes');
@@ -98,15 +96,10 @@ function initYearbookHeroSlideshow() {
             let activeLayer = 0;
             let isChanging = false;
 
-            // A single transition rule keeps the movement calm and consistent.
-            // Do not animate transform here because the existing hero parallax
-            // also controls transform on the active image.
             layers.forEach((layer) => {
                 layer.style.transition = 'opacity 1800ms cubic-bezier(0.22, 0.61, 0.36, 1)';
             });
 
-            // Preload all selected images so every transition is ready before
-            // the image becomes visible.
             urls.forEach((url) => {
                 const preload = new Image();
                 preload.src = url;
@@ -131,8 +124,6 @@ function initYearbookHeroSlideshow() {
                     incomingLayer.src = nextUrl;
                     incomingLayer.style.opacity = '0';
 
-                    // Give the browser a frame to paint the new image before
-                    // starting the fade. This creates a true overlap.
                     requestAnimationFrame(() => {
                         requestAnimationFrame(() => {
                             incomingLayer.style.opacity = '1';
@@ -163,19 +154,39 @@ function initYearbookHeroSlideshow() {
 
 /**
  * Allow administrators to control the exact order of selected hero images.
- * The existing settings page already renders a "Current order" preview and
- * selectable images as checkboxes. The preview becomes a drag-and-drop
- * ordering surface, and the selected checkbox labels are reordered to match.
- * The existing media_ids[] submission therefore preserves the chosen order
- * without changing the backend contract.
+ * The existing settings page renders the selected images as a "Current order"
+ * preview and the selectable images as checkboxes. The preview becomes a
+ * drag-and-drop ordering surface, while the existing media_ids[] submission
+ * preserves the resulting order without changing the backend contract.
  */
 function initHeroImageOrdering() {
     const form = document.querySelector('#hero-images-form');
-    const preview = document.querySelector('#hero-order-preview');
     const choices = document.querySelector('#hero-images-choices');
 
-    if (!form || !preview || !choices) {
+    if (!form || !choices) {
         return;
+    }
+
+    let preview = document.querySelector('#hero-order-preview');
+
+    // When no hero image has been selected yet, the Blade template does not
+    // render a preview. Create it dynamically so the first selected image can
+    // immediately be added to the ordering interface.
+    if (!preview) {
+        const label = document.createElement('p');
+        label.className = 'form-field-label';
+        label.style.marginBottom = '10px';
+        label.textContent = 'Current order';
+
+        preview = document.createElement('div');
+        preview.id = 'hero-order-preview';
+        preview.style.display = 'flex';
+        preview.style.gap = '10px';
+        preview.style.flexWrap = 'wrap';
+        preview.style.marginBottom = '28px';
+
+        form.insertBefore(label, choices);
+        form.insertBefore(preview, choices);
     }
 
     let draggedCard = null;
@@ -401,8 +412,6 @@ function initHeroImageOrdering() {
         refreshNumbers();
     };
 
-    // Enhance the server-rendered current order first so the saved order is
-    // shown exactly as it exists in hero_images.display_order.
     Array.from(preview.children).forEach(decorateCard);
     refreshNumbers();
 
