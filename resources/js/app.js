@@ -24,16 +24,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
 /**
  * Rotate through every hero image selected by the admin.
- *
- * The public home page initially renders the first selected image.
- * We fetch the complete ordered hero-image set and then replace the
- * image every 3 seconds with a soft cross-fade.
+ * Uses two stacked image layers so the outgoing image remains visible
+ * underneath the incoming image during the cross-fade. This avoids the
+ * brief dark/empty flash caused by changing the src of a single <img>.
  */
 function initYearbookHeroSlideshow() {
     const wrapper = document.querySelector('.yearbook-wrapper');
-    const heroImage = wrapper?.querySelector('.yb-cover-image img');
+    const heroContainer = wrapper?.querySelector('.yb-cover-image');
+    const firstImage = heroContainer?.querySelector('img');
 
-    if (!wrapper || !heroImage) {
+    if (!wrapper || !heroContainer || !firstImage) {
         return;
     }
 
@@ -52,7 +52,7 @@ function initYearbookHeroSlideshow() {
             return response.json();
         })
         .then((images) => {
-            if (!Array.isArray(images) || images.length <= 1) {
+            if (!Array.isArray(images)) {
                 return;
             }
 
@@ -64,16 +64,45 @@ function initYearbookHeroSlideshow() {
                 return;
             }
 
-            let currentIndex = 0;
+            const prefersReducedMotion = window.matchMedia(
+                '(prefers-reduced-motion: reduce)'
+            ).matches;
+
+            if (prefersReducedMotion) {
+                return;
+            }
+
+            let currentIndex = Math.max(
+                urls.indexOf(firstImage.currentSrc || firstImage.src),
+                0
+            );
+
+            // Create the second layer once. Both images stay mounted, which
+            // makes the transition a true cross-fade instead of a fade-out,
+            // src replacement, and fade-in sequence.
+            const secondImage = firstImage.cloneNode(true);
+            secondImage.removeAttribute('srcset');
+            secondImage.removeAttribute('sizes');
+            secondImage.classList.add('yb-hero-slideshow-layer');
+            secondImage.style.opacity = '0';
+            secondImage.style.zIndex = '1';
+            secondImage.setAttribute('aria-hidden', 'true');
+
+            firstImage.classList.add('yb-hero-slideshow-layer');
+            firstImage.style.zIndex = '2';
+
+            heroContainer.appendChild(secondImage);
+
+            const layers = [firstImage, secondImage];
+            let activeLayer = 0;
             let isChanging = false;
 
-            // Preload every selected image so transitions do not flash.
+            // Preload all selected images so the browser has them ready before
+            // they ever become visible.
             urls.forEach((url) => {
                 const preload = new Image();
                 preload.src = url;
             });
-
-            heroImage.style.transition = 'opacity 700ms ease, transform 1.2s cubic-bezier(.16, 1, .3, 1), filter 700ms ease';
 
             const showNextImage = () => {
                 if (isChanging) {
@@ -81,44 +110,44 @@ function initYearbookHeroSlideshow() {
                 }
 
                 isChanging = true;
-                currentIndex = (currentIndex + 1) % urls.length;
-                const nextUrl = urls[currentIndex];
 
-                heroImage.style.opacity = '0';
-                heroImage.style.filter = 'saturate(.65) brightness(.85)';
+                const nextIndex = (currentIndex + 1) % urls.length;
+                const nextUrl = urls[nextIndex];
+                const incomingLayerIndex = activeLayer === 0 ? 1 : 0;
+                const incomingLayer = layers[incomingLayerIndex];
+                const outgoingLayer = layers[activeLayer];
 
                 const nextImage = new Image();
 
                 nextImage.onload = () => {
-                    heroImage.src = nextUrl;
+                    incomingLayer.src = nextUrl;
+                    incomingLayer.style.transform = 'scale(1.035)';
+                    incomingLayer.style.opacity = '0';
 
+                    // Wait until the new image is painted before starting the
+                    // fade. This prevents a visible blank frame.
                     requestAnimationFrame(() => {
-                        heroImage.style.opacity = '1';
-                        heroImage.style.filter = 'saturate(.82) brightness(1)';
+                        requestAnimationFrame(() => {
+                            incomingLayer.style.opacity = '1';
+                            incomingLayer.style.transform = 'scale(1)';
+                            outgoingLayer.style.opacity = '0';
+                            outgoingLayer.style.transform = 'scale(1.015)';
+                        });
                     });
 
-                    setTimeout(() => {
+                    window.setTimeout(() => {
+                        currentIndex = nextIndex;
+                        activeLayer = incomingLayerIndex;
                         isChanging = false;
-                    }, 750);
+                    }, 1250);
                 };
 
                 nextImage.onerror = () => {
-                    heroImage.style.opacity = '1';
-                    heroImage.style.filter = 'saturate(.82) brightness(1)';
                     isChanging = false;
                 };
 
                 nextImage.src = nextUrl;
             };
-
-            const prefersReducedMotion = window.matchMedia(
-                '(prefers-reduced-motion: reduce)'
-            ).matches;
-
-            // Respect accessibility preferences. The hero remains static.
-            if (prefersReducedMotion) {
-                return;
-            }
 
             window.setInterval(showNextImage, 3000);
         })
