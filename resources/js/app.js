@@ -20,6 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
     initScrollProgress();
 
     initYearbookHeroSlideshow();
+    initHeroImageOrdering();
 });
 
 /**
@@ -158,4 +159,276 @@ function initYearbookHeroSlideshow() {
         .catch((error) => {
             console.warn('Yearbook hero slideshow could not be initialized.', error);
         });
+}
+
+/**
+ * Allow administrators to control the exact order of selected hero images.
+ * The existing settings page already renders a "Current order" preview and
+ * selectable images as checkboxes. The preview becomes a drag-and-drop
+ * ordering surface, and the selected checkbox labels are reordered to match.
+ * The existing media_ids[] submission therefore preserves the chosen order
+ * without changing the backend contract.
+ */
+function initHeroImageOrdering() {
+    const form = document.querySelector('#hero-images-form');
+    const preview = document.querySelector('#hero-order-preview');
+    const choices = document.querySelector('#hero-images-choices');
+
+    if (!form || !preview || !choices) {
+        return;
+    }
+
+    let draggedCard = null;
+
+    const normalizeUrl = (value) => {
+        try {
+            return new URL(value, window.location.origin).pathname;
+        } catch {
+            return value;
+        }
+    };
+
+    const getCardUrl = (card) => {
+        const image = card?.querySelector('img');
+        return image ? normalizeUrl(image.currentSrc || image.src) : null;
+    };
+
+    const getChoiceUrl = (choice) => {
+        const image = choice?.querySelector('img');
+        return image ? normalizeUrl(image.currentSrc || image.src) : null;
+    };
+
+    const findChoiceForCard = (card) => {
+        const url = getCardUrl(card);
+
+        if (!url) {
+            return null;
+        }
+
+        return Array.from(choices.querySelectorAll('label.choice-item'))
+            .find((choice) => {
+                const checkbox = choice.querySelector('input[type="checkbox"][name="media_ids[]"]');
+                return checkbox?.checked && getChoiceUrl(choice) === url;
+            }) || null;
+    };
+
+    const refreshNumbers = () => {
+        Array.from(preview.children).forEach((card, index) => {
+            const number = card.querySelector('[data-hero-order-number]');
+
+            if (number) {
+                number.textContent = `#${index + 1}`;
+            }
+        });
+    };
+
+    const syncChoiceOrder = () => {
+        Array.from(preview.children).forEach((card) => {
+            const choice = findChoiceForCard(card);
+
+            if (choice) {
+                choices.appendChild(choice);
+            }
+        });
+    };
+
+    const moveCard = (card, direction) => {
+        if (!card) {
+            return;
+        }
+
+        if (direction === 'up' && card.previousElementSibling) {
+            preview.insertBefore(card, card.previousElementSibling);
+        }
+
+        if (direction === 'down' && card.nextElementSibling) {
+            preview.insertBefore(card.nextElementSibling, card);
+        }
+
+        refreshNumbers();
+        syncChoiceOrder();
+    };
+
+    const decorateCard = (card) => {
+        if (card.dataset.heroOrderingReady === 'true') {
+            return;
+        }
+
+        card.dataset.heroOrderingReady = 'true';
+        card.draggable = true;
+        card.style.position = 'relative';
+        card.style.cursor = 'grab';
+        card.style.padding = '8px';
+        card.style.border = '1px solid var(--line)';
+        card.style.borderRadius = '8px';
+        card.style.background = '#ffffff';
+        card.style.boxShadow = '0 4px 12px rgba(0, 42, 92, 0.06)';
+        card.style.transition = 'transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease';
+
+        const image = card.querySelector('img');
+        if (image) {
+            image.style.display = 'block';
+            image.style.width = '100px';
+            image.style.height = '70px';
+            image.style.objectFit = 'cover';
+            image.style.borderRadius = '6px';
+        }
+
+        const number = card.querySelector('span');
+        if (number) {
+            number.dataset.heroOrderNumber = 'true';
+            number.style.fontWeight = '700';
+            number.style.letterSpacing = '.4px';
+        }
+
+        const controls = document.createElement('div');
+        controls.style.display = 'flex';
+        controls.style.alignItems = 'center';
+        controls.style.justifyContent = 'center';
+        controls.style.gap = '4px';
+        controls.style.marginTop = '6px';
+
+        const makeButton = (label, title, direction) => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.textContent = label;
+            button.title = title;
+            button.setAttribute('aria-label', title);
+            button.style.width = '28px';
+            button.style.height = '26px';
+            button.style.padding = '0';
+            button.style.border = '1px solid var(--line)';
+            button.style.borderRadius = '5px';
+            button.style.background = '#f7fbff';
+            button.style.color = 'var(--ink)';
+            button.style.cursor = 'pointer';
+            button.style.fontWeight = '700';
+            button.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                moveCard(card, direction);
+            });
+            return button;
+        };
+
+        controls.appendChild(makeButton('←', 'Move image left', 'up'));
+        controls.appendChild(makeButton('→', 'Move image right', 'down'));
+        card.appendChild(controls);
+
+        card.addEventListener('dragstart', (event) => {
+            draggedCard = card;
+            card.style.opacity = '0.55';
+            card.style.transform = 'scale(.98)';
+            event.dataTransfer.effectAllowed = 'move';
+            event.dataTransfer.setData('text/plain', 'hero-image');
+        });
+
+        card.addEventListener('dragend', () => {
+            card.style.opacity = '1';
+            card.style.transform = '';
+            draggedCard = null;
+            refreshNumbers();
+            syncChoiceOrder();
+        });
+
+        card.addEventListener('dragover', (event) => {
+            event.preventDefault();
+
+            if (!draggedCard || draggedCard === card) {
+                return;
+            }
+
+            const rect = card.getBoundingClientRect();
+            const insertAfter = event.clientX > rect.left + rect.width / 2;
+
+            if (insertAfter) {
+                preview.insertBefore(draggedCard, card.nextSibling);
+            } else {
+                preview.insertBefore(draggedCard, card);
+            }
+
+            refreshNumbers();
+        });
+    };
+
+    const addPreviewCard = (choice) => {
+        const image = choice.querySelector('img');
+        const checkbox = choice.querySelector('input[type="checkbox"][name="media_ids[]"]');
+
+        if (!image || !checkbox) {
+            return;
+        }
+
+        const card = document.createElement('div');
+        card.style.width = '116px';
+        card.style.textAlign = 'center';
+
+        const previewImage = document.createElement('img');
+        previewImage.src = image.currentSrc || image.src;
+        previewImage.alt = image.alt || checkbox.value;
+        previewImage.loading = 'lazy';
+        previewImage.style.width = '100px';
+        previewImage.style.height = '70px';
+        previewImage.style.objectFit = 'cover';
+        previewImage.style.borderRadius = '6px';
+        previewImage.style.border = '1px solid var(--line)';
+
+        const number = document.createElement('span');
+        number.dataset.heroOrderNumber = 'true';
+        number.style.display = 'block';
+        number.style.fontSize = '10px';
+        number.style.color = 'var(--ink-soft)';
+        number.style.marginTop = '4px';
+
+        card.appendChild(previewImage);
+        card.appendChild(number);
+        preview.appendChild(card);
+        decorateCard(card);
+        refreshNumbers();
+    };
+
+    const removePreviewCard = (choice) => {
+        const url = getChoiceUrl(choice);
+
+        if (!url) {
+            return;
+        }
+
+        const card = Array.from(preview.children)
+            .find((candidate) => getCardUrl(candidate) === url);
+
+        card?.remove();
+        refreshNumbers();
+    };
+
+    // Enhance the server-rendered current order first so the saved order is
+    // shown exactly as it exists in hero_images.display_order.
+    Array.from(preview.children).forEach(decorateCard);
+    refreshNumbers();
+
+    choices.addEventListener('change', (event) => {
+        const checkbox = event.target.closest('input[type="checkbox"][name="media_ids[]"]');
+
+        if (!checkbox) {
+            return;
+        }
+
+        const choice = checkbox.closest('label.choice-item');
+
+        if (!choice) {
+            return;
+        }
+
+        if (checkbox.checked) {
+            addPreviewCard(choice);
+        } else {
+            removePreviewCard(choice);
+        }
+
+        syncChoiceOrder();
+    });
+
+    form.addEventListener('submit', () => {
+        syncChoiceOrder();
+    });
 }
