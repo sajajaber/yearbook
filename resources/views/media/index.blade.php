@@ -14,55 +14,24 @@
 
   <div class="dashboard-wrap media-wrap">
     <style>
-      .media-empty-state {
-        min-height: 360px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        padding: 56px 24px;
-        border: 1px dashed #cbd8e6;
-        border-radius: 24px;
-        background: linear-gradient(180deg, #fff 0%, #f7fbff 100%);
-        text-align: center;
-      }
-      .media-empty-icon {
-        width: 72px;
-        height: 72px;
-        display: grid;
-        place-items: center;
-        margin-bottom: 8px;
-        border-radius: 20px;
-        background: #eaf2fb;
-        color: #002a5c;
-      }
-      .media-empty-state h3 {
-        margin: 0;
-        color: #002a5c;
-        font-size: 1.25rem;
-        font-weight: 800;
-      }
-      .media-empty-state p {
-        max-width: 430px;
-        margin: 0 0 12px;
-        color: #64748b;
-        line-height: 1.7;
-      }
-      .media-preview {
-        overflow: hidden;
-        aspect-ratio: 4 / 3;
-      }
-      .media-preview .media-img {
-        width: 100%;
-        height: 100%;
-        display: block;
-        object-fit: cover;
-        transition: transform .45s cubic-bezier(.16,1,.3,1), opacity .3s ease;
-      }
-      .media-card:hover .media-preview .media-img {
-        transform: scale(1.035);
-      }
+      .media-empty-state { min-height:360px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; padding:56px 24px; border:1px dashed #cbd8e6; border-radius:24px; background:linear-gradient(180deg,#fff 0%,#f7fbff 100%); text-align:center; }
+      .media-empty-icon { width:72px; height:72px; display:grid; place-items:center; margin-bottom:8px; border-radius:20px; background:#eaf2fb; color:#002a5c; }
+      .media-empty-state h3 { margin:0; color:#002a5c; font-size:1.25rem; font-weight:800; }
+      .media-empty-state p { max-width:430px; margin:0 0 12px; color:#64748b; line-height:1.7; }
+      .media-preview { overflow:hidden; aspect-ratio:4/3; }
+      .media-preview .media-img { width:100%; height:100%; display:block; object-fit:cover; transition:transform .45s cubic-bezier(.16,1,.3,1),opacity .3s ease; }
+      .media-card:hover .media-preview .media-img { transform:scale(1.035); }
+      .media-event-links { display:flex; flex-direction:column; gap:7px; margin-top:14px; padding:13px; border:1px solid #d8e3ef; border-radius:13px; background:#f7fbff; }
+      .media-event-links-title { color:#002a5c; font-size:.68rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+      .media-event-link { color:#315477; font-size:.78rem; font-weight:700; text-decoration:none; }
+      .media-event-link:hover { color:#002a5c; text-decoration:underline; }
+      .media-attach { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:8px; align-items:end; margin-top:12px; padding-top:12px; border-top:1px solid #d8e3ef; }
+      .media-attach label { display:flex; flex-direction:column; gap:5px; min-width:0; }
+      .media-attach label span { color:#64748b; font-size:.68rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase; }
+      .media-attach select { width:100%; min-width:0; padding:9px 10px; border:1px solid #cbd8e6; border-radius:9px; background:#fff; color:#002a5c; font-size:.76rem; }
+      .media-attach button { min-height:38px; border:0; border-radius:9px; padding:0 12px; background:#002a5c; color:#fff; font-size:.74rem; font-weight:800; cursor:pointer; transition:transform .2s ease,box-shadow .2s ease,background .2s ease; }
+      .media-attach button:hover { transform:translateY(-2px); background:#073972; box-shadow:0 7px 18px rgba(0,42,92,.16); }
+      @media (max-width:600px) { .media-attach { grid-template-columns:1fr; } }
     </style>
 
     @if ($errors->any())
@@ -92,9 +61,7 @@
 
     @if ($mediaItems->isEmpty())
     <div class="media-empty-state">
-      <div class="media-empty-icon" aria-hidden="true">
-        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-4.5-4.5L8 19"/></svg>
-      </div>
+      <div class="media-empty-icon" aria-hidden="true"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-4.5-4.5L8 19"/></svg></div>
       <h3>No media found</h3>
       <p>There are no media assets matching the current filter or search. Upload a photo to start building the yearbook archive.</p>
       @if (in_array(Auth::user()->role?->role_name, ['admin', 'editor']))
@@ -109,7 +76,7 @@
           @if ($mediaItem->type === 'image')
           <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 200'%3E%3Crect fill='%23e7f0fa' width='300' height='200'/%3E%3C/svg%3E" data-src="{{ $mediaItem->thumbnailUrl() }}" alt="{{ $mediaItem->alt_text ?? $mediaItem->file_name }}" class="media-img lazy" loading="lazy">
           @elseif ($mediaItem->type === 'video')
-          <div class="media-video-placeholder"><svg class="video-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg><p>Video</p></div><video controls class="media-video" style="display: none;" preload="metadata"><source src="{{ asset('storage/' . $mediaItem->path) }}">{{ __('Your browser does not support video playback.') }}</video>
+          <div class="media-video-placeholder"><svg class="video-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg><p>Video</p></div><video controls class="media-video" style="display:none;" preload="metadata"><source src="{{ asset('storage/' . $mediaItem->path) }}">{{ __('Your browser does not support video playback.') }}</video>
           @elseif ($mediaItem->type === 'document')
           <a href="{{ asset('storage/' . $mediaItem->path) }}" target="_blank" rel="noopener noreferrer" class="media-document-link" aria-label="Open document: {{ $mediaItem->file_name }}"><svg class="document-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-8-6z"/></svg><p>{{ strtoupper(pathinfo($mediaItem->file_name, PATHINFO_EXTENSION)) }}</p></a>
           @endif
@@ -124,9 +91,36 @@
             @if ($fileSize)<span class="media-meta"><span class="meta-label">Size:</span> {{ number_format($fileSize / 1024, 0) }}KB</span>@endif
             @if ($mediaItem->uploader)<span class="media-meta"><span class="meta-label">By:</span> {{ $mediaItem->uploader->name }}</span>@endif
           </div>
+
           @if ($mediaItem->portraitGraduates->isNotEmpty())
           <div class="portrait-links" role="group" aria-label="Associated graduates"><span class="portrait-links-title">Graduate profile</span>@foreach ($mediaItem->portraitGraduates as $graduate)<a href="{{ route('graduates.edit', $graduate) }}" class="portrait-link">{{ $graduate->name }} <span aria-hidden="true">→</span></a>@endforeach</div>
           @endif
+
+          @if ($mediaItem->events->isNotEmpty())
+          <div class="media-event-links" role="group" aria-label="Associated events">
+            <span class="media-event-links-title">Events</span>
+            @foreach ($mediaItem->events as $event)
+              <a href="{{ route('events.edit', $event) }}" class="media-event-link">{{ $event->title }} <span aria-hidden="true">→</span></a>
+            @endforeach
+          </div>
+          @endif
+
+          @if (in_array(Auth::user()->role?->role_name, ['admin', 'editor']))
+          <form action="{{ route('media.attach-event', $mediaItem->id) }}" method="POST" class="media-attach">
+            @csrf
+            <label>
+              <span>Add to event</span>
+              <select name="event_id" required aria-label="Choose event for {{ $mediaItem->file_name }}">
+                <option value="">Choose an event</option>
+                @foreach ($events as $event)
+                  <option value="{{ $event->id }}">{{ $event->title }}{{ $event->event_date ? ' · ' . $event->event_date->format('M d, Y') : '' }}</option>
+                @endforeach
+              </select>
+            </label>
+            <button type="submit">Add</button>
+          </form>
+          @endif
+
           @if (in_array(Auth::user()->role?->role_name, ['admin', 'editor']))
           <div class="media-actions" role="group" aria-label="Media actions"><a href="{{ route('media.edit', $mediaItem->id) }}" class="button button-navy button-small">Edit</a><form action="{{ route('media.destroy', $mediaItem->id) }}" method="POST" class="media-delete-form" onsubmit="return confirm('Are you sure you want to delete this media?');">@csrf @method('DELETE')<button type="submit" class="action-button action-button-small">Delete</button></form></div>
           @endif
