@@ -17,6 +17,7 @@ use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PublicYearbookController;
 use App\Http\Controllers\YearbookPdfController;
+use App\Models\HeroImage;
 use Illuminate\Support\Facades\Route;
 
 
@@ -30,6 +31,17 @@ Route::get('/', [PublicYearbookController::class, 'index'])->name('public.home')
 
 Route::prefix('yearbook')->name('public.')->group(function () {
   Route::get('/', [PublicYearbookController::class, 'archive'])->name('archive');
+
+  // Ordered hero images selected by the administrator for the public homepage.
+  Route::get('/hero-images', function () {
+    return HeroImage::orderedMedia()
+      ->map(fn ($media) => [
+        'id' => $media->id,
+        'url' => asset('storage/' . $media->path),
+      ])
+      ->values();
+  })->name('hero-images');
+
   Route::get('/events/{id}', [PublicYearbookController::class, 'eventDetail'])->name('event.detail');
   Route::get('/events', [PublicYearbookController::class, 'events'])->name('events');
   Route::get('/graduates', [PublicYearbookController::class, 'graduates'])->name('graduates');
