@@ -38,14 +38,27 @@
             <div class="selection-heading"><span class="form-field-label">Schools</span><label class="select-all"><input type="checkbox" data-select-all="graduation-edit-schools" @checked(count(old('school_ids', $graduation->schools->pluck('id')->all())) === $schools->count() && $schools->count() > 0)><span>Select all schools</span></label><small>Choose the schools included in this edition.</small></div>
             <div class="choice-grid" data-select-group="graduation-edit-schools">@foreach ($schools as $school)<label class="choice-item"><input type="checkbox" name="school_ids[]" value="{{ $school->id }}" @checked(in_array($school->id, old('school_ids', $graduation->schools->pluck('id')->all())))><span>{{ $school->name }}</span></label>@endforeach</div>
           </div>
-          <script>document.querySelectorAll('[data-select-all]').forEach(selectAll => { const group = document.querySelector(`[data-select-group="${selectAll.dataset.selectAll}"]`); if (!group) return; const choices = group.querySelectorAll('input[type="checkbox"]'); selectAll.addEventListener('change', () => choices.forEach(choice => choice.checked = selectAll.checked)); choices.forEach(choice => choice.addEventListener('change', () => { selectAll.checked = Array.from(choices).every(item => item.checked); })); });</script>
         </section>
+
+        @include('graduations._media', ['selectedMediaIds' => $selectedMediaIds ?? $graduation->media->pluck('id')->all()])
       </div>
 
       <aside class="form-aside">
-        <section class="portrait-upload graduation-note"><p class="eyebrow">Edition setup</p><h2>Keep the details current.</h2><p>Update the ceremony information and coverage for this graduation edition.</p></section>
+        <section class="portrait-upload graduation-note"><p class="eyebrow">Edition setup</p><h2>Keep the details current.</h2><p>Update the ceremony information, coverage, and media assigned to this graduation edition.</p></section>
         <div class="form-actions"><a href="{{ route('graduations.index') }}" class="button button-muted">Cancel</a><button type="submit" class="button button-navy">Update graduation <span aria-hidden="true">→</span></button></div>
       </aside>
     </form>
   </div>
+
+  <script>
+    document.querySelectorAll('[data-select-all]').forEach(selectAll => {
+      const group = document.querySelector(`[data-select-group="${selectAll.dataset.selectAll}"]`);
+      if (!group) return;
+      const choices = group.querySelectorAll('input[type="checkbox"]');
+      selectAll.addEventListener('change', () => choices.forEach(choice => choice.checked = selectAll.checked));
+      choices.forEach(choice => choice.addEventListener('change', () => {
+        selectAll.checked = Array.from(choices).every(item => item.checked);
+      }));
+    });
+  </script>
 </x-app-layout>
