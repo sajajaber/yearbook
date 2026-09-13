@@ -5,7 +5,7 @@ namespace App\Support;
 class RichText
 {
     /**
-     * Keep only the small formatting vocabulary used by the yearbook editor.
+     * Keep only the formatting vocabulary used by the yearbook editor.
      * Attributes are removed so pasted HTML cannot carry styles or handlers.
      */
     public static function sanitize(?string $value): ?string
@@ -14,7 +14,7 @@ class RichText
             return null;
         }
 
-        $allowed = ['b', 'strong', 'i', 'em', 'p', 'br'];
+        $allowed = ['b', 'strong', 'i', 'em', 'u', 'p', 'br', 'ul', 'ol', 'li'];
         $value = strip_tags($value, '<' . implode('><', $allowed) . '>');
 
         $pattern = '/<(' . implode('|', $allowed) . ')(?:\s[^>]*)?>/i';
