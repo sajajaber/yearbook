@@ -9,7 +9,7 @@ class MediaTypeResolver
     protected array $typeMap = [
         'image' => [
             'extensions' => ['jpg', 'jpeg', 'png', 'webp'],
-            'max' => 5120,      // KB (5MB)
+            'max' => 10240,     // KB (10MB)
         ],
         'video' => [
             'extensions' => ['mp4', 'mov', 'avi'],
@@ -38,13 +38,22 @@ class MediaTypeResolver
     {
         $rules = $this->typeMap[$type] ?? null;
 
-        if (!$rules) {
+        if (! $rules) {
             return ['prohibited'];
         }
 
         return [
             'mimes:' . implode(',', $rules['extensions']),
             'max:' . $rules['max'],
+        ];
+    }
+
+    public function limitsInBytes(): array
+    {
+        return [
+            'image' => 10 * 1024 * 1024,
+            'video' => 100 * 1024 * 1024,
+            'document' => 20 * 1024 * 1024,
         ];
     }
 }
