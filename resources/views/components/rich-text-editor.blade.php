@@ -9,6 +9,13 @@
     <div class="rich-text-toolbar" role="toolbar" aria-label="Text formatting">
         <button type="button" class="rich-text-tool" data-command="bold" title="Bold" aria-label="Bold"><strong>B</strong></button>
         <button type="button" class="rich-text-tool" data-command="italic" title="Italic" aria-label="Italic"><em>I</em></button>
+        <button type="button" class="rich-text-tool" data-command="underline" title="Underline" aria-label="Underline"><u>U</u></button>
+        <span class="rich-text-divider" aria-hidden="true"></span>
+        <button type="button" class="rich-text-tool rich-text-list-tool" data-command="insertUnorderedList" title="Bulleted list" aria-label="Bulleted list">•</button>
+        <button type="button" class="rich-text-tool rich-text-list-tool" data-command="insertOrderedList" title="Numbered list" aria-label="Numbered list">1.</button>
+        <span class="rich-text-divider" aria-hidden="true"></span>
+        <button type="button" class="rich-text-tool rich-text-paragraph-tool" data-command="formatBlock" data-value="p" title="Paragraph" aria-label="Paragraph">¶</button>
+        <button type="button" class="rich-text-tool rich-text-paragraph-tool" data-command="insertParagraph" title="New paragraph" aria-label="New paragraph">↵</button>
     </div>
 
     <div
@@ -22,7 +29,7 @@
     ></div>
 
     <textarea name="{{ $name }}" class="rich-text-input" rows="{{ $rows }}" hidden>{{ $value }}</textarea>
-    <p class="rich-text-hint">Use <strong>bold</strong> or <em>italic</em> to emphasize text. Text colors stay consistent with the yearbook design.</p>
+    <p class="rich-text-hint">Format text with <strong>bold</strong>, <em>italic</em>, <u>underline</u>, lists, and paragraphs. Text colors stay consistent with the yearbook design.</p>
 </div>
 
 @once
@@ -44,6 +51,7 @@
         .rich-text-toolbar {
             display: flex;
             align-items: center;
+            flex-wrap: wrap;
             gap: 4px;
             padding: 8px 10px;
             border-bottom: 1px solid var(--line, #d8e3ef);
@@ -51,11 +59,12 @@
         }
 
         .rich-text-tool {
-            width: 34px;
+            min-width: 34px;
             height: 32px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
+            padding: 0 8px;
             border: 1px solid transparent;
             border-radius: 8px;
             background: transparent;
@@ -75,13 +84,29 @@
             transform: scale(.95);
         }
 
+        .rich-text-divider {
+            width: 1px;
+            height: 22px;
+            margin: 0 3px;
+            background: var(--line, #d8e3ef);
+        }
+
+        .rich-text-list-tool {
+            font-size: 15px;
+            font-weight: 800;
+        }
+
+        .rich-text-paragraph-tool {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
         .rich-text-surface {
             padding: 15px 16px;
             outline: 0;
             color: var(--ink, #002a5c);
             font: inherit;
             line-height: 1.7;
-            white-space: pre-wrap;
             overflow-wrap: anywhere;
         }
 
@@ -98,6 +123,16 @@
 
         .rich-text-surface p:last-child {
             margin-bottom: 0;
+        }
+
+        .rich-text-surface ul,
+        .rich-text-surface ol {
+            margin: .65em 0 .85em;
+            padding-left: 1.6em;
+        }
+
+        .rich-text-surface li {
+            margin: .25em 0;
         }
 
         .rich-text-hint {
@@ -118,7 +153,7 @@
                 const input = editor.querySelector('.rich-text-input');
                 const buttons = editor.querySelectorAll('.rich-text-tool');
 
-                const allowedTags = ['B', 'STRONG', 'I', 'EM', 'P', 'BR'];
+                const allowedTags = ['B', 'STRONG', 'I', 'EM', 'U', 'P', 'BR', 'UL', 'OL', 'LI'];
 
                 const cleanNode = (node) => {
                     if (node.nodeType === Node.TEXT_NODE) return document.createTextNode(node.nodeValue);
@@ -153,7 +188,13 @@
                     input.value = sanitize(surface.innerHTML);
                     buttons.forEach(button => {
                         const command = button.dataset.command;
-                        button.classList.toggle('is-active', document.queryCommandState(command));
+                        if (command === 'formatBlock') {
+                            button.classList.toggle('is-active', document.queryCommandValue(command).toLowerCase() === button.dataset.value);
+                        } else if (command === 'insertParagraph') {
+                            button.classList.remove('is-active');
+                        } else {
+                            button.classList.toggle('is-active', document.queryCommandState(command));
+                        }
                     });
                 };
 
@@ -161,7 +202,9 @@
                     button.addEventListener('mousedown', (event) => event.preventDefault());
                     button.addEventListener('click', () => {
                         surface.focus();
-                        document.execCommand(button.dataset.command, false, null);
+                        const command = button.dataset.command;
+                        const value = button.dataset.value || null;
+                        document.execCommand(command, false, value);
                         sync();
                     });
                 });
