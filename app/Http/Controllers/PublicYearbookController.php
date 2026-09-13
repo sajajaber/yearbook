@@ -191,30 +191,23 @@ class PublicYearbookController extends Controller
         $campus = $request->input('campus');
         $sort = $request->input('sort', 'name');
 
-        // The graduate filter is a graduation/calendar year. By default it follows
-        // the ceremony date belonging to the active academic year.
+        // Graduates belong to an academic year directly. Do not infer
+        // yearbook membership from ceremony dates because ceremony attendance
+        // is optional.
         $activeAcademicYear = AcademicYear::where('status', 'active')->latest()->first();
-        $activeCeremonyDate = $activeAcademicYear
-            ? Graduation::where('academic_year_id', $activeAcademicYear->id)->value('ceremony_date')
-            : null;
-        $defaultYear = $activeCeremonyDate ? Carbon::parse($activeCeremonyDate)->year : null;
-        $year = $request->has('year') ? $request->input('year') : $defaultYear;
+        $year = $request->has('year') ? $request->input('year') : $activeAcademicYear?->id;
 
         $baseFilters = function ($query) use ($search, $school, $major, $campus, $year) {
             if ($search) $query->where('name', 'like', "%{$search}%");
             if ($school) $query->where('school_id', $school);
             if ($major) $query->where('major_id', $major);
             if ($campus) $query->where('campus_id', $campus);
-            if ($year) {
-                $query->whereHas('graduation', function ($q) use ($year) {
-                    $q->whereYear('ceremony_date', $year);
-                });
-            }
+            if ($year) $query->where('academic_year_id', $year);
         };
 
         $query = Graduate::where('publish_status', 'published')
             ->where('consent_status', 'granted')
-            ->with(['media', 'school', 'major', 'campus', 'graduation.academicYear']);
+            ->with(['media', 'school', 'major', 'campus', 'academicYear', 'graduation']);
         $baseFilters($query);
 
         match ($sort) {
@@ -232,13 +225,7 @@ class PublicYearbookController extends Controller
         $schools = School::orderBy('name')->get();
         $majors = Major::orderBy('name')->get();
         $campuses = Campus::orderBy('name')->get();
-
-        $years = Graduate::where('publish_status', 'published')
-            ->whereNotNull('graduation_id')
-            ->with('graduation')
-            ->get()
-            ->map(fn($graduate) => $graduate->graduation?->ceremony_date ? Carbon::parse($graduate->graduation->ceremony_date)->year : null)
-            ->filter()->unique()->sort()->reverse()->values();
+        $years = AcademicYear::where('status', '!=', 'draft')->orderByDesc('start_date')->get();
 
         return view('public.yearbook.graduates', compact('graduates', 'namedOnly', 'schools', 'majors', 'campuses', 'years', 'search', 'school', 'major', 'campus', 'year', 'sort'));
     }
