@@ -6,6 +6,7 @@ use App\Models\AcademicYear;
 use App\Models\Campus;
 use App\Models\School;
 use App\Models\Graduation;
+use App\Models\Media;
 use App\Models\AuditLog;
 use App\Http\Controllers\Concerns\SyncsOrderedMedia;
 use App\Http\Requests\UpdateGraduationRequest;
@@ -28,11 +29,13 @@ class GraduationController extends Controller
         $academicYears = AcademicYear::where('status', '!=', 'archived')->get();
         $campuses = Campus::where('status', 'active')->get();
         $schools = School::where('status', 'active')->get();
+        $mediaItems = Media::orderByDesc('created_at')->orderBy('file_name')->get();
 
         return view('graduations.create', [
             'academicYears' => $academicYears,
             'campuses' => $campuses,
             'schools' => $schools,
+            'mediaItems' => $mediaItems,
         ]);
     }
 
@@ -51,16 +54,20 @@ class GraduationController extends Controller
 
     public function edit(string $id)
     {
-        $graduation = Graduation::findOrFail($id);
+        $graduation = Graduation::with('media')->findOrFail($id);
         $academicYears = AcademicYear::all();
         $campuses = Campus::all();
         $schools = School::all();
+        $mediaItems = Media::orderByDesc('created_at')->orderBy('file_name')->get();
+        $selectedMediaIds = $graduation->media->pluck('id')->all();
 
         return view('graduations.edit', [
             'graduation' => $graduation,
             'academicYears' => $academicYears,
             'campuses' => $campuses,
             'schools' => $schools,
+            'mediaItems' => $mediaItems,
+            'selectedMediaIds' => $selectedMediaIds,
         ]);
     }
 
@@ -79,7 +86,6 @@ class GraduationController extends Controller
         return redirect()->route('graduations.index');
     }
 
-    // Replaces hard delete — matches your archive/unarchive pattern for master data
     public function destroy(string $id)
     {
         $graduation = Graduation::findOrFail($id);
