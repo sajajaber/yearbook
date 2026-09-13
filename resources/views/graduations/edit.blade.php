@@ -24,7 +24,7 @@
             <label class="form-field"><span>Academic year</span><select name="academic_year_id" required>@foreach ($academicYears as $academicYear)<option value="{{ $academicYear->id }}" @selected(old('academic_year_id', $graduation->academic_year_id) == $academicYear->id)>{{ $academicYear->title }}</option>@endforeach</select>@error('academic_year_id')<small>{{ $message }}</small>@enderror</label>
             <label class="form-field"><span>Ceremony date</span><input type="date" name="ceremony_date" value="{{ old('ceremony_date', $graduation->ceremony_date) }}" required>@error('ceremony_date')<small>{{ $message }}</small>@enderror</label>
             <label class="form-field form-field-wide"><span>Venue</span><input type="text" name="venue" value="{{ old('venue', $graduation->venue) }}" placeholder="Where will the ceremony take place?"></label>
-            <label class="form-field form-field-wide"><span>Description</span><textarea name="description" rows="5" placeholder="Add a short note about this graduation edition.">{{ old('description', $graduation->description) }}</textarea></label>
+            <div class="form-field form-field-wide"><span>Description</span><x-rich-text-editor name="description" :value="old('description', $graduation->description)" rows="5" placeholder="Add a short note about this graduation edition." />@error('description')<small>{{ $message }}</small>@enderror</div>
           </div>
         </section>
 
