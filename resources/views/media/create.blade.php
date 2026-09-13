@@ -4,8 +4,15 @@
     </x-slot>
 
     <div style="padding: 20px; max-width: 760px; margin: 0 auto;">
+        @if (session('error'))
+            <div role="alert" aria-live="polite" style="margin-bottom: 20px; padding: 16px 18px; background: #fff4f4; border: 1px solid #f0b7b7; color: #8b1e1e; border-radius: 10px;">
+                <p style="font-weight: 700; margin: 0 0 6px 0;">{{ __('Upload failed') }}</p>
+                <p style="margin: 0;">{{ session('error') }}</p>
+            </div>
+        @endif
+
         @if ($errors->any())
-            <div style="margin-bottom: 20px; padding: 16px 18px; background: #fff4f4; border: 1px solid #f0b7b7; color: #8b1e1e; border-radius: 10px;">
+            <div role="alert" aria-live="polite" style="margin-bottom: 20px; padding: 16px 18px; background: #fff4f4; border: 1px solid #f0b7b7; color: #8b1e1e; border-radius: 10px;">
                 <p style="font-weight: 700; margin: 0 0 8px 0;">{{ __('Please fix the following errors:') }}</p>
                 <ul style="margin: 0; padding-left: 20px;">
                     @foreach ($errors->all() as $error)
