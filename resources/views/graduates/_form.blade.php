@@ -58,20 +58,32 @@
                     <p class="eyebrow">Portrait</p>
                     <h2>{{ $isEdit && $graduate->portraitMedia ? 'Update grad photo' : 'Add grad photo' }}</h2>@if ($isEdit && $graduate->portraitMedia)<img class="portrait-preview" src="{{ asset('storage/' . $graduate->portraitMedia->path) }}" alt="{{ $graduate->portraitMedia->alt_text }}">@else<div class="portrait-placeholder">{{ collect(explode(' ', trim($graduate->name ?? 'GR')))->filter()->map(fn ($part) => strtoupper(substr($part, 0, 1)))->take(2)->implode('') }}</div>@endif<label class="upload-field"><span>Choose a new photo</span><input type="file" name="portrait" accept="image/jpeg,image/png,image/webp"><small>JPG, PNG, or WebP. Maximum 5 MB.</small></label>@error('portrait')<small class="form-error">{{ $message }}</small>@enderror<p class="upload-note">The photo will be added to the media library and linked to this graduate's profile.</p>
                 </section>
-                @if ($isEdit && !$graduate->aiGenerations->count() && $canManageAi)<section class="form-section form-section-compact">
-                    <div class="form-section-heading">
-                        <p class="eyebrow">Writing assistant</p>
-                        <h2>Build the biography.</h2>
-                    </div>
-                    <p class="upload-note">Generate a draft biography from this profile's details for review.</p>
-                    <form method="POST" action="{{ route('graduates.generate-biography', $graduate) }}">@csrf<button type="submit" class="button button-red">Generate biography <span aria-hidden="true">→</span></button></form>
-                </section>@elseif ($isEdit && $graduate->aiGenerations->count())<section class="form-section form-section-compact">
-                    <div class="form-section-heading">
-                        <p class="eyebrow">Writing assistant</p>
-                        <h2>Biography draft ready.</h2>
-                    </div>
-                    <p class="upload-note">This generated biography is waiting in the editorial review queue.</p><a href="{{ route('ai-generations.index', ['type' => 'graduate_biography']) }}" class="text-link">Open biography review <span aria-hidden="true">→</span></a>
-                </section>@endif
+                @if ($isEdit && !$graduate->aiGenerations->count() && $canManageAi)
+                    <section class="form-section form-section-compact">
+                        <div class="form-section-heading">
+                            <p class="eyebrow">Writing assistant</p>
+                            <h2>Build the biography.</h2>
+                        </div>
+                        <p class="upload-note">Generate a draft biography from this profile's details for review.</p>
+                        {{-- This button is inside the main graduate form, so a nested form would be invalid HTML and would submit to graduates.update. --}}
+                        <button
+                            type="submit"
+                            class="button button-red"
+                            formaction="{{ route('graduates.generate-biography', $graduate) }}"
+                            formmethod="POST"
+                        >
+                            Generate biography <span aria-hidden="true">→</span>
+                        </button>
+                    </section>
+                @elseif ($isEdit && $graduate->aiGenerations->count())
+                    <section class="form-section form-section-compact">
+                        <div class="form-section-heading">
+                            <p class="eyebrow">Writing assistant</p>
+                            <h2>Biography draft ready.</h2>
+                        </div>
+                        <p class="upload-note">This generated biography is waiting in the editorial review queue.</p><a href="{{ route('ai-generations.index', ['type' => 'graduate_biography']) }}" class="text-link">Open biography review <span aria-hidden="true">→</span></a>
+                    </section>
+                @endif
                 <section class="form-section form-section-compact">
                     <div class="form-section-heading">
                         <p class="eyebrow">Publishing</p>
