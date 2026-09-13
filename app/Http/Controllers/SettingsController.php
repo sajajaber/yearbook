@@ -41,15 +41,17 @@ class SettingsController extends Controller
     {
         $validated = $request->validate([
             'media_ids' => 'nullable|array',
-            'media_ids.*' => 'exists:media,id',
+            'media_ids.*' => 'integer|distinct|exists:media,id',
         ]);
 
-        HeroImage::syncOrdered($validated['media_ids'] ?? []);
+        // The submitted array order is the canonical slideshow order.
+        // HeroImage::syncOrdered() writes that exact sequence to display_order.
+        HeroImage::syncOrdered(array_values($validated['media_ids'] ?? []));
 
         AuditLog::record('updated', new HeroImage());
 
         return redirect()->back()
-            ->with('success', 'Hero images updated.')
+            ->with('success', 'Hero slideshow order saved.')
             ->with('active_tab', 'hero-images');
     }
 }
