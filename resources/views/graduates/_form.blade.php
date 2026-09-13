@@ -20,7 +20,7 @@
         </div>
         @endif
 
-        <form method="POST" action="{{ $isEdit ? route('graduates.update', $graduate) : route('graduates.store') }}" enctype="multipart/form-data" class="graduate-form">
+        <form method="POST" action="{{ $isEdit ? route('graduates.update', $graduate) : route('graduates.store') }}" enctype="multipart/form-data" class="graduate-form" id="graduate-edit-form">
             @csrf
             @if ($isEdit) @method('PUT') @endif
             <div class="form-main">
@@ -65,12 +65,11 @@
                             <h2>Build the biography.</h2>
                         </div>
                         <p class="upload-note">Generate a draft biography from this profile's details for review.</p>
-                        {{-- This button is inside the main graduate form, so a nested form would be invalid HTML and would submit to graduates.update. --}}
                         <button
-                            type="submit"
+                            type="button"
+                            id="generate-biography-button"
                             class="button button-red"
-                            formaction="{{ route('graduates.generate-biography', $graduate) }}"
-                            formmethod="POST"
+                            data-action="{{ route('graduates.generate-biography', $graduate) }}"
                         >
                             Generate biography <span aria-hidden="true">→</span>
                         </button>
@@ -124,5 +123,32 @@
         }
         schoolSelect.addEventListener('change', filterMajors);
         filterMajors();
+
+        // The edit form uses Laravel's PUT method, so the biography action
+        // must be submitted by a separate POST form. Creating it here avoids
+        // nested forms and guarantees that the route receives POST.
+        const biographyButton = document.getElementById('generate-biography-button');
+        if (biographyButton) {
+            biographyButton.addEventListener('click', function () {
+                if (biographyButton.disabled) return;
+
+                biographyButton.disabled = true;
+                biographyButton.innerHTML = 'Generating biography… <span aria-hidden="true">⏳</span>';
+
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = biographyButton.dataset.action;
+                form.style.display = 'none';
+
+                const csrf = document.createElement('input');
+                csrf.type = 'hidden';
+                csrf.name = '_token';
+                csrf.value = document.querySelector('input[name="_token"]').value;
+                form.appendChild(csrf);
+
+                document.body.appendChild(form);
+                form.submit();
+            });
+        }
     </script>
 </x-app-layout>
