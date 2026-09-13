@@ -230,6 +230,56 @@
                 transform: none !important;
             }
         }
+
+        /* Public event video presentation. */
+        .event-gallery-item.event-video-item {
+            cursor: default;
+        }
+
+        .event-gallery-item.event-video-item::after {
+            background: linear-gradient(
+                to top,
+                rgba(0, 27, 61, 0.78),
+                transparent 55%
+            );
+            pointer-events: none;
+        }
+
+        .event-gallery-item.event-video-item video {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background: #001b3d;
+        }
+
+        .event-gallery-item.event-video-item .event-video-badge {
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            z-index: 3;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 10px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 999px;
+            background: rgba(0, 27, 61, 0.72);
+            color: #fff;
+            backdrop-filter: blur(10px);
+            font-size: 0.7rem;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            pointer-events: none;
+        }
+
+        .event-hero-image.event-hero-video video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
     </style>
 </head>
 
@@ -320,6 +370,79 @@
                     sections.forEach(function (section) {
                         section.classList.add('yb-section-visible');
                     });
+                }
+            });
+        </script>
+    @endif
+
+    @if(request()->routeIs('public.event.detail'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const videoExtensions = /\.(mp4|webm|ogg|mov|m4v)(?:\?.*)?$/i;
+
+                function mimeTypeFor(src) {
+                    const clean = src.split('?')[0].toLowerCase();
+                    if (clean.endsWith('.webm')) return 'video/webm';
+                    if (clean.endsWith('.ogg')) return 'video/ogg';
+                    return 'video/mp4';
+                }
+
+                function createVideo(src, label, options = {}) {
+                    const video = document.createElement('video');
+                    video.controls = options.controls !== false;
+                    video.preload = 'metadata';
+                    video.playsInline = true;
+                    video.setAttribute('aria-label', label || 'Event video');
+
+                    if (options.autoplay) {
+                        video.autoplay = true;
+                        video.muted = true;
+                        video.loop = true;
+                    }
+
+                    const source = document.createElement('source');
+                    source.src = src;
+                    source.type = mimeTypeFor(src);
+                    video.appendChild(source);
+
+                    return video;
+                }
+
+                /* The event view historically rendered every media item as <img>.
+                   Replace video URLs with real HTML5 video elements after the page loads. */
+                document.querySelectorAll('.event-gallery-item img').forEach(function (image) {
+                    const src = image.currentSrc || image.src;
+                    if (!videoExtensions.test(src)) return;
+
+                    const item = image.closest('.event-gallery-item');
+                    if (!item) return;
+
+                    const video = createVideo(src, image.alt || 'Event video');
+                    image.replaceWith(video);
+                    item.classList.add('event-video-item');
+                    item.onclick = null;
+
+                    if (!item.querySelector('.event-video-badge')) {
+                        const badge = document.createElement('span');
+                        badge.className = 'event-video-badge';
+                        badge.innerHTML = '<span aria-hidden="true">▶</span> Video';
+                        item.appendChild(badge);
+                    }
+                });
+
+                /* If the first event media is a video, make the hero cinematic too. */
+                const heroImage = document.querySelector('.event-hero-image img');
+                if (heroImage) {
+                    const src = heroImage.currentSrc || heroImage.src;
+                    if (videoExtensions.test(src)) {
+                        const hero = heroImage.closest('.event-hero-image');
+                        const video = createVideo(src, heroImage.alt || 'Event video', {
+                            controls: false,
+                            autoplay: true
+                        });
+                        heroImage.replaceWith(video);
+                        hero.classList.add('event-hero-video');
+                    }
                 }
             });
         </script>
