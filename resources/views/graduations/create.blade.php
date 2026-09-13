@@ -49,20 +49,33 @@
               @foreach ($schools as $school)
                 <label class="choice-item"><input type="checkbox" name="school_ids[]" value="{{ $school->id }}" @checked(in_array($school->id, old('school_ids', $schools->pluck('id')->all())))><span>{{ $school->name }}</span></label>
               @endforeach
-              <script>document.querySelectorAll('[data-select-all]').forEach(selectAll => { const group = document.querySelector(`[data-select-group="${selectAll.dataset.selectAll}"]`); if (!group) return; const choices = group.querySelectorAll('input[type="checkbox"]'); selectAll.addEventListener('change', () => choices.forEach(choice => choice.checked = selectAll.checked)); choices.forEach(choice => choice.addEventListener('change', () => { selectAll.checked = Array.from(choices).every(item => item.checked); })); });</script>
             </div>
           </div>
         </section>
+
+        @include('graduations._media', ['selectedMediaIds' => old('media_ids', [])])
       </div>
 
       <aside class="form-aside">
         <section class="portrait-upload graduation-note">
           <p class="eyebrow">Edition setup</p>
           <h2>Ready for the big day.</h2>
-          <p>Set the ceremony details, then connect the campuses and schools that should appear in this graduation edition.</p>
+          <p>Set the ceremony details, connect the campuses and schools, and select the media that should appear with this graduation edition.</p>
         </section>
         <div class="form-actions"><a href="{{ route('graduations.index') }}" class="button button-muted">Cancel</a><button type="submit" class="button button-navy">Save graduation <span aria-hidden="true">→</span></button></div>
       </aside>
     </form>
   </div>
+
+  <script>
+    document.querySelectorAll('[data-select-all]').forEach(selectAll => {
+      const group = document.querySelector(`[data-select-group="${selectAll.dataset.selectAll}"]`);
+      if (!group) return;
+      const choices = group.querySelectorAll('input[type="checkbox"]');
+      selectAll.addEventListener('change', () => choices.forEach(choice => choice.checked = selectAll.checked));
+      choices.forEach(choice => choice.addEventListener('change', () => {
+        selectAll.checked = Array.from(choices).every(item => item.checked);
+      }));
+    });
+  </script>
 </x-app-layout>
