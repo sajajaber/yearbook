@@ -11,7 +11,7 @@
                     <label class="form-field"><span>Category</span><select name="category_id" required><option value="">Choose a category</option>@foreach ($categories as $category)<option value="{{ $category->id }}" @selected(old('category_id') == $category->id)>{{ $category->name }}</option>@endforeach</select></label>
                     <label class="form-field"><span>Event date</span><input type="date" name="event_date" value="{{ old('event_date') }}" required></label>
                     <label class="form-field"><span>Location</span><input type="text" name="location" value="{{ old('location') }}" placeholder="Where will it happen?"></label>
-                    <label class="form-field form-field-wide"><span>Description</span><textarea name="description" rows="6" placeholder="Add the context readers will need.">{{ old('description') }}</textarea></label>
+                    <div class="form-field form-field-wide"><span>Description</span><x-rich-text-editor name="description" :value="old('description')" rows="6" placeholder="Add the context readers will need." />@error('description')<small>{{ $message }}</small>@enderror</div>
                 </div></section>
                 @include('events._coverage')
                 @include('events._media', ['selectedMediaIds' => old('media_ids', [])])
