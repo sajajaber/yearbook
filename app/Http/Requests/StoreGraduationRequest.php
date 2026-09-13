@@ -3,9 +3,17 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Support\RichText;
 
 class StoreGraduationRequest extends FormRequest
 {
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'description' => RichText::sanitize($this->input('description')),
+        ]);
+    }
+
     public function authorize(): bool
     {
         return true;
