@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use App\Support\RichText;
 
 class UpdateEventRequest extends FormRequest
 {
@@ -13,6 +14,10 @@ class UpdateEventRequest extends FormRequest
             $event = $this->route('event');
             $this->merge(['status' => $event?->status]);
         }
+
+        $this->merge([
+            'description' => RichText::sanitize($this->input('description')),
+        ]);
     }
 
     public function authorize(): bool
