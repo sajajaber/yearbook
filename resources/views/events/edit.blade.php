@@ -29,7 +29,7 @@
                                 value="{{ old('event_date', optional($event->event_date)->format('Y-m-d') ?? $event->event_date) }}"
                                 required></label>
                         <label class="form-field"><span>Location</span><input type="text" name="location" value="{{ old('location', $event->location) }}" placeholder="Where will it happen?"></label>
-                        <label class="form-field form-field-wide"><span>Description</span><textarea name="description" rows="6" placeholder="Add the context readers will need.">{{ old('description', $event->description) }}</textarea></label>
+                        <div class="form-field form-field-wide"><span>Description</span><x-rich-text-editor name="description" :value="old('description', $event->description)" rows="6" placeholder="Add the context readers will need." />@error('description')<small>{{ $message }}</small>@enderror</div>
                     </div>
                 </section>
                 @include('events._coverage', ['selectedCampuses' => $event->campuses->pluck('id')->all(), 'selectedSchools' => $event->schools->pluck('id')->all()])
