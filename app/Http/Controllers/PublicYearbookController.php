@@ -46,11 +46,20 @@ class PublicYearbookController extends Controller
     public function archive()
     {
         $academicYears = AcademicYear::where('status', '!=', 'draft')->orderByDesc('start_date')->get()->map(function ($year) {
-            $graduationIds = Graduation::where('academic_year_id', $year->id)->pluck('id');
-            $year->graduate_count = Graduate::whereIn('graduation_id', $graduationIds)
+            $graduateCount = Graduate::where('academic_year_id', $year->id)
                 ->where('publish_status', 'published')
                 ->where('consent_status', 'granted')
                 ->count();
+
+            if ($graduateCount === 0) {
+                $graduationIds = Graduation::where('academic_year_id', $year->id)->pluck('id');
+                $graduateCount = Graduate::whereIn('graduation_id', $graduationIds)
+                    ->where('publish_status', 'published')
+                    ->where('consent_status', 'granted')
+                    ->count();
+            }
+
+            $year->graduate_count = $graduateCount;
             $year->event_count = Event::where('academic_year_id', $year->id)->where('status', 'published')->count();
             return $year;
         });
@@ -65,7 +74,10 @@ class PublicYearbookController extends Controller
         $graduation = Graduation::where('academic_year_id', $academicYear->id)->first();
         $graduationIds = Graduation::where('academic_year_id', $academicYear->id)->pluck('id');
 
-        $baseQuery = fn($level) => Graduate::whereIn('graduation_id', $graduationIds)
+        $baseQuery = fn($level) => Graduate::where(function ($q) use ($academicYear, $graduationIds) {
+                $q->where('academic_year_id', $academicYear->id)
+                    ->orWhereIn('graduation_id', $graduationIds);
+            })
             ->where('publish_status', 'published')
             ->where('consent_status', 'granted')
             ->where('degree_level', $level)
@@ -101,9 +113,11 @@ class PublicYearbookController extends Controller
     {
         $graduate = Graduate::with([
             'media',
+            'portraitMedia',
             'school',
             'major',
             'campus',
+            'academicYear',
             'graduation.academicYear',
         ])
             ->where('id', $id)
@@ -111,9 +125,7 @@ class PublicYearbookController extends Controller
             ->where('consent_status', 'granted')
             ->firstOrFail();
 
-        $qrUrl = route('public.graduate.detail', [
-            'id' => $graduate->id,
-        ]);
+        $qrUrl = route('public.graduate.detail', ['id' => $graduate->id]);
 
         return view('public.yearbook.graduate-detail', [
             'graduate' => $graduate,
@@ -123,11 +135,7 @@ class PublicYearbookController extends Controller
 
     public function graduationDetail($id)
     {
-        $graduation = Graduation::with([
-            'campuses',
-            'schools',
-            'media',
-        ])->findOrFail($id);
+        $graduation = Graduation::with(['campuses', 'schools', 'media'])->findOrFail($id);
 
         $graduates = $graduation->graduates()
             ->where('publish_status', 'published')
@@ -137,10 +145,7 @@ class PublicYearbookController extends Controller
             ->paginate(12)
             ->withQueryString();
 
-        return view('public.yearbook.graduation-detail', compact(
-            'graduation',
-            'graduates'
-        ));
+        return view('public.yearbook.graduation-detail', compact('graduation', 'graduates'));
     }
 
     public function events(Request $request)
@@ -189,22 +194,29 @@ class PublicYearbookController extends Controller
         $school = $request->input('school');
         $major = $request->input('major');
         $campus = $request->input('campus');
+        $degree = $request->input('degree');
         $sort = $request->input('sort', 'name');
+        $year = $request->input('year');
 
-        $activeAcademicYear = AcademicYear::where('status', 'active')->latest()->first();
-        $year = $request->has('year') ? $request->input('year') : $activeAcademicYear?->id;
-
-        $baseFilters = function ($query) use ($search, $school, $major, $campus, $year) {
+        $baseFilters = function ($query) use ($search, $school, $major, $campus, $degree, $year) {
             if ($search) $query->where('name', 'like', "%{$search}%");
             if ($school) $query->where('school_id', $school);
             if ($major) $query->where('major_id', $major);
             if ($campus) $query->where('campus_id', $campus);
-            if ($year) $query->where('academic_year_id', $year);
+            if (in_array($degree, ['undergraduate', 'graduate'], true)) {
+                $query->where('degree_level', $degree);
+            }
+            if ($year) {
+                $query->where(function ($q) use ($year) {
+                    $q->where('academic_year_id', $year)
+                        ->orWhereHas('graduation', fn($graduation) => $graduation->where('academic_year_id', $year));
+                });
+            }
         };
 
         $query = Graduate::where('publish_status', 'published')
             ->where('consent_status', 'granted')
-            ->with(['media', 'school', 'major', 'campus', 'academicYear', 'graduation']);
+            ->with(['media', 'portraitMedia', 'school', 'major', 'campus', 'academicYear', 'graduation.academicYear']);
         $baseFilters($query);
 
         match ($sort) {
@@ -224,7 +236,7 @@ class PublicYearbookController extends Controller
         $campuses = Campus::orderBy('name')->get();
         $years = AcademicYear::where('status', '!=', 'draft')->orderByDesc('start_date')->get();
 
-        return view('public.yearbook.graduates', compact('graduates', 'namedOnly', 'schools', 'majors', 'campuses', 'years', 'search', 'school', 'major', 'campus', 'year', 'sort'));
+        return view('public.yearbook.graduates', compact('graduates', 'namedOnly', 'schools', 'majors', 'campuses', 'years', 'search', 'school', 'major', 'campus', 'year', 'degree', 'sort'));
     }
 
     public function timeline()
