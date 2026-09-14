@@ -34,7 +34,6 @@ function initYearbookGalleryLightbox() {
             ".event-gallery-caption, .gallery-caption, .gallery-overlay"
         );
 
-        // Remove the old event inline handler so the gallery opens in-place.
         item.onclick = null;
 
         return {
@@ -65,6 +64,259 @@ function initYearbookGalleryLightbox() {
 
     const style = document.createElement("style");
     style.textContent = `
+        /* =========================================================
+           PUBLIC GALLERY REDESIGN
+           The thumbnails are intentionally distinct from the old
+           fixed-card layout. Clicking still opens the same lightbox.
+           ========================================================= */
+
+        .event-gallery-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+            grid-auto-rows: 190px;
+            gap: 16px !important;
+        }
+
+        .event-gallery-item,
+        .event-gallery-item:nth-child(1),
+        .event-gallery-item:nth-child(4n + 2) {
+            grid-column: span 1 !important;
+            grid-row: span 2;
+            height: auto !important;
+            min-height: 0 !important;
+            border-radius: 20px !important;
+            background: #002a5c;
+            box-shadow: 0 12px 32px rgba(0, 42, 92, .10);
+            border: 1px solid rgba(0, 42, 92, .08);
+            transition: transform 320ms cubic-bezier(.2,.8,.2,1), box-shadow 320ms ease, border-color 320ms ease;
+        }
+
+        .event-gallery-item:nth-child(3n + 1) {
+            grid-column: span 2 !important;
+        }
+
+        .event-gallery-item:nth-child(3n + 1) img {
+            object-position: center;
+        }
+
+        .event-gallery-item::after {
+            background: linear-gradient(180deg, transparent 48%, rgba(0, 27, 61, .42) 100%) !important;
+            opacity: .72 !important;
+        }
+
+        .event-gallery-item:hover {
+            transform: translateY(-6px);
+            border-color: rgba(255, 193, 7, .55);
+            box-shadow: 0 22px 48px rgba(0, 42, 92, .16);
+        }
+
+        .event-gallery-item:hover img {
+            transform: scale(1.045) !important;
+            filter: saturate(1.08) contrast(1.02) !important;
+        }
+
+        .graduation-gallery {
+            grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+            grid-auto-rows: 190px;
+            gap: 16px !important;
+        }
+
+        .graduation-gallery-item,
+        .graduation-gallery-item:first-child {
+            grid-column: span 1 !important;
+            grid-row: span 2;
+            min-height: 0 !important;
+            border-radius: 20px !important;
+            background: #eaf3fb;
+            box-shadow: 0 12px 32px rgba(0, 42, 92, .09);
+            border: 1px solid rgba(0, 42, 92, .07);
+            transition: transform 320ms cubic-bezier(.2,.8,.2,1), box-shadow 320ms ease, border-color 320ms ease;
+        }
+
+        .graduation-gallery-item:nth-child(3n + 1) {
+            grid-column: span 2 !important;
+        }
+
+        .graduation-gallery-item::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background: linear-gradient(180deg, transparent 50%, rgba(0, 27, 61, .40) 100%);
+            opacity: .7;
+            transition: opacity 280ms ease;
+        }
+
+        .graduation-gallery-item:hover {
+            transform: translateY(-6px);
+            border-color: rgba(255, 193, 7, .55);
+            box-shadow: 0 22px 48px rgba(0, 42, 92, .16);
+        }
+
+        .graduation-gallery-item:hover::after {
+            opacity: .45;
+        }
+
+        .graduation-gallery-item:hover img {
+            transform: scale(1.045) !important;
+            filter: saturate(1.08) contrast(1.02) !important;
+        }
+
+        /* Remove the old thumbnail labels completely. The click action remains. */
+        .event-gallery-caption,
+        .gallery-caption,
+        .gallery-overlay {
+            display: none !important;
+        }
+
+        /* =========================================================
+           GRADUATION PAGINATION
+           Laravel's generated paginator is kept for functionality,
+           but its default utility classes are normalized here so
+           the summary and controls match the Yearbook design.
+           ========================================================= */
+
+        .graduation-pagination {
+            display: flex !important;
+            justify-content: center !important;
+            width: 100%;
+            margin-top: 44px !important;
+        }
+
+        .graduation-pagination nav {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .graduation-pagination nav > div {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .graduation-pagination p,
+        .graduation-pagination .small,
+        .graduation-pagination .text-sm,
+        .graduation-pagination span[aria-current="page"] + span,
+        .graduation-pagination nav > div:first-child {
+            color: #64748b !important;
+            font-size: .82rem !important;
+            line-height: 1.5 !important;
+        }
+
+        .graduation-pagination nav > div:first-child {
+            margin: 0 !important;
+            justify-content: center !important;
+        }
+
+        .graduation-pagination nav > div:last-child,
+        .graduation-pagination nav > div:last-child > div {
+            justify-content: center !important;
+        }
+
+        .graduation-pagination ul {
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 7px;
+            margin: 0 !important;
+            padding: 0 !important;
+            list-style: none !important;
+        }
+
+        .graduation-pagination li {
+            list-style: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        .graduation-pagination li > a,
+        .graduation-pagination li > span {
+            display: grid !important;
+            place-items: center;
+            min-width: 42px !important;
+            height: 42px !important;
+            padding: 0 12px !important;
+            border: 1px solid #d8e3ef !important;
+            border-radius: 11px !important;
+            background: #fff !important;
+            color: #002a5c !important;
+            text-decoration: none !important;
+            font-size: .84rem !important;
+            font-weight: 800 !important;
+            box-shadow: 0 4px 14px rgba(0, 42, 92, .04);
+            transition: transform 180ms ease, background 180ms ease, border-color 180ms ease, color 180ms ease;
+        }
+
+        .graduation-pagination li > a:hover {
+            transform: translateY(-2px);
+            border-color: #ffc107 !important;
+            background: #fff9e5 !important;
+            color: #002a5c !important;
+        }
+
+        .graduation-pagination li[aria-current="page"] > span,
+        .graduation-pagination li > span[aria-current="page"],
+        .graduation-pagination .active > span {
+            background: #002a5c !important;
+            border-color: #002a5c !important;
+            color: #fff !important;
+        }
+
+        .graduation-pagination .relative,
+        .graduation-pagination button {
+            color: #64748b !important;
+        }
+
+        @media (max-width: 900px) {
+            .event-gallery-grid,
+            .graduation-gallery {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                grid-auto-rows: 185px;
+            }
+
+            .event-gallery-item,
+            .event-gallery-item:nth-child(1),
+            .event-gallery-item:nth-child(4n + 2),
+            .graduation-gallery-item,
+            .graduation-gallery-item:first-child,
+            .event-gallery-item:nth-child(3n + 1),
+            .graduation-gallery-item:nth-child(3n + 1) {
+                grid-column: span 1 !important;
+                grid-row: span 2;
+            }
+        }
+
+        @media (max-width: 650px) {
+            .event-gallery-grid,
+            .graduation-gallery {
+                grid-template-columns: 1fr !important;
+                grid-auto-rows: 260px;
+                gap: 13px !important;
+            }
+
+            .event-gallery-item,
+            .event-gallery-item:nth-child(1),
+            .event-gallery-item:nth-child(4n + 2),
+            .graduation-gallery-item,
+            .graduation-gallery-item:first-child,
+            .event-gallery-item:nth-child(3n + 1),
+            .graduation-gallery-item:nth-child(3n + 1) {
+                grid-column: span 1 !important;
+                grid-row: span 1;
+                min-height: 0 !important;
+            }
+
+            .graduation-pagination nav > div {
+                flex-wrap: wrap;
+                text-align: center;
+            }
+        }
+
         .yearbook-gallery-lightbox {
             position: fixed;
             inset: 0;
@@ -149,9 +401,7 @@ function initYearbookGalleryLightbox() {
             backdrop-filter: blur(10px);
         }
 
-        .yearbook-gallery-caption:empty {
-            display: none;
-        }
+        .yearbook-gallery-caption:empty { display: none; }
 
         .yearbook-gallery-close,
         .yearbook-gallery-nav {
@@ -199,12 +449,7 @@ function initYearbookGalleryLightbox() {
 
         .yearbook-gallery-prev { left: 18px; }
         .yearbook-gallery-next { right: 18px; }
-
-        .yearbook-gallery-nav:disabled {
-            opacity: .35;
-            cursor: default;
-            transform: none;
-        }
+        .yearbook-gallery-nav:disabled { opacity: .35; cursor: default; transform: none; }
 
         @keyframes yearbookGalleryImageIn {
             from { opacity: 0; transform: scale(.985); }
@@ -212,45 +457,14 @@ function initYearbookGalleryLightbox() {
         }
 
         @media (max-width: 700px) {
-            .yearbook-gallery-lightbox {
-                padding: 28px 14px 24px;
-            }
-
-            .yearbook-gallery-image {
-                max-width: 94vw;
-                max-height: 76vh;
-                border-radius: 5px;
-            }
-
-            .yearbook-gallery-close {
-                top: 12px;
-                right: 12px;
-                width: 42px;
-                height: 42px;
-            }
-
-            .yearbook-gallery-nav {
-                top: auto;
-                bottom: 20px;
-                width: 46px;
-                height: 46px;
-                margin-top: 0;
-                font-size: 35px;
-            }
-
+            .yearbook-gallery-lightbox { padding: 28px 14px 24px; }
+            .yearbook-gallery-image { max-width: 94vw; max-height: 76vh; border-radius: 5px; }
+            .yearbook-gallery-close { top: 12px; right: 12px; width: 42px; height: 42px; }
+            .yearbook-gallery-nav { top: auto; bottom: 20px; width: 46px; height: 46px; margin-top: 0; font-size: 35px; }
             .yearbook-gallery-prev { left: 22px; }
             .yearbook-gallery-next { right: 22px; }
-
-            .yearbook-gallery-counter {
-                top: 2px;
-                font-size: 10px;
-            }
-
-            .yearbook-gallery-caption {
-                bottom: 74px;
-                padding: 9px 12px;
-                font-size: 11px;
-            }
+            .yearbook-gallery-counter { top: 2px; font-size: 10px; }
+            .yearbook-gallery-caption { bottom: 74px; padding: 9px 12px; font-size: 11px; }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -263,9 +477,7 @@ function initYearbookGalleryLightbox() {
             }
         }
 
-        body.yearbook-gallery-open {
-            overflow: hidden;
-        }
+        body.yearbook-gallery-open { overflow: hidden; }
     `;
     document.head.appendChild(style);
 
