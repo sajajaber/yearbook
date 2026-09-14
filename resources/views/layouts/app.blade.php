@@ -7,6 +7,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ config('app.name', 'Laravel') }}</title>
+    <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -45,9 +47,9 @@
             -webkit-overflow-scrolling: touch;
         }
 
-        .admin-table-wrap > table,
-        .table-responsive > table,
-        .responsive-table > table {
+        .admin-table-wrap>table,
+        .table-responsive>table,
+        .responsive-table>table {
             min-width: 680px;
         }
 
@@ -150,7 +152,7 @@
             overflow: hidden;
             border: 1px solid var(--line);
             background: #fff;
-            box-shadow: 0 14px 35px rgba(0,42,92,.12);
+            box-shadow: 0 14px 35px rgba(0, 42, 92, .12);
             border-radius: 0 !important;
         }
 
@@ -171,7 +173,7 @@
             letter-spacing: .8px;
             text-transform: uppercase;
             text-decoration: none;
-            transition: background .18s ease,color .18s ease;
+            transition: background .18s ease, color .18s ease;
         }
 
         .site-dropdown-link:hover,
@@ -214,6 +216,7 @@
            TABLET
            ======================================== */
         @media (max-width: 1100px) {
+
             .nav-inner,
             .dashboard-heading,
             .dashboard-wrap,
@@ -283,7 +286,7 @@
                 gap: 16px;
             }
 
-            .dashboard-heading > * {
+            .dashboard-heading>* {
                 max-width: 100%;
             }
 
@@ -375,10 +378,10 @@
                 align-items: stretch;
             }
 
-            .graduate-toolbar-tools > *,
-            .event-toolbar-tools > *,
-            .ribbon-fields > *,
-            .graduate-filters > * {
+            .graduate-toolbar-tools>*,
+            .event-toolbar-tools>*,
+            .ribbon-fields>*,
+            .graduate-filters>* {
                 width: 100%;
             }
 

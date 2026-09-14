@@ -20,7 +20,7 @@ use App\Contracts\AiProviderInterface;
 
 class AppServiceProvider extends ServiceProvider
 {
-    
+
     public function register(): void
     {
         /* Tell Laravel "whenever someone asks for AiProviderInterface
@@ -66,6 +66,7 @@ class AppServiceProvider extends ServiceProvider
                     }
 
                     $action = Str::afterLast($routeName, '.');
+
                     $pageTitle = match ($action) {
                         'index' => $label,
                         'create' => 'Create ' . Str::singular($label),
@@ -75,7 +76,7 @@ class AppServiceProvider extends ServiceProvider
                     };
 
                     $routeParameters = request()->route()?->parameters() ?? [];
-                    $record = collect($routeParameters)->first(fn ($value) => is_object($value));
+                    $record = collect($routeParameters)->first(fn($value) => is_object($value));
 
                     if ($record && in_array($action, ['edit', 'show'], true)) {
                         $recordName = data_get($record, 'name')
@@ -95,12 +96,12 @@ class AppServiceProvider extends ServiceProvider
                 }
             }
 
-            $pageTitle ??= 'Administration';
+            $pageTitle ??= $siteTitle;
 
             config([
-                'app.name' => $pageTitle === 'Administration'
-                    ? 'Administration | ' . $siteTitle
-                    : $pageTitle . ' | Administration | ' . $siteTitle,
+                'app.name' => $pageTitle === $siteTitle
+                    ? $siteTitle
+                    : $pageTitle . ' | ' . $siteTitle,
             ]);
         });
     }

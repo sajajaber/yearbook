@@ -5,6 +5,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', 'University Digital Yearbook')</title>
+    <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,12 +15,32 @@
     @yield('extra-css')
 
     <style>
-        .site-nav { height: 60px; box-shadow: none !important; }
-        .site-nav .nav-inner { height: 60px; min-height: 60px; }
-        .site-nav .brand-mark { font-size: 22px; }
-        .site-nav .brand-copy { font-size: 11px; padding-left: 10px; }
-        .site-nav .nav-links { gap: 25px; }
-        .site-nav .nav-item { font-size: 10px; }
+        .site-nav {
+            height: 60px;   
+            box-shadow: none !important;
+        }
+
+        .site-nav .nav-inner {
+            height: 60px;
+            min-height: 60px;
+        }
+
+        .site-nav .brand-mark {
+            font-size: 22px;
+        }
+
+        .site-nav .brand-copy {
+            font-size: 11px;
+            padding-left: 10px;
+        }
+
+        .site-nav .nav-links {
+            gap: 25px;
+        }
+
+        .site-nav .nav-item {
+            font-size: 10px;
+        }
 
         .site-nav.home-nav {
             position: fixed;
@@ -31,22 +53,37 @@
             box-shadow: none !important;
         }
 
-        .site-nav.home-nav.is-visible { transform: translateY(0); box-shadow: none !important; }
+        .site-nav.home-nav.is-visible {
+            transform: translateY(0);
+            box-shadow: none !important;
+        }
 
-        html, body { max-width: 100%; overflow-x: hidden; }
-        img, video, svg, canvas { max-width: 100%; height: auto; }
+        html,
+        body {
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        img,
+        video,
+        svg,
+        canvas {
+            max-width: 100%;
+            height: auto;
+        }
 
         .pagination,
         .graduates-pagination,
         .events-pagination,
         .media-pagination {
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            flex-wrap:wrap;
-            gap:6px;
-            margin-top:32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 32px;
         }
+
         .pagination a,
         .pagination span,
         .graduates-pagination a,
@@ -55,90 +92,260 @@
         .events-pagination span,
         .media-pagination a,
         .media-pagination span {
-            display:inline-flex;
-            align-items:center;
-            justify-content:center;
-            min-width:36px;
-            height:36px;
-            padding:0 10px;
-            border:1px solid var(--line);
-            border-radius:0;
-            background:#fff;
-            color:var(--ink);
-            font:600 10px/1 "Inter",sans-serif;
-            letter-spacing:.4px;
-            text-decoration:none;
-            transition:background .18s ease,color .18s ease,border-color .18s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 36px;
+            height: 36px;
+            padding: 0 10px;
+            border: 1px solid var(--line);
+            border-radius: 0;
+            background: #fff;
+            color: var(--ink);
+            font: 600 10px/1 "Inter", sans-serif;
+            letter-spacing: .4px;
+            text-decoration: none;
+            transition: background .18s ease, color .18s ease, border-color .18s ease;
         }
+
         .pagination a:hover,
         .graduates-pagination a:hover,
         .events-pagination a:hover,
         .media-pagination a:hover {
-            border-color:var(--ink);
-            background:var(--ink);
-            color:#fff;
+            border-color: var(--ink);
+            background: var(--ink);
+            color: #fff;
         }
+
         .pagination .active span,
         .graduates-pagination .active,
         .events-pagination .active,
         .media-pagination .active {
-            border-color:var(--ink);
-            background:var(--ink);
-            color:#fff;
+            border-color: var(--ink);
+            background: var(--ink);
+            color: #fff;
         }
+
         .pagination .disabled span,
         .graduates-pagination .disabled,
         .events-pagination .disabled,
         .media-pagination .disabled {
-            color:#a7b3c0;
-            background:#f8fafc;
-            cursor:not-allowed;
+            color: #a7b3c0;
+            background: #f8fafc;
+            cursor: not-allowed;
         }
 
         @media (max-width: 1024px) {
-            .nav-inner, .dashboard-heading, .dashboard-wrap { padding-left: 24px; padding-right: 24px; }
-            .content-grid { grid-template-columns: 1fr; }
-            .stat-grid { grid-template-columns: repeat(2, 1fr); }
-            .welcome-banner, .graduation-intro { padding: 34px; }
+
+            .nav-inner,
+            .dashboard-heading,
+            .dashboard-wrap {
+                padding-left: 24px;
+                padding-right: 24px;
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .welcome-banner,
+            .graduation-intro {
+                padding: 34px;
+            }
         }
 
         @media (max-width: 640px) {
-            .site-nav, .site-nav .nav-inner { height: auto; min-height: 56px; }
-            .nav-inner { width: 100%; padding: 10px 16px; gap: 12px; }
-            .site-nav .brand-mark { font-size: 19px; }
-            .site-nav .brand-copy { font-size: 9px; padding-left: 8px; letter-spacing: 1px; }
-            .site-nav .nav-links { display: flex !important; flex: 1 1 auto; min-width: 0; margin-left: auto; gap: 14px; overflow-x: auto; scrollbar-width: none; }
-            .site-nav .nav-links::-webkit-scrollbar { display: none; }
-            .site-nav .nav-item { flex: 0 0 auto; height: 36px; font-size: 8px; letter-spacing: .8px; white-space: nowrap; }
-            .dashboard-heading { padding: 30px 16px 22px; display: block; }
-            .dashboard-wrap { padding: 0 16px 40px; }
-            .welcome-banner, .graduation-intro { min-height: 0; padding: 28px 22px; display: block; }
-            .stat-grid, .school-grid { grid-template-columns: 1fr; }
-            .content-grid { grid-template-columns: 1fr; gap: 16px; }
-            .panel { padding: 20px; min-width: 0; }
-            .panel-header { flex-direction: column; gap: 8px; }
-            .workflow-row { grid-template-columns: 1fr auto; }
-            .workflow-track { grid-column: 1 / -1; width: 100%; }
-            .graduation-toolbar { flex-direction: column; align-items: stretch; }
-            .search-field input { width: 100%; }
-            .featured-edition { grid-template-columns: 1fr; gap: 18px; }
-            .featured-date { border-right: 0; border-bottom: 1px solid rgba(192,82,42,.3); padding-right: 0; padding-bottom: 14px; }
-            .button { max-width: 100%; justify-content: center; }
-            .public-shell table { display: block; width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-            .public-shell h1, .public-shell h2, .public-shell h3, .public-shell p, .public-shell a, .public-shell span, .public-shell strong, .public-shell td, .public-shell th { overflow-wrap: anywhere; }
-            .public-shell input, .public-shell select, .public-shell textarea { max-width: 100%; }
-            .pagination, .graduates-pagination, .events-pagination, .media-pagination { gap:5px; }
-            .pagination a, .pagination span, .graduates-pagination a, .graduates-pagination span, .events-pagination a, .events-pagination span, .media-pagination a, .media-pagination span { min-width:34px; height:34px; padding:0 8px; }
+
+            .site-nav,
+            .site-nav .nav-inner {
+                height: auto;
+                min-height: 56px;
+            }
+
+            .nav-inner {
+                width: 100%;
+                padding: 10px 16px;
+                gap: 12px;
+            }
+
+            .site-nav .brand-mark {
+                font-size: 19px;
+            }
+
+            .site-nav .brand-copy {
+                font-size: 9px;
+                padding-left: 8px;
+                letter-spacing: 1px;
+            }
+
+            .site-nav .nav-links {
+                display: flex !important;
+                flex: 1 1 auto;
+                min-width: 0;
+                margin-left: auto;
+                gap: 14px;
+                overflow-x: auto;
+                scrollbar-width: none;
+            }
+
+            .site-nav .nav-links::-webkit-scrollbar {
+                display: none;
+            }
+
+            .site-nav .nav-item {
+                flex: 0 0 auto;
+                height: 36px;
+                font-size: 8px;
+                letter-spacing: .8px;
+                white-space: nowrap;
+            }
+
+            .dashboard-heading {
+                padding: 30px 16px 22px;
+                display: block;
+            }
+
+            .dashboard-wrap {
+                padding: 0 16px 40px;
+            }
+
+            .welcome-banner,
+            .graduation-intro {
+                min-height: 0;
+                padding: 28px 22px;
+                display: block;
+            }
+
+            .stat-grid,
+            .school-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .panel {
+                padding: 20px;
+                min-width: 0;
+            }
+
+            .panel-header {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .workflow-row {
+                grid-template-columns: 1fr auto;
+            }
+
+            .workflow-track {
+                grid-column: 1 / -1;
+                width: 100%;
+            }
+
+            .graduation-toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-field input {
+                width: 100%;
+            }
+
+            .featured-edition {
+                grid-template-columns: 1fr;
+                gap: 18px;
+            }
+
+            .featured-date {
+                border-right: 0;
+                border-bottom: 1px solid rgba(192, 82, 42, .3);
+                padding-right: 0;
+                padding-bottom: 14px;
+            }
+
+            .button {
+                max-width: 100%;
+                justify-content: center;
+            }
+
+            .public-shell table {
+                display: block;
+                width: 100%;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .public-shell h1,
+            .public-shell h2,
+            .public-shell h3,
+            .public-shell p,
+            .public-shell a,
+            .public-shell span,
+            .public-shell strong,
+            .public-shell td,
+            .public-shell th {
+                overflow-wrap: anywhere;
+            }
+
+            .public-shell input,
+            .public-shell select,
+            .public-shell textarea {
+                max-width: 100%;
+            }
+
+            .pagination,
+            .graduates-pagination,
+            .events-pagination,
+            .media-pagination {
+                gap: 5px;
+            }
+
+            .pagination a,
+            .pagination span,
+            .graduates-pagination a,
+            .graduates-pagination span,
+            .events-pagination a,
+            .events-pagination span,
+            .media-pagination a,
+            .media-pagination span {
+                min-width: 34px;
+                height: 34px;
+                padding: 0 8px;
+            }
         }
 
         @media (max-width: 380px) {
-            .nav-inner { padding-left: 12px; padding-right: 12px; }
-            .site-nav .nav-links { gap: 10px; }
-            .site-nav .nav-item { font-size: 7px; }
-            .dashboard-wrap { padding-left: 12px; padding-right: 12px; }
+            .nav-inner {
+                padding-left: 12px;
+                padding-right: 12px;
+            }
+
+            .site-nav .nav-links {
+                gap: 10px;
+            }
+
+            .site-nav .nav-item {
+                font-size: 7px;
+            }
+
+            .dashboard-wrap {
+                padding-left: 12px;
+                padding-right: 12px;
+            }
         }
 
-        @media (prefers-reduced-motion: reduce) { .site-nav.home-nav { transition: none; } }
+        @media (prefers-reduced-motion: reduce) {
+            .site-nav.home-nav {
+                transition: none;
+            }
+        }
 
         /* Public yearbook home enhancements. */
         @media (prefers-reduced-motion: no-preference) {
@@ -167,7 +374,7 @@
                 grid-template-columns: 1fr !important;
             }
 
-            body.public-index-page .yb-event-content > div:last-child {
+            body.public-index-page .yb-event-content>div:last-child {
                 display: none !important;
             }
 
@@ -192,13 +399,23 @@
             }
 
             @keyframes publicPageIn {
-                from { opacity: 0; }
-                to { opacity: 1; }
+                from {
+                    opacity: 0;
+                }
+
+                to {
+                    opacity: 1;
+                }
             }
 
             @keyframes campusMarquee {
-                from { transform: translateX(-50%); }
-                to { transform: translateX(0); }
+                from {
+                    transform: translateX(-50%);
+                }
+
+                to {
+                    transform: translateX(0);
+                }
             }
         }
 
@@ -206,11 +423,13 @@
         body.public-index-page .yb-event-content {
             grid-template-columns: 1fr !important;
         }
-        body.public-index-page .yb-event-content > div:last-child {
+
+        body.public-index-page .yb-event-content>div:last-child {
             display: none !important;
         }
 
         @media (prefers-reduced-motion: reduce) {
+
             body.public-index-page .yearbook-wrapper,
             body.public-index-page .yb-introduction,
             body.public-index-page .yb-numbers,
@@ -237,11 +456,9 @@
         }
 
         .event-gallery-item.event-video-item::after {
-            background: linear-gradient(
-                to top,
-                rgba(0, 27, 61, 0.78),
-                transparent 55%
-            );
+            background: linear-gradient(to top,
+                    rgba(0, 27, 61, 0.78),
+                    transparent 55%);
             pointer-events: none;
         }
 
@@ -308,145 +525,148 @@
     @stack('scripts')
 
     @if(request()->routeIs('public.home'))
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const nav = document.querySelector('.home-nav');
-                if (!nav) return;
-                const updateNavbar = () => nav.classList.toggle('is-visible', window.scrollY > 40);
-                updateNavbar();
-                window.addEventListener('scroll', updateNavbar, { passive: true });
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const nav = document.querySelector('.home-nav');
+            if (!nav) return;
+            const updateNavbar = () => nav.classList.toggle('is-visible', window.scrollY > 40);
+            updateNavbar();
+            window.addEventListener('scroll', updateNavbar, {
+                passive: true
             });
-        </script>
+        });
+    </script>
     @endif
 
     @if(request()->routeIs('public.index'))
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const wrapper = document.querySelector('.yearbook-wrapper');
-                if (!wrapper) return;
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const wrapper = document.querySelector('.yearbook-wrapper');
+            if (!wrapper) return;
 
-                /* Show the active academic year instead of the hard-coded 01. */
-                const introNumber = document.querySelector('.yb-intro-number');
-                const edition = document.querySelector('.yb-edition strong');
-                if (introNumber && edition) {
-                    const match = edition.textContent.match(/\b(20\d{2})/);
-                    if (match) {
-                        introNumber.textContent = match[1].slice(-2);
-                    }
+            /* Show the active academic year instead of the hard-coded 01. */
+            const introNumber = document.querySelector('.yb-intro-number');
+            const edition = document.querySelector('.yb-edition strong');
+            if (introNumber && edition) {
+                const match = edition.textContent.match(/\b(20\d{2})/);
+                if (match) {
+                    introNumber.textContent = match[1].slice(-2);
                 }
+            }
 
-                /* Duplicate the campus names so the strip can loop continuously. */
-                const campusStrip = document.querySelector('.yb-campus-strip');
-                if (campusStrip && campusStrip.children.length && !campusStrip.dataset.marqueeReady) {
-                    campusStrip.dataset.marqueeReady = 'true';
-                    Array.from(campusStrip.children).forEach(function (item) {
-                        const clone = item.cloneNode(true);
-                        clone.setAttribute('aria-hidden', 'true');
-                        campusStrip.appendChild(clone);
-                    });
-                }
+            /* Duplicate the campus names so the strip can loop continuously. */
+            const campusStrip = document.querySelector('.yb-campus-strip');
+            if (campusStrip && campusStrip.children.length && !campusStrip.dataset.marqueeReady) {
+                campusStrip.dataset.marqueeReady = 'true';
+                Array.from(campusStrip.children).forEach(function(item) {
+                    const clone = item.cloneNode(true);
+                    clone.setAttribute('aria-hidden', 'true');
+                    campusStrip.appendChild(clone);
+                });
+            }
 
-                /* Gentle section transitions as the visitor scrolls. */
-                const sections = wrapper.querySelectorAll(
-                    '.yb-introduction, .yb-numbers, .yb-timeline-section, .yb-people, .yb-campus, .yb-archive, .yb-footer'
-                );
+            /* Gentle section transitions as the visitor scrolls. */
+            const sections = wrapper.querySelectorAll(
+                '.yb-introduction, .yb-numbers, .yb-timeline-section, .yb-people, .yb-campus, .yb-archive, .yb-footer'
+            );
 
-                if ('IntersectionObserver' in window) {
-                    const observer = new IntersectionObserver(function (entries) {
-                        entries.forEach(function (entry) {
-                            if (entry.isIntersecting) {
-                                entry.target.classList.add('yb-section-visible');
-                                observer.unobserve(entry.target);
-                            }
-                        });
-                    }, {
-                        threshold: 0.08,
-                        rootMargin: '0px 0px -8% 0px'
+            if ('IntersectionObserver' in window) {
+                const observer = new IntersectionObserver(function(entries) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('yb-section-visible');
+                            observer.unobserve(entry.target);
+                        }
                     });
+                }, {
+                    threshold: 0.08,
+                    rootMargin: '0px 0px -8% 0px'
+                });
 
-                    sections.forEach(function (section) {
-                        observer.observe(section);
-                    });
-                } else {
-                    sections.forEach(function (section) {
-                        section.classList.add('yb-section-visible');
-                    });
-                }
-            });
-        </script>
+                sections.forEach(function(section) {
+                    observer.observe(section);
+                });
+            } else {
+                sections.forEach(function(section) {
+                    section.classList.add('yb-section-visible');
+                });
+            }
+        });
+    </script>
     @endif
 
     @if(request()->routeIs('public.event.detail'))
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const videoExtensions = /\.(mp4|webm|ogg|mov|m4v)(?:\?.*)?$/i;
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const videoExtensions = /\.(mp4|webm|ogg|mov|m4v)(?:\?.*)?$/i;
 
-                function mimeTypeFor(src) {
-                    const clean = src.split('?')[0].toLowerCase();
-                    if (clean.endsWith('.webm')) return 'video/webm';
-                    if (clean.endsWith('.ogg')) return 'video/ogg';
-                    return 'video/mp4';
+            function mimeTypeFor(src) {
+                const clean = src.split('?')[0].toLowerCase();
+                if (clean.endsWith('.webm')) return 'video/webm';
+                if (clean.endsWith('.ogg')) return 'video/ogg';
+                return 'video/mp4';
+            }
+
+            function createVideo(src, label, options = {}) {
+                const video = document.createElement('video');
+                video.controls = options.controls !== false;
+                video.preload = 'metadata';
+                video.playsInline = true;
+                video.setAttribute('aria-label', label || 'Event video');
+
+                if (options.autoplay) {
+                    video.autoplay = true;
+                    video.muted = true;
+                    video.loop = true;
                 }
 
-                function createVideo(src, label, options = {}) {
-                    const video = document.createElement('video');
-                    video.controls = options.controls !== false;
-                    video.preload = 'metadata';
-                    video.playsInline = true;
-                    video.setAttribute('aria-label', label || 'Event video');
+                const source = document.createElement('source');
+                source.src = src;
+                source.type = mimeTypeFor(src);
+                video.appendChild(source);
 
-                    if (options.autoplay) {
-                        video.autoplay = true;
-                        video.muted = true;
-                        video.loop = true;
-                    }
+                return video;
+            }
 
-                    const source = document.createElement('source');
-                    source.src = src;
-                    source.type = mimeTypeFor(src);
-                    video.appendChild(source);
+            /* The event view historically rendered every media item as <img>.
+               Replace video URLs with real HTML5 video elements after the page loads. */
+            document.querySelectorAll('.event-gallery-item img').forEach(function(image) {
+                const src = image.currentSrc || image.src;
+                if (!videoExtensions.test(src)) return;
 
-                    return video;
-                }
+                const item = image.closest('.event-gallery-item');
+                if (!item) return;
 
-                /* The event view historically rendered every media item as <img>.
-                   Replace video URLs with real HTML5 video elements after the page loads. */
-                document.querySelectorAll('.event-gallery-item img').forEach(function (image) {
-                    const src = image.currentSrc || image.src;
-                    if (!videoExtensions.test(src)) return;
+                const video = createVideo(src, image.alt || 'Event video');
+                image.replaceWith(video);
+                item.classList.add('event-video-item');
+                item.onclick = null;
 
-                    const item = image.closest('.event-gallery-item');
-                    if (!item) return;
-
-                    const video = createVideo(src, image.alt || 'Event video');
-                    image.replaceWith(video);
-                    item.classList.add('event-video-item');
-                    item.onclick = null;
-
-                    if (!item.querySelector('.event-video-badge')) {
-                        const badge = document.createElement('span');
-                        badge.className = 'event-video-badge';
-                        badge.innerHTML = '<span aria-hidden="true">▶</span> Video';
-                        item.appendChild(badge);
-                    }
-                });
-
-                /* If the first event media is a video, make the hero cinematic too. */
-                const heroImage = document.querySelector('.event-hero-image img');
-                if (heroImage) {
-                    const src = heroImage.currentSrc || heroImage.src;
-                    if (videoExtensions.test(src)) {
-                        const hero = heroImage.closest('.event-hero-image');
-                        const video = createVideo(src, heroImage.alt || 'Event video', {
-                            controls: false,
-                            autoplay: true
-                        });
-                        heroImage.replaceWith(video);
-                        hero.classList.add('event-hero-video');
-                    }
+                if (!item.querySelector('.event-video-badge')) {
+                    const badge = document.createElement('span');
+                    badge.className = 'event-video-badge';
+                    badge.innerHTML = '<span aria-hidden="true">▶</span> Video';
+                    item.appendChild(badge);
                 }
             });
-        </script>
+
+            /* If the first event media is a video, make the hero cinematic too. */
+            const heroImage = document.querySelector('.event-hero-image img');
+            if (heroImage) {
+                const src = heroImage.currentSrc || heroImage.src;
+                if (videoExtensions.test(src)) {
+                    const hero = heroImage.closest('.event-hero-image');
+                    const video = createVideo(src, heroImage.alt || 'Event video', {
+                        controls: false,
+                        autoplay: true
+                    });
+                    heroImage.replaceWith(video);
+                    hero.classList.add('event-hero-video');
+                }
+            }
+        });
+    </script>
     @endif
 </body>
+
 </html>
