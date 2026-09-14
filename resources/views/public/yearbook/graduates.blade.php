@@ -4,670 +4,157 @@
 
 @section('extra-css')
 <style>
-    .graduates-page {
-        --g-ink: var(--ink, #002a5c);
-        --g-blue: #315d84;
-        --g-gold: #d7ad59;
-        --g-paper: #f7f9fb;
-        --g-line: #e2e8ef;
-        --g-muted: #718096;
-        --g-ease: cubic-bezier(.16,1,.3,1);
-        background: #fbfcfd;
-    }
-
-    .graduates-hero {
-        position: relative;
-        overflow: hidden;
-        padding: 72px 0 58px;
-        background:
-            radial-gradient(circle at 84% 20%, rgba(215,173,89,.10), transparent 25%),
-            linear-gradient(135deg, #f6f9fc 0%, #fff 62%, #f0f5f9 100%);
-        border-bottom: 1px solid rgba(0,42,92,.05);
-    }
-
-    .graduates-hero::before {
-        content: 'YEARBOOK';
-        position: absolute;
-        right: -24px;
-        bottom: -38px;
-        color: rgba(0,42,92,.028);
-        font-size: clamp(5rem, 13vw, 11rem);
-        font-weight: 900;
-        letter-spacing: -.08em;
-        pointer-events: none;
-    }
-
-    .graduates-hero-inner {
-        position: relative;
-        z-index: 1;
-        display: grid;
-        grid-template-columns: minmax(0, 1.15fr) minmax(280px, .7fr);
-        gap: 56px;
-        align-items: end;
-    }
-
-    .graduates-kicker,
-    .graduates-archive-kicker {
-        color: var(--g-gold);
-        font-size: .68rem;
-        font-weight: 900;
-        letter-spacing: 2.4px;
-        text-transform: uppercase;
-    }
-
-    .graduates-kicker {
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 17px;
-    }
-
-    .graduates-kicker::before {
-        content: '';
-        width: 30px;
-        height: 1px;
-        background: currentColor;
-    }
-
-    .graduates-hero h1 {
-        margin: 0;
-        max-width: 820px;
-        color: var(--g-ink);
-        font-size: clamp(3.35rem, 7vw, 6.5rem);
-        line-height: .88;
-        letter-spacing: -3px;
-        font-weight: 900;
-    }
-
-    .graduates-hero-copy {
-        max-width: 420px;
-        margin: 0 0 3px auto;
-        color: var(--g-muted);
-        font-size: .96rem;
-        line-height: 1.85;
-    }
-
-    .graduates-discovery {
-        position: relative;
-        z-index: 3;
-        margin-top: -20px;
-        margin-bottom: 58px;
-    }
-
-    .graduates-filter-shell {
-        padding: 9px;
-        border: 1px solid rgba(0,42,92,.08);
-        border-radius: 20px;
-        background: rgba(255,255,255,.96);
-        box-shadow: 0 14px 40px rgba(15,23,42,.055);
-        backdrop-filter: blur(12px);
-    }
-
-    .graduates-filter-form {
-        display: grid;
-        grid-template-columns: minmax(190px, 1.5fr) repeat(5, minmax(110px, 1fr)) auto;
-        gap: 7px;
-    }
-
-    .graduates-filter-field {
-        position: relative;
-        min-width: 0;
-    }
-
-    .graduates-filter-field input,
-    .graduates-filter-field select {
-        box-sizing: border-box;
-        width: 100%;
-        height: 54px;
-        padding: 0 14px;
-        border: 1px solid #edf1f5;
-        border-radius: 12px;
-        background: #f8fafc;
-        color: var(--g-ink);
-        font-size: .75rem;
-        font-weight: 700;
-        transition: border-color .25s ease, background .25s ease, box-shadow .25s ease;
-    }
-
-    .graduates-filter-field input { padding-left: 40px; }
-
-    .graduates-filter-field select {
-        appearance: none;
-        padding-right: 32px;
-        background-image: linear-gradient(45deg, transparent 50%, #8793a1 50%), linear-gradient(135deg, #8793a1 50%, transparent 50%);
-        background-position: calc(100% - 15px) 23px, calc(100% - 10px) 23px;
-        background-size: 5px 5px, 5px 5px;
-        background-repeat: no-repeat;
-    }
-
-    .graduates-filter-field input:hover,
-    .graduates-filter-field select:hover,
-    .graduates-filter-field input:focus,
-    .graduates-filter-field select:focus {
-        outline: none;
-        border-color: #d8e1ea;
-        background: #fff;
-        box-shadow: 0 0 0 3px rgba(215,173,89,.07);
-    }
-
-    .graduates-search-icon {
-        position: absolute;
-        top: 50%;
-        left: 13px;
-        width: 16px;
-        height: 16px;
-        color: #8b97a4;
-        transform: translateY(-50%);
-        pointer-events: none;
-    }
-
-    .graduates-filter-button {
-        min-width: 96px;
-        height: 54px;
-        border: 0;
-        border-radius: 12px;
-        background: #173d67;
-        color: #fff;
-        font-size: .74rem;
-        font-weight: 850;
-        cursor: pointer;
-        transition: transform .35s var(--g-ease), background .25s ease, box-shadow .35s ease;
-    }
-
-    .graduates-filter-button:hover {
-        transform: translateY(-2px);
-        background: #244f78;
-        box-shadow: 0 9px 22px rgba(23,61,103,.12);
-    }
-
-    .graduates-active-filters {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 7px;
-        margin-top: 10px;
-        padding: 0 4px;
-    }
-
-    .graduates-active-label {
-        color: #8793a1;
-        font-size: .61rem;
-        font-weight: 900;
-        letter-spacing: 1.2px;
-        text-transform: uppercase;
-    }
-
-    .graduates-filter-tag {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 6px 9px;
-        border: 1px solid var(--g-line);
-        border-radius: 999px;
-        background: #f8fafc;
-        color: var(--g-ink);
-        font-size: .64rem;
-        font-weight: 750;
-    }
-
-    .graduates-filter-tag a {
-        color: #8a96a3;
-        text-decoration: none;
-        font-size: .95rem;
-        line-height: 1;
-    }
-
-    .graduates-clear {
-        color: #9c7b38;
-        font-size: .64rem;
-        font-weight: 850;
-        text-decoration: none;
-    }
-
-    .graduates-archive-header {
-        display: flex;
-        align-items: flex-end;
-        justify-content: space-between;
-        gap: 20px;
-        margin-bottom: 28px;
-    }
-
-    .graduates-archive-kicker { margin-bottom: 7px; }
-
-    .graduates-archive-header h2 {
-        margin: 0;
-        color: var(--g-ink);
-        font-size: clamp(1.75rem, 3vw, 2.55rem);
-        line-height: 1;
-        letter-spacing: -1.1px;
-    }
-
-    .graduates-count {
-        color: var(--g-muted);
-        font-size: .72rem;
-        font-weight: 700;
-    }
-
-    .graduates-year-group { margin-bottom: 54px; }
-
-    .graduates-year-heading {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        margin-bottom: 18px;
-    }
-
-    .graduates-year-number {
-        padding: 7px 10px;
-        border: 1px solid #dce5ed;
-        border-radius: 8px;
-        background: #eef3f7;
-        color: var(--g-ink);
-        font-size: .67rem;
-        font-weight: 850;
-    }
-
-    .graduates-year-line {
-        flex: 1;
-        height: 1px;
-        background: var(--g-line);
-    }
-
-    .graduates-grid {
-        display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 20px;
-    }
-
-    .graduate-link {
-        display: block;
-        color: inherit;
-        text-decoration: none;
-    }
-
-    .graduate-card {
-        height: 100%;
-        overflow: hidden;
-        border: 1px solid #e3e9ef;
-        border-radius: 19px;
-        background: #fff;
-        box-shadow: 0 5px 20px rgba(15,23,42,.035);
-        transition: transform .45s var(--g-ease), box-shadow .45s ease, border-color .3s ease;
-    }
-
-    .graduate-link:hover .graduate-card {
-        transform: translateY(-5px);
-        border-color: rgba(215,173,89,.42);
-        box-shadow: 0 18px 38px rgba(15,23,42,.075);
-    }
-
-    .graduate-portrait {
-        position: relative;
-        height: 310px;
-        overflow: hidden;
-        background: linear-gradient(145deg, #173d67, #416d94);
-    }
-
-    .graduate-portrait img {
-        display: block;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform .7s var(--g-ease);
-    }
-
-    .graduate-link:hover .graduate-portrait img { transform: scale(1.035); }
-
-    .graduate-portrait::after {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(to top, rgba(0,0,0,.22), transparent 42%);
-        pointer-events: none;
-    }
-
-    .graduate-placeholder {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        height: 100%;
-        color: rgba(255,255,255,.92);
-        font-size: 4rem;
-        font-weight: 900;
-    }
-
-    .graduate-year-badge,
-    .graduate-degree-badge {
-        position: absolute;
-        z-index: 1;
-        top: 13px;
-        padding: 6px 9px;
-        border-radius: 999px;
-        font-size: .59rem;
-        font-weight: 900;
-        box-shadow: 0 5px 13px rgba(0,0,0,.09);
-    }
-
-    .graduate-degree-badge {
-        left: 13px;
-        background: var(--g-gold);
-        color: var(--g-ink);
-    }
-
-    .graduate-year-badge {
-        right: 13px;
-        max-width: 62%;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        background: rgba(255,255,255,.95);
-        color: var(--g-ink);
-    }
-
-    .graduate-card-body { padding: 19px 19px 20px; }
-
-    .graduate-name {
-        margin: 0 0 7px;
-        color: var(--g-ink);
-        font-size: 1rem;
-        line-height: 1.25;
-        font-weight: 850;
-        letter-spacing: -.15px;
-    }
-
-    .graduate-major {
-        margin: 0 0 4px;
-        color: #334e6b;
-        font-size: .74rem;
-        font-weight: 700;
-        line-height: 1.45;
-    }
-
-    .graduate-school {
-        margin: 0;
-        color: var(--g-muted);
-        font-size: .66rem;
-        line-height: 1.5;
-    }
-
-    .graduate-card-footer {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 10px;
-        margin-top: 15px;
-        padding-top: 12px;
-        border-top: 1px solid #edf1f4;
-    }
-
-    .graduate-view {
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        color: var(--g-ink);
-        font-size: .64rem;
-        font-weight: 900;
-        transition: gap .3s var(--g-ease), color .25s ease;
-    }
-
-    .graduate-link:hover .graduate-view { gap: 8px; color: #9c7b38; }
-
-    .graduates-empty {
-        max-width: 650px;
-        margin: 10px auto 80px;
-        padding: 68px 30px;
-        text-align: center;
-        border: 1px dashed #dce5ed;
-        border-radius: 20px;
-        background: #fff;
-        box-shadow: 0 8px 28px rgba(15,23,42,.03);
-    }
-
-    .graduates-empty h3 { margin: 0 0 8px; color: var(--g-ink); font-size: 1.3rem; }
-    .graduates-empty p { max-width: 460px; margin: 0 auto 22px; color: var(--g-muted); font-size: .88rem; line-height: 1.7; }
-
-    .graduates-pagination {
-        display: flex;
-        justify-content: center;
-        flex-wrap: wrap;
-        gap: 7px;
-        margin: 44px 0 72px;
-    }
-
-    .graduates-pagination a,
-    .graduates-pagination span {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 39px;
-        height: 39px;
-        padding: 0 10px;
-        border: 1px solid var(--g-line);
-        border-radius: 9px;
-        background: #fff;
-        color: var(--g-ink);
-        text-decoration: none;
-        font-size: .7rem;
-        font-weight: 800;
-    }
-
-    .graduates-pagination .active { border-color: var(--g-ink); background: var(--g-ink); color: #fff; }
-    .graduates-pagination .disabled { opacity: .4; }
-
-    .graduates-named-only {
-        margin-top: 34px;
-        padding: 24px 0;
-        border-top: 1px dashed var(--g-line);
-        color: var(--g-muted);
-        font-size: .82rem;
-        line-height: 2;
-    }
-
-    .graduates-named-only strong {
-        display: block;
-        margin-bottom: 4px;
-        color: var(--g-ink);
-    }
-
-    @media (max-width: 1150px) {
-        .graduates-filter-form { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-        .graduates-filter-button { width: 100%; }
-        .graduates-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    }
-
-    @media (max-width: 900px) {
-        .graduates-hero { padding: 58px 0 48px; }
-        .graduates-hero-inner { grid-template-columns: 1fr; gap: 22px; }
-        .graduates-hero-copy { margin: 0; }
-        .graduates-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    }
-
-    @media (max-width: 650px) {
-        .graduates-hero h1 { font-size: clamp(3rem, 15vw, 5rem); letter-spacing: -2.4px; }
-        .graduates-filter-form { grid-template-columns: 1fr; }
-        .graduates-archive-header { align-items: flex-start; flex-direction: column; gap: 8px; }
-        .graduates-grid { grid-template-columns: 1fr; gap: 16px; }
-        .graduate-portrait { height: 340px; }
-    }
-
-    @media (max-width: 420px) { .graduate-portrait { height: 290px; } }
-
-    @media (prefers-reduced-motion: reduce) {
-        *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
-    }
+    .graduates-page { --g-ink:var(--ink,#002a5c); --g-gold:#d7ad59; --g-muted:#718096; --g-line:#e2e8ef; --g-paper:#f7f9fb; --g-ease:cubic-bezier(.16,1,.3,1); background:#fbfcfd; }
+    .graduates-hero { padding:76px 0 60px; border-bottom:1px solid rgba(0,42,92,.06); background:radial-gradient(circle at 84% 18%,rgba(215,173,89,.11),transparent 27%),linear-gradient(135deg,#f5f8fb,#fff 64%,#f0f5f9); }
+    .graduates-hero-inner { display:grid; grid-template-columns:minmax(0,1.15fr) minmax(280px,.7fr); gap:56px; align-items:end; }
+    .graduates-kicker { display:inline-flex; align-items:center; gap:10px; margin-bottom:17px; color:#b48738; font-size:.68rem; font-weight:900; letter-spacing:2.4px; text-transform:uppercase; }
+    .graduates-kicker:before { content:''; width:30px; height:1px; background:currentColor; }
+    .graduates-hero h1 { margin:0; color:var(--g-ink); font-size:clamp(3.35rem,7vw,6.5rem); line-height:.88; letter-spacing:-3px; font-weight:900; }
+    .graduates-hero-copy { max-width:430px; margin:0 0 3px auto; color:var(--g-muted); font-size:.96rem; line-height:1.85; }
+    .graduates-discovery { position:relative; z-index:3; margin:-18px 0 56px; }
+    .graduates-filter-shell { padding:8px; border:1px solid rgba(0,42,92,.08); border-radius:18px; background:rgba(255,255,255,.97); box-shadow:0 14px 40px rgba(15,23,42,.055); backdrop-filter:blur(12px); }
+    .graduates-filter-form { display:grid; grid-template-columns:minmax(190px,1.5fr) repeat(4,minmax(115px,1fr)) auto; gap:7px; }
+    .graduates-filter-field { min-width:0; }
+    .graduates-filter-field input,.graduates-filter-field select { box-sizing:border-box; width:100%; height:52px; padding:0 13px; border:1px solid #edf1f5; border-radius:11px; background:#f8fafc; color:var(--g-ink); font-size:.74rem; font-weight:700; }
+    .graduates-filter-field input:focus,.graduates-filter-field select:focus { outline:none; border-color:#d8e1ea; background:#fff; box-shadow:0 0 0 3px rgba(215,173,89,.08); }
+    .graduates-filter-button { min-width:95px; height:52px; border:0; border-radius:11px; background:var(--g-ink); color:#fff; font-size:.7rem; font-weight:900; letter-spacing:.5px; text-transform:uppercase; cursor:pointer; transition:transform .35s var(--g-ease),background .25s ease,box-shadow .35s ease; }
+    .graduates-filter-button:hover { transform:translateY(-2px); background:#123f6e; box-shadow:0 10px 24px rgba(0,42,92,.14); }
+    .graduates-active-filters { display:flex; flex-wrap:wrap; align-items:center; gap:7px; margin-top:10px; padding:0 4px; }
+    .graduates-active-label { color:#8995a2; font-size:.61rem; font-weight:900; letter-spacing:1.1px; text-transform:uppercase; }
+    .graduates-filter-tag { padding:6px 9px; border:1px solid var(--g-line); border-radius:999px; background:#f8fafc; color:var(--g-ink); font-size:.63rem; font-weight:800; }
+    .graduates-filter-tag a { margin-left:5px; color:#8b97a4; text-decoration:none; }
+    .graduates-clear { color:#9c7b38; font-size:.64rem; font-weight:900; text-decoration:none; }
+    .graduates-header { display:flex; align-items:end; justify-content:space-between; gap:20px; margin-bottom:24px; }
+    .graduates-kicker-small { margin-bottom:7px; color:#b48738; font-size:.65rem; font-weight:900; letter-spacing:2px; text-transform:uppercase; }
+    .graduates-header h2 { margin:0; color:var(--g-ink); font-size:clamp(1.8rem,3vw,2.5rem); line-height:1; letter-spacing:-1px; }
+    .graduates-count { color:var(--g-muted); font-size:.7rem; font-weight:700; }
+    .graduates-view-tools { display:flex; align-items:center; gap:4px; padding:4px; border:1px solid var(--g-line); border-radius:12px; background:#fff; }
+    .graduates-view-button { border:0; border-radius:8px; padding:9px 13px; background:transparent; color:var(--g-muted); font-size:.65rem; font-weight:900; letter-spacing:.5px; text-transform:uppercase; cursor:pointer; transition:all .25s ease; }
+    .graduates-view-button:hover { background:var(--g-paper); color:var(--g-ink); }
+    .graduates-view-button.is-active { background:var(--g-ink); color:#fff; }
+    .graduates-year-group { margin-bottom:50px; }
+    .graduates-year-heading { display:flex; align-items:center; gap:13px; margin-bottom:17px; }
+    .graduates-year-number { padding:7px 10px; border:1px solid #dce5ed; border-radius:8px; background:#eef3f7; color:var(--g-ink); font-size:.65rem; font-weight:900; }
+    .graduates-year-line { flex:1; height:1px; background:var(--g-line); }
+    .graduates-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:20px; }
+    .graduate-link { display:block; color:inherit; text-decoration:none; }
+    .graduate-card { height:100%; overflow:hidden; border:1px solid #e3e9ef; border-radius:18px; background:#fff; box-shadow:0 5px 20px rgba(15,23,42,.035); transition:transform .45s var(--g-ease),box-shadow .45s ease,border-color .3s ease; }
+    .graduate-link:hover .graduate-card { transform:translateY(-5px); border-color:rgba(215,173,89,.42); box-shadow:0 18px 38px rgba(15,23,42,.075); }
+    .graduate-portrait { position:relative; height:300px; overflow:hidden; background:linear-gradient(145deg,#173d67,#416d94); }
+    .graduate-portrait img { display:block; width:100%; height:100%; object-fit:cover; transition:transform .7s var(--g-ease); }
+    .graduate-link:hover .graduate-portrait img { transform:scale(1.035); }
+    .graduate-placeholder { display:flex; align-items:center; justify-content:center; width:100%; height:100%; color:rgba(255,255,255,.92); font-size:4rem; font-weight:900; }
+    .graduate-badge { position:absolute; z-index:1; top:13px; padding:6px 9px; border-radius:999px; font-size:.59rem; font-weight:900; box-shadow:0 5px 13px rgba(0,0,0,.09); }
+    .graduate-degree-badge { left:13px; background:var(--g-gold); color:var(--g-ink); }
+    .graduate-year-badge { right:13px; max-width:62%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; background:rgba(255,255,255,.95); color:var(--g-ink); }
+    .graduate-card-body { padding:18px 18px 19px; }
+    .graduate-name { margin:0 0 7px; color:var(--g-ink); font-size:1rem; line-height:1.25; font-weight:850; }
+    .graduate-major { margin:0 0 4px; color:#334e6b; font-size:.73rem; font-weight:700; line-height:1.45; }
+    .graduate-school { margin:0; color:var(--g-muted); font-size:.65rem; line-height:1.5; }
+    .graduate-card-footer { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:14px; padding-top:12px; border-top:1px solid #edf1f4; }
+    .graduate-view { color:var(--g-ink); font-size:.63rem; font-weight:900; transition:color .25s ease; }
+    .graduate-link:hover .graduate-view { color:#9c7b38; }
+    .graduates-grid.view-list { display:flex; flex-direction:column; gap:0; }
+    .graduates-grid.view-list .graduate-link { display:block; }
+    .graduates-grid.view-list .graduate-card { display:grid; grid-template-columns:112px minmax(0,1fr) auto; align-items:center; gap:22px; min-height:126px; padding:17px 19px; border-radius:0; border-left:0; border-right:0; box-shadow:none; background:transparent; }
+    .graduates-grid.view-list .graduate-card:first-child { border-top:1px solid var(--g-line); }
+    .graduates-grid.view-list .graduate-link:hover .graduate-card { transform:none; background:#fff; box-shadow:0 10px 28px rgba(15,23,42,.06); }
+    .graduates-grid.view-list .graduate-portrait { width:112px; height:90px; border-radius:12px; }
+    .graduates-grid.view-list .graduate-badge { top:8px; }
+    .graduates-grid.view-list .graduate-card-body { padding:0; }
+    .graduates-grid.view-list .graduate-card-footer { margin:0; padding:0; border:0; }
+    .graduates-empty { padding:70px 30px; text-align:center; border:1px dashed #dce5ed; border-radius:18px; background:#fff; }
+    .graduates-empty h3 { margin:0 0 8px; color:var(--g-ink); }
+    .graduates-empty p { margin:0 0 20px; color:var(--g-muted); font-size:.85rem; }
+    .graduates-named-only { margin-top:35px; padding:24px 0; border-top:1px dashed var(--g-line); color:var(--g-muted); font-size:.8rem; line-height:2; }
+    .graduates-named-only strong { display:block; color:var(--g-ink); }
+    .graduates-pagination { display:flex; justify-content:center; flex-wrap:wrap; gap:7px; margin:42px 0 72px; }
+    .graduates-pagination a,.graduates-pagination span { display:inline-flex; align-items:center; justify-content:center; min-width:39px; height:39px; padding:0 10px; border:1px solid var(--g-line); border-radius:9px; background:#fff; color:var(--g-ink); text-decoration:none; font-size:.68rem; font-weight:800; }
+    @media(max-width:1100px){ .graduates-filter-form{grid-template-columns:repeat(3,minmax(0,1fr));} .graduates-grid{grid-template-columns:repeat(3,minmax(0,1fr));} }
+    @media(max-width:850px){ .graduates-hero-inner{grid-template-columns:1fr;gap:28px;} .graduates-hero-copy{margin:0;max-width:650px;} .graduates-grid{grid-template-columns:repeat(2,minmax(0,1fr));} }
+    @media(max-width:650px){ .graduates-hero{padding:54px 0 44px;} .graduates-hero h1{letter-spacing:-2.5px;} .graduates-filter-form{grid-template-columns:1fr 1fr;} .graduates-header{align-items:flex-start;flex-direction:column;} .graduates-view-tools{align-self:flex-end;} .graduates-grid{grid-template-columns:1fr;} .graduates-grid.view-list .graduate-card{grid-template-columns:78px minmax(0,1fr);gap:15px;padding:15px 4px;} .graduates-grid.view-list .graduate-portrait{width:78px;height:78px;} .graduates-grid.view-list .graduate-card-footer{display:none;} }
+    @media(max-width:430px){ .graduates-filter-form{grid-template-columns:1fr;} }
+    @media(prefers-reduced-motion:reduce){ .graduates-page *{transition:none!important;animation:none!important;} }
 </style>
 @endsection
 
 @section('content')
 <div class="graduates-page">
     <section class="graduates-hero">
-        <div class="container">
-            <div class="graduates-hero-inner">
-                <div>
-                    <div class="graduates-kicker">The Yearbook Directory</div>
-                    <h1>Faces of<br>Our Year</h1>
-                </div>
-                <p class="graduates-hero-copy">
-                    Explore the people who shaped the yearbook — from undergraduate journeys to graduate achievements, thoughtfully organized by academic year.
-                </p>
-            </div>
+        <div class="container graduates-hero-inner">
+            <div><div class="graduates-kicker">Faces of our year</div><h1>The people<br>behind the story.</h1></div>
+            <p class="graduates-hero-copy">Explore the graduating community by academic year, degree level, school and campus. Every profile is part of the yearbook record.</p>
         </div>
     </section>
 
-    <section class="graduates-discovery">
-        <div class="container">
+    <main class="container">
+        <section class="graduates-discovery">
             <div class="graduates-filter-shell">
                 <form method="GET" action="{{ route('public.graduates') }}" class="graduates-filter-form">
-                    <div class="graduates-filter-field">
-                        <svg class="graduates-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
-                        <input type="text" name="search" value="{{ $search }}" placeholder="Search a name..." aria-label="Search graduates">
-                    </div>
-
-                    <div class="graduates-filter-field">
-                        <select name="degree" aria-label="Filter by degree level">
-                            <option value="">All Degree Levels</option>
-                            <option value="undergraduate" @selected($degree === 'undergraduate')>Undergraduate</option>
-                            <option value="graduate" @selected($degree === 'graduate')>Graduate</option>
-                        </select>
-                    </div>
-
-                    <div class="graduates-filter-field">
-                        <select name="year" aria-label="Filter by academic year">
-                            <option value="">All Academic Years</option>
-                            @foreach($years as $academicYear)
-                                <option value="{{ $academicYear->id }}" @selected((string) $academicYear->id === (string) $year)>{{ $academicYear->title }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div class="graduates-filter-field">
-                        <select name="school" aria-label="Filter by school">
-                            <option value="">All Schools</option>
-                            @foreach($schools as $s)
-                                <option value="{{ $s->id }}" @selected($s->id == $school)>{{ $s->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div class="graduates-filter-field">
-                        <select name="campus" aria-label="Filter by campus">
-                            <option value="">All Campuses</option>
-                            @foreach($campuses as $c)
-                                <option value="{{ $c->id }}" @selected($c->id == $campus)>{{ $c->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div class="graduates-filter-field">
-                        <select name="sort" aria-label="Sort graduates">
-                            <option value="name" @selected($sort === 'name')>Name A–Z</option>
-                            <option value="latest" @selected($sort === 'latest')>Latest</option>
-                            <option value="oldest" @selected($sort === 'oldest')>Oldest</option>
-                        </select>
-                    </div>
-
-                    <button type="submit" class="graduates-filter-button">Explore</button>
+                    <div class="graduates-filter-field"><input type="search" name="search" value="{{ $search }}" placeholder="Search by name..."></div>
+                    <div class="graduates-filter-field"><select name="year"><option value="">All academic years</option>@foreach($years as $academicYear)<option value="{{ $academicYear->id }}" @selected((string)$year === (string)$academicYear->id)>{{ $academicYear->title }}{{ $academicYear->status === 'active' ? ' · Current' : '' }}</option>@endforeach</select></div>
+                    <div class="graduates-filter-field"><select name="degree"><option value="">All degree levels</option><option value="undergraduate" @selected($degree === 'undergraduate')>Undergraduate</option><option value="graduate" @selected($degree === 'graduate')>Graduate</option></select></div>
+                    <div class="graduates-filter-field"><select name="school"><option value="">All schools</option>@foreach($schools as $item)<option value="{{ $item->id }}" @selected((string)$school === (string)$item->id)>{{ $item->name }}</option>@endforeach</select></div>
+                    <div class="graduates-filter-field"><select name="campus"><option value="">All campuses</option>@foreach($campuses as $item)<option value="{{ $item->id }}" @selected((string)$campus === (string)$item->id)>{{ $item->name }}</option>@endforeach</select></div>
+                    <button class="graduates-filter-button" type="submit">Filter</button>
                 </form>
-
-                @if($search || $school || $campus || $year || $degree)
-                    <div class="graduates-active-filters">
-                        <span class="graduates-active-label">Active</span>
-                        @if($degree)<span class="graduates-filter-tag">Degree: {{ $degree === 'undergraduate' ? 'Undergraduate' : 'Graduate' }} <a href="{{ route('public.graduates', array_merge(request()->query(), ['degree'=>null])) }}" aria-label="Remove degree filter">×</a></span>@endif
-                        @if($year)<span class="graduates-filter-tag">Academic Year: {{ $years->firstWhere('id', $year)?->title ?? $year }} <a href="{{ route('public.graduates', array_merge(request()->query(), ['year'=>null])) }}" aria-label="Remove year filter">×</a></span>@endif
-                        @if($school)<span class="graduates-filter-tag">School: {{ $schools->find($school)?->name }} <a href="{{ route('public.graduates', array_merge(request()->query(), ['school'=>null])) }}" aria-label="Remove school filter">×</a></span>@endif
-                        @if($campus)<span class="graduates-filter-tag">Campus: {{ $campuses->find($campus)?->name }} <a href="{{ route('public.graduates', array_merge(request()->query(), ['campus'=>null])) }}" aria-label="Remove campus filter">×</a></span>@endif
-                        @if($search)<span class="graduates-filter-tag">Name: {{ $search }} <a href="{{ route('public.graduates', array_merge(request()->query(), ['search'=>null])) }}" aria-label="Remove search filter">×</a></span>@endif
-                        <a class="graduates-clear" href="{{ route('public.graduates') }}">Clear all</a>
-                    </div>
-                @endif
             </div>
-        </div>
-    </section>
+        </section>
 
-    <section class="section">
-        <div class="container">
-            @if($graduates->count() > 0)
-                <div class="graduates-archive-header">
-                    <div>
-                        <div class="graduates-archive-kicker">Academic Year Archive</div>
-                        <h2>{{ $degree === 'undergraduate' ? 'Undergraduate students' : ($degree === 'graduate' ? 'Graduate students' : 'The graduating community') }}</h2>
+        <section>
+            <div class="graduates-header">
+                <div><div class="graduates-kicker-small">The directory</div><h2>Graduates</h2></div>
+                <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;justify-content:flex-end;">
+                    <span class="graduates-count">{{ $graduates->total() }} {{ Str::plural('profile', $graduates->total()) }}</span>
+                    <div class="graduates-view-tools" aria-label="Choose graduate view">
+                        <button type="button" class="graduates-view-button is-active" data-graduates-view="cards">Cards</button>
+                        <button type="button" class="graduates-view-button" data-graduates-view="list">List</button>
                     </div>
-                    <div class="graduates-count">Showing {{ $graduates->firstItem() }}–{{ $graduates->lastItem() }} of {{ $graduates->total() }}</div>
                 </div>
+            </div>
 
-                @php
-                    $groupedGraduates = $graduates->getCollection()->groupBy(function ($graduate) {
-                        return $graduate->academicYear?->title ?? $graduate->graduation?->academicYear?->title ?? 'Academic Year';
-                    });
-                @endphp
-
-                @foreach($groupedGraduates as $groupYear => $groupGraduates)
-                    <section class="graduates-year-group">
-                        <div class="graduates-year-heading">
-                            <span class="graduates-year-number">{{ $groupYear }}</span>
-                            <span class="graduates-year-line"></span>
-                        </div>
-
-                        <div class="graduates-grid">
-                            @foreach($groupGraduates as $graduate)
-                                @php
-                                    $portrait = $graduate->portraitMedia ?? $graduate->media->first();
-                                    $academicYearTitle = $graduate->academicYear?->title ?? $graduate->graduation?->academicYear?->title;
-                                    $degreeLabel = $graduate->degree_level === 'undergraduate' ? 'Undergraduate' : 'Graduate';
-                                @endphp
-
-                                <a href="{{ route('public.graduate.detail', $graduate->id) }}" class="graduate-link" aria-label="View {{ $graduate->name }}'s profile">
-                                    <article class="graduate-card">
-                                        <div class="graduate-portrait">
-                                            @if($portrait)
-                                                <img src="{{ $portrait->thumbnailUrl() }}" alt="{{ $graduate->name }}" loading="lazy">
-                                            @else
-                                                <div class="graduate-placeholder" aria-hidden="true">{{ strtoupper(mb_substr($graduate->name, 0, 1)) }}</div>
-                                            @endif
-                                            <span class="graduate-degree-badge">{{ $degreeLabel }}</span>
-                                            @if($academicYearTitle)<span class="graduate-year-badge">{{ $academicYearTitle }}</span>@endif
-                                        </div>
-                                        <div class="graduate-card-body">
-                                            <h3 class="graduate-name">{{ $graduate->name }}</h3>
-                                            <p class="graduate-major">{{ $graduate->major?->name ?? 'Major not specified' }}</p>
-                                            <p class="graduate-school">{{ $graduate->school?->name ?? 'School not specified' }}</p>
-                                            <div class="graduate-card-footer">
-                                                <span class="graduate-school">{{ $degreeLabel }}</span>
-                                                <span class="graduate-view">Profile <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></span>
-                                            </div>
-                                        </div>
-                                    </article>
-                                </a>
-                            @endforeach
-                        </div>
-                    </section>
-                @endforeach
-
-                @if($graduates->hasPages())
-                    <nav class="graduates-pagination" aria-label="Graduate directory pagination">
-                        @if($graduates->onFirstPage())<span class="disabled">←</span>@else<a href="{{ $graduates->previousPageUrl() }}">←</a>@endif
-                        @foreach($graduates->getUrlRange(1, $graduates->lastPage()) as $page => $url)
-                            @if($page == $graduates->currentPage())<span class="active" aria-current="page">{{ $page }}</span>@else<a href="{{ $url }}">{{ $page }}</a>@endif
+            @if($graduates->count())
+                @php($currentGroup = null)
+                <div class="graduates-year-group">
+                    <div class="graduates-year-heading"><span class="graduates-year-number">{{ $year ? optional($years->firstWhere('id', $year))->title : 'Selected year' }}</span><span class="graduates-year-line"></span></div>
+                    <div class="graduates-grid" id="graduates-grid">
+                        @foreach($graduates as $graduate)
+                            @php($portrait = $graduate->portraitMedia ?? $graduate->media->firstWhere('type', 'image'))
+                            @php($graduateYear = $graduate->academicYear?->title ?? $graduate->graduation?->academicYear?->title)
+                            <a class="graduate-link" href="{{ route('public.graduate.detail', $graduate->id) }}">
+                                <article class="graduate-card">
+                                    <div class="graduate-portrait">
+                                        @if($portrait)<img src="{{ $portrait->thumbnailUrl() }}" alt="{{ $graduate->name }}" loading="lazy">@else<span class="graduate-placeholder">{{ mb_strtoupper(mb_substr($graduate->name,0,1)) }}</span>@endif
+                                        <span class="graduate-badge graduate-degree-badge">{{ $graduate->degree_level === 'graduate' ? 'Graduate' : 'Undergraduate' }}</span>
+                                        @if($graduateYear)<span class="graduate-badge graduate-year-badge">{{ $graduateYear }}</span>@endif
+                                    </div>
+                                    <div class="graduate-card-body">
+                                        <h3 class="graduate-name">{{ $graduate->name }}</h3>
+                                        @if($graduate->major)<p class="graduate-major">{{ $graduate->major->name }}</p>@endif
+                                        @if($graduate->school)<p class="graduate-school">{{ $graduate->school->name }}</p>@endif
+                                        <div class="graduate-card-footer"><span class="graduate-view">View profile →</span></div>
+                                    </div>
+                                </article>
+                            </a>
                         @endforeach
-                        @if($graduates->hasMorePages())<a href="{{ $graduates->nextPageUrl() }}">→</a>@else<span class="disabled">→</span>@endif
-                    </nav>
-                @endif
-            @else
-                <div class="graduates-empty">
-                    <h3>No students found</h3>
-                    <p>No students match the selected academic year, degree level, school, campus, or search. Try clearing a filter and explore the directory again.</p>
-                    <a href="{{ route('public.graduates') }}" class="btn btn-primary">Browse all students</a>
+                    </div>
                 </div>
+
+                <div class="graduates-pagination">{!! $graduates->onEachSide(1)->links('pagination::simple-tailwind') !!}</div>
+            @else
+                <div class="graduates-empty"><h3>No graduate profiles found</h3><p>Try another academic year, degree level, school, campus or search term.</p><a class="graduate-view" href="{{ route('public.graduates') }}">Reset filters →</a></div>
             @endif
 
-            @if($namedOnly->isNotEmpty())
-                <div class="graduates-named-only">
-                    <strong>Also in the yearbook</strong>
-                    {{ $namedOnly->implode(' · ') }}
-                </div>
+            @if($namedOnly->count())
+                <div class="graduates-named-only"><strong>Additional graduates</strong>{{ $namedOnly->implode(' · ') }}</div>
             @endif
-        </div>
-    </section>
+        </section>
+    </main>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded',function(){const grid=document.getElementById('graduates-grid');if(!grid)return;const buttons=document.querySelectorAll('[data-graduates-view]');const key='yearbook-graduates-view';const apply=mode=>{grid.classList.toggle('view-list',mode==='list');buttons.forEach(b=>b.classList.toggle('is-active',b.dataset.graduatesView===mode));try{localStorage.setItem(key,mode)}catch(e){}};let mode='cards';try{mode=localStorage.getItem(key)==='list'?'list':'cards'}catch(e){}buttons.forEach(b=>b.addEventListener('click',()=>apply(b.dataset.graduatesView)));apply(mode);});
+</script>
+@endpush
