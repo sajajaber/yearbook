@@ -1293,6 +1293,30 @@
         }
 
     }
+
+    /* Calm editorial event journal */
+    .events-page { --events-accent:#c99b45; --events-dark:#082b50; --events-muted:#718096; --events-line:#e3e9ef; --events-paper:#f7f9fb; }
+    .events-hero { min-height:410px; display:flex; align-items:flex-end; padding:82px 0 70px; background:radial-gradient(circle at 88% 18%,rgba(201,155,69,.13),transparent 25%),linear-gradient(135deg,#f7fafc 0%,#fff 58%,#eef4f8 100%); }
+    .events-hero::after { content:'MEMORIES'; position:absolute; right:-20px; bottom:-42px; color:rgba(8,43,80,.035); font-size:clamp(5rem,14vw,12rem); line-height:1; font-weight:900; letter-spacing:-.08em; pointer-events:none; }
+    .events-hero h1 { color:var(--events-dark); letter-spacing:-3.5px; }
+    .events-discovery { margin-top:-22px; }
+    .events-filter-shell { border-radius:18px; border-color:rgba(8,43,80,.08); box-shadow:0 16px 42px rgba(15,23,42,.055); }
+    .events-list { position:relative; border-top:1px solid var(--events-dark); }
+    .events-list::before { content:''; position:absolute; left:116px; top:0; bottom:0; width:1px; background:#edf1f4; pointer-events:none; }
+    .event-list-item { position:relative; grid-template-columns:104px 150px minmax(0,1fr) 34px; gap:24px; min-height:170px; padding:24px 8px; background:#fff; }
+    .event-list-link:nth-child(odd) .event-list-item { background:#fbfcfd; }
+    .event-list-link:hover .event-list-item { padding-left:14px; padding-right:2px; background:#f5f8fa; transform:translateX(3px); }
+    .event-list-date { align-self:stretch; display:flex; align-items:center; color:var(--events-dark); font-size:.67rem; letter-spacing:1px; text-align:right; justify-content:flex-end; }
+    .event-list-media { position:relative; height:122px; overflow:hidden; border-radius:12px; background:linear-gradient(145deg,#12395e,#456f92); box-shadow:0 7px 18px rgba(8,43,80,.08); }
+    .event-list-media img { display:block; width:100%; height:100%; object-fit:cover; transition:transform .65s cubic-bezier(.16,1,.3,1); }
+    .event-list-link:hover .event-list-media img { transform:scale(1.06); }
+    .event-media-mark { position:absolute; inset:0; display:grid; place-items:center; color:rgba(255,255,255,.88); font-size:1.8rem; background:linear-gradient(145deg,rgba(8,43,80,.35),rgba(8,43,80,.08)); }
+    .event-media-index { position:absolute; right:9px; bottom:8px; padding:4px 6px; border-radius:6px; background:rgba(255,255,255,.9); color:var(--events-dark); font-size:.57rem; font-weight:900; }
+    .event-list-title { font-family:'Merriweather',serif; color:var(--events-dark); }
+    .event-category { border-color:rgba(201,155,69,.25); background:rgba(201,155,69,.07); color:#a77b31; }
+    .event-list-arrow { border-radius:50%; align-self:center; }
+    @media(max-width:800px){ .events-list::before{display:none;} .event-list-item{grid-template-columns:92px 120px minmax(0,1fr) 30px;gap:16px;} }
+    @media(max-width:560px){ .events-hero{min-height:350px;padding:58px 0 50px;} .event-list-item{grid-template-columns:92px minmax(0,1fr) 30px;} .event-list-media{grid-column:1/-1;grid-row:1;width:100%;height:180px;} .event-list-date{grid-column:1/2;grid-row:2;justify-content:flex-start;text-align:left;align-self:start;} .event-list-main{grid-column:2/3;grid-row:2;} .event-list-arrow{grid-column:3;grid-row:2;} }
 </style>
 
 @endsection
@@ -1640,6 +1664,18 @@
 
                         </div>
 
+
+                        @php( = ->media->first())
+                        <div class="event-list-media" aria-hidden="true">
+                            @if( && ->type === 'image')
+                                <img src="{{ ->thumbnailUrl() }}" alt="" loading="lazy">
+                            @elseif()
+                                <span class="event-media-mark">▶</span>
+                            @else
+                                <span class="event-media-mark">✦</span>
+                            @endif
+                            <span class="event-media-index">{{ str_pad(->iteration, 2, '0', STR_PAD_LEFT) }}</span>
+                        </div>
 
                         {{-- MAIN CONTENT --}}
 

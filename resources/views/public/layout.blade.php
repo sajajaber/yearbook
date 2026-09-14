@@ -294,6 +294,7 @@
 
                 <div class="nav-links hidden sm:flex">
                     <a href="{{ route('public.events') }}" class="nav-item {{ request()->routeIs('public.events') ? 'is-active' : '' }}">Events</a>
+                    <a href="{{ route('public.graduations') }}" class="nav-item {{ request()->routeIs('public.graduations') ? 'is-active' : '' }}">Graduations</a>
                     <a href="{{ route('public.graduates') }}" class="nav-item {{ request()->routeIs('public.graduates') ? 'is-active' : '' }}">Graduates</a>
                     <a href="{{ route('public.archive') }}" class="nav-item {{ request()->routeIs('public.archive') ? 'is-active' : '' }}">Archive</a>
                     <a href="{{ route('search.index') }}" class="nav-item {{ request()->routeIs('search.*') ? 'is-active' : '' }}">Search</a>
