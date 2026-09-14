@@ -1,6 +1,6 @@
 @extends('public.layout')
 
-@section('title', $event->title)
+@section('title', $event->title . ' | LIU Digital Yearbook')
 
 @section('extra-css')
 <style>
