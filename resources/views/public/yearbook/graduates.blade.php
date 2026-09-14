@@ -1763,318 +1763,321 @@
 
                     {{-- Year --}}
 
-                    <div class="graduates-filter-field">
+                    <select
+                        name="year"
+                        aria-label="Filter by academic year">
 
-                        <select
-                            name="year"
-                            aria-label="Filter by graduation year">
+                        <option value="">
+                            All Academic Years
+                        </option>
 
-                            <option value="">
-                                All Years
-                            </option>
+                        @foreach($years as $academicYear)
 
-                            @foreach($years as $y)
+                        <option
+                            value="{{ $academicYear->id }}"
+                            @selected((string) $academicYear->id === (string) $year)>
+                            {{ $academicYear->title }}
+                        </option>
 
-                            <option
-                                value="{{ $y }}"
-                                @selected($y==$year)>
-                                Class of {{ $y }}
-                            </option>
+                        @endforeach
 
-                            @endforeach
+                    </select>
 
-                        </select>
-
-                    </div>
+            </div>
 
 
-                    {{-- Submit --}}
+            {{-- Submit --}}
 
-                    <button
-                        type="submit"
-                        class="graduates-filter-button">
-                        Explore
-                    </button>
+            <button
+                type="submit"
+                class="graduates-filter-button">
+                Explore
+            </button>
 
-                </form>
-
-
-                {{-- Active Filters --}}
-
-                @if($search || $school || $campus || $year)
-
-                <div class="graduates-active-filters">
-
-                    <span class="graduates-active-label">
-                        Filters
-                    </span>
+            </form>
 
 
-                    @if($search)
+            {{-- Active Filters --}}
 
-                    <div class="graduates-filter-tag">
+            @if($search || $school || $campus || $year)
 
-                        Name: {{ $search }}
+            <div class="graduates-active-filters">
 
-                        <a
-                            href="{{ route(
+                <span class="graduates-active-label">
+                    Filters
+                </span>
+
+
+                @if($search)
+
+                <div class="graduates-filter-tag">
+
+                    Name: {{ $search }}
+
+                    <a
+                        href="{{ route(
                                         'public.graduates',
                                         array_merge(
                                             request()->query(),
                                             ['search' => null]
                                         )
                                     ) }}"
-                            aria-label="Remove search filter">
-                            ×
-                        </a>
-
-                    </div>
-
-                    @endif
-
-
-                    @if($school)
-
-                    <div class="graduates-filter-tag">
-
-                        School:
-                        {{ $schools->find($school)?->name }}
-
-                        <a
-                            href="{{ route(
-                                        'public.graduates',
-                                        array_merge(
-                                            request()->query(),
-                                            ['school' => null]
-                                        )
-                                    ) }}"
-                            aria-label="Remove school filter">
-                            ×
-                        </a>
-
-                    </div>
-
-                    @endif
-
-
-                    @if($campus)
-
-                    <div class="graduates-filter-tag">
-
-                        Campus:
-                        {{ $campuses->find($campus)?->name }}
-
-                        <a
-                            href="{{ route(
-                                        'public.graduates',
-                                        array_merge(
-                                            request()->query(),
-                                            ['campus' => null]
-                                        )
-                                    ) }}"
-                            aria-label="Remove campus filter">
-                            ×
-                        </a>
-
-                    </div>
-
-                    @endif
-
-
-                    @if($year)
-
-                    <div class="graduates-filter-tag">
-
-                        Class of {{ $year }}
-
-                        <a
-                            href="{{ route(
-                                        'public.graduates',
-                                        array_merge(
-                                            request()->query(),
-                                            ['year' => null]
-                                        )
-                                    ) }}"
-                            aria-label="Remove year filter">
-                            ×
-                        </a>
-
-                    </div>
-
-                    @endif
-
-
-                    <a
-                        href="{{ route('public.graduates') }}"
-                        class="graduates-clear">
-                        Clear all
+                        aria-label="Remove search filter">
+                        ×
                     </a>
 
                 </div>
 
                 @endif
 
+
+                @if($school)
+
+                <div class="graduates-filter-tag">
+
+                    School:
+                    {{ $schools->find($school)?->name }}
+
+                    <a
+                        href="{{ route(
+                                        'public.graduates',
+                                        array_merge(
+                                            request()->query(),
+                                            ['school' => null]
+                                        )
+                                    ) }}"
+                        aria-label="Remove school filter">
+                        ×
+                    </a>
+
+                </div>
+
+                @endif
+
+
+                @if($campus)
+
+                <div class="graduates-filter-tag">
+
+                    Campus:
+                    {{ $campuses->find($campus)?->name }}
+
+                    <a
+                        href="{{ route(
+                                        'public.graduates',
+                                        array_merge(
+                                            request()->query(),
+                                            ['campus' => null]
+                                        )
+                                    ) }}"
+                        aria-label="Remove campus filter">
+                        ×
+                    </a>
+
+                </div>
+
+                @endif
+
+
+                @if($year)
+
+                <div class="graduates-filter-tag">
+
+                    @php
+                    $selectedAcademicYear = $years->firstWhere('id', $year);
+                    @endphp
+
+                    Academic Year:
+                    {{ $selectedAcademicYear?->title ?? $year }}
+
+                    <a
+                        href="{{ route(
+                                        'public.graduates',
+                                        array_merge(
+                                            request()->query(),
+                                            ['year' => null]
+                                        )
+                                    ) }}"
+                        aria-label="Remove year filter">
+                        ×
+                    </a>
+
+                </div>
+
+                @endif
+
+
+                <a
+                    href="{{ route('public.graduates') }}"
+                    class="graduates-clear">
+                    Clear all
+                </a>
+
+            </div>
+
+            @endif
+
+        </div>
+
+</div>
+
+</section>
+
+
+{{-- =====================================================
+         GRADUATE ARCHIVE
+         ===================================================== --}}
+
+<section class="section">
+
+    <div class="container">
+
+        @if($graduates->count() > 0)
+
+        {{-- Archive Header --}}
+
+        <div class="graduates-archive-header">
+
+            <div>
+
+                <div class="graduates-archive-kicker">
+                    Class Archive
+                </div>
+
+                <h2>
+                    Meet the graduates
+                </h2>
+
+            </div>
+
+            <div class="graduates-count">
+
+                Showing
+                {{ $graduates->firstItem() }}
+                –
+                {{ $graduates->lastItem() }}
+                of
+                {{ $graduates->total() }}
+
             </div>
 
         </div>
 
-    </section>
 
-
-    {{-- =====================================================
-         GRADUATE ARCHIVE
-         ===================================================== --}}
-
-    <section class="section">
-
-        <div class="container">
-
-            @if($graduates->count() > 0)
-
-            {{-- Archive Header --}}
-
-            <div class="graduates-archive-header">
-
-                <div>
-
-                    <div class="graduates-archive-kicker">
-                        Class Archive
-                    </div>
-
-                    <h2>
-                        Meet the graduates
-                    </h2>
-
-                </div>
-
-                <div class="graduates-count">
-
-                    Showing
-                    {{ $graduates->firstItem() }}
-                    –
-                    {{ $graduates->lastItem() }}
-                    of
-                    {{ $graduates->total() }}
-
-                </div>
-
-            </div>
-
-
-            {{-- =================================================
+        {{-- =================================================
                      GROUP GRADUATES BY YEAR
                      ================================================= --}}
 
-            @php
+        @php
 
-            /*
-            * Keep every graduate equal.
-            *
-            * Graduates are grouped by ceremony year
-            * when that information exists.
-            */
+        /*
+        * Keep every graduate equal.
+        *
+        * Graduates are grouped by ceremony year
+        * when that information exists.
+        */
 
-            $groupedGraduates = $graduates
-            ->getCollection()
-            ->groupBy(function ($graduate) {
+        $groupedGraduates = $graduates
+        ->getCollection()
+        ->groupBy(function ($graduate) {
 
-            if (
-            $graduate->graduation?->ceremony_date
-            ) {
+        if (
+        $graduate->graduation?->ceremony_date
+        ) {
 
-            return \Carbon\Carbon::parse(
-            $graduate->graduation->ceremony_date
-            )->format('Y');
+        return \Carbon\Carbon::parse(
+        $graduate->graduation->ceremony_date
+        )->format('Y');
 
-            }
+        }
 
-            return 'Class';
+        return 'Class';
 
-            });
+        });
 
-            @endphp
+        @endphp
 
 
-            @foreach($groupedGraduates as $groupYear => $groupGraduates)
+        @foreach($groupedGraduates as $groupYear => $groupGraduates)
 
-            <section class="graduates-year-group">
+        <section class="graduates-year-group">
 
-                {{-- Year Heading --}}
+            {{-- Year Heading --}}
 
-                <div class="graduates-year-heading">
+            <div class="graduates-year-heading">
 
-                    <span class="graduates-year-number">
+                <span class="graduates-year-number">
 
-                        {{
+                    {{
                                     $groupYear === 'Class'
                                         ? 'Class'
                                         : $groupYear
                                 }}
 
-                    </span>
+                </span>
 
-                    <span class="graduates-year-line"></span>
+                <span class="graduates-year-line"></span>
 
-                </div>
-
-
-                {{-- Graduate Grid --}}
-
-                <div class="graduates-grid">
-
-                    @foreach($groupGraduates as $graduate)
-
-                    @php
-
-                    $portrait =
-                    $graduate->media->first();
-
-                    $graduationYear = null;
-
-                    if (
-                    $graduate->graduation?->ceremony_date
-                    ) {
-
-                    $graduationYear =
-                    \Carbon\Carbon::parse(
-                    $graduate
-                    ->graduation
-                    ->ceremony_date
-                    )->format('Y');
-
-                    }
-
-                    @endphp
+            </div>
 
 
-                    <a
-                        href="{{ route(
+            {{-- Graduate Grid --}}
+
+            <div class="graduates-grid">
+
+                @foreach($groupGraduates as $graduate)
+
+                @php
+
+                $portrait =
+                $graduate->media->first();
+
+                $graduationYear = null;
+
+                if (
+                $graduate->graduation?->ceremony_date
+                ) {
+
+                $graduationYear =
+                \Carbon\Carbon::parse(
+                $graduate
+                ->graduation
+                ->ceremony_date
+                )->format('Y');
+
+                }
+
+                @endphp
+
+
+                <a
+                    href="{{ route(
                                         'public.graduate.detail',
                                         $graduate->id
                                     ) }}"
-                        class="graduate-link"
-                        aria-label="View {{ $graduate->name }}'s graduate profile">
+                    class="graduate-link"
+                    aria-label="View {{ $graduate->name }}'s graduate profile">
 
-                        <article class="graduate-card">
+                    <article class="graduate-card">
 
 
-                            {{-- Portrait --}}
+                        {{-- Portrait --}}
 
-                            <div class="graduate-portrait">
+                        <div class="graduate-portrait">
 
-                                @if($portrait)
+                            @if($portrait)
 
-                                <img
-                                    src="{{ Storage::disk('public')->url($portrait->path) }}"
-                                    alt="{{ $graduate->name }}"
-                                    loading="lazy">
+                            <img
+                                src="{{ Storage::disk('public')->url($portrait->path) }}"
+                                alt="{{ $graduate->name }}"
+                                loading="lazy">
 
-                                @else
+                            @else
 
-                                <div
-                                    class="graduate-placeholder"
-                                    aria-hidden="true">
-                                    {{
+                            <div
+                                class="graduate-placeholder"
+                                aria-hidden="true">
+                                {{
                                                         strtoupper(
                                                             substr(
                                                                 $graduate->name,
@@ -2083,265 +2086,265 @@
                                                             )
                                                         )
                                                     }}
-                                </div>
-
-                                @endif
-
-
-                                {{-- Graduation Year --}}
-
-                                @if($graduationYear)
-
-                                <span
-                                    class="graduate-year-badge">
-                                    {{ $graduationYear }}
-                                </span>
-
-                                @endif
-
                             </div>
 
-
-                            {{-- Card Content --}}
-
-                            <div class="graduate-card-body">
-
-                                <h3 class="graduate-name">
-                                    {{ $graduate->name }}
-                                </h3>
+                            @endif
 
 
-                                <p class="graduate-major">
+                            {{-- Graduation Year --}}
 
-                                    {{
+                            @if($graduationYear)
+
+                            <span
+                                class="graduate-year-badge">
+                                {{ $graduationYear }}
+                            </span>
+
+                            @endif
+
+                        </div>
+
+
+                        {{-- Card Content --}}
+
+                        <div class="graduate-card-body">
+
+                            <h3 class="graduate-name">
+                                {{ $graduate->name }}
+                            </h3>
+
+
+                            <p class="graduate-major">
+
+                                {{
                                                     $graduate->major->name
                                                     ?? 'Major not specified'
                                                 }}
 
-                                </p>
+                            </p>
 
 
-                                <p class="graduate-school">
+                            <p class="graduate-school">
 
-                                    {{
+                                {{
                                                     $graduate->school->name
                                                     ?? 'School not specified'
                                                 }}
 
-                                </p>
+                            </p>
 
 
-                                {{-- Card Footer --}}
+                            {{-- Card Footer --}}
 
-                                <div class="graduate-card-footer">
+                            <div class="graduate-card-footer">
 
-                                    <span class="graduate-school">
+                                <span class="graduate-school">
 
-                                        {{
+                                    {{
                                                         $graduationYear
                                                             ? 'Class of ' . $graduationYear
                                                             : 'Graduate'
                                                     }}
 
-                                    </span>
+                                </span>
 
 
-                                    <span class="graduate-view">
+                                <span class="graduate-view">
 
-                                        Profile
+                                    Profile
 
-                                        <svg
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            stroke-width="2"
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            aria-hidden="true">
+                                    <svg
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="2"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        aria-hidden="true">
 
-                                            <path d="M5 12h14" />
+                                        <path d="M5 12h14" />
 
-                                            <path d="m13 6 6 6-6 6" />
+                                        <path d="m13 6 6 6-6 6" />
 
-                                        </svg>
+                                    </svg>
 
-                                    </span>
-
-                                </div>
+                                </span>
 
                             </div>
 
-                        </article>
+                        </div>
 
-                    </a>
+                    </article>
 
-                    @endforeach
+                </a>
 
-                </div>
+                @endforeach
 
-            </section>
+            </div>
+
+        </section>
+
+        @endforeach
+
+
+        {{-- =================================================
+                     PAGINATION
+                     ================================================= --}}
+
+        @if($graduates->hasPages())
+
+        <nav
+            class="graduates-pagination"
+            aria-label="Graduate directory pagination">
+
+            @if($graduates->onFirstPage())
+
+            <span class="disabled">
+                ←
+            </span>
+
+            @else
+
+            <a
+                href="{{ $graduates->previousPageUrl() }}"
+                aria-label="Previous page">
+                ←
+            </a>
+
+            @endif
+
+
+            @foreach(
+            $graduates->getUrlRange(
+            1,
+            $graduates->lastPage()
+            ) as $page => $url
+            )
+
+            @if($page == $graduates->currentPage())
+
+            <span
+                class="active"
+                aria-current="page">
+                {{ $page }}
+            </span>
+
+            @else
+
+            <a href="{{ $url }}">
+                {{ $page }}
+            </a>
+
+            @endif
 
             @endforeach
 
 
-            {{-- =================================================
-                     PAGINATION
-                     ================================================= --}}
+            @if($graduates->hasMorePages())
 
-            @if($graduates->hasPages())
-
-            <nav
-                class="graduates-pagination"
-                aria-label="Graduate directory pagination">
-
-                @if($graduates->onFirstPage())
-
-                <span class="disabled">
-                    ←
-                </span>
-
-                @else
-
-                <a
-                    href="{{ $graduates->previousPageUrl() }}"
-                    aria-label="Previous page">
-                    ←
-                </a>
-
-                @endif
-
-
-                @foreach(
-                $graduates->getUrlRange(
-                1,
-                $graduates->lastPage()
-                ) as $page => $url
-                )
-
-                @if($page == $graduates->currentPage())
-
-                <span
-                    class="active"
-                    aria-current="page">
-                    {{ $page }}
-                </span>
-
-                @else
-
-                <a href="{{ $url }}">
-                    {{ $page }}
-                </a>
-
-                @endif
-
-                @endforeach
-
-
-                @if($graduates->hasMorePages())
-
-                <a
-                    href="{{ $graduates->nextPageUrl() }}"
-                    aria-label="Next page">
-                    →
-                </a>
-
-                @else
-
-                <span class="disabled">
-                    →
-                </span>
-
-                @endif
-
-            </nav>
-
-            @endif
-
+            <a
+                href="{{ $graduates->nextPageUrl() }}"
+                aria-label="Next page">
+                →
+            </a>
 
             @else
 
-            {{-- =================================================
+            <span class="disabled">
+                →
+            </span>
+
+            @endif
+
+        </nav>
+
+        @endif
+
+
+        @else
+
+        {{-- =================================================
                      EMPTY STATE
                      ================================================= --}}
 
-            <div class="graduates-empty">
+        <div class="graduates-empty">
 
-                <div class="graduates-empty-icon">
+            <div class="graduates-empty-icon">
 
-                    <svg
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="1.7"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        aria-hidden="true">
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true">
 
-                        <circle
-                            cx="9"
-                            cy="8"
-                            r="3" />
+                    <circle
+                        cx="9"
+                        cy="8"
+                        r="3" />
 
-                        <path
-                            d="M3 21c0-3.3 2.7-6 6-6s6 2.7 6 6" />
+                    <path
+                        d="M3 21c0-3.3 2.7-6 6-6s6 2.7 6 6" />
 
-                        <path
-                            d="M16 3.5a3 3 0 0 1 0 5.8" />
+                    <path
+                        d="M16 3.5a3 3 0 0 1 0 5.8" />
 
-                        <path
-                            d="M18 15.5a5.5 5.5 0 0 1 3 5" />
+                    <path
+                        d="M18 15.5a5.5 5.5 0 0 1 3 5" />
 
-                    </svg>
-
-                </div>
-
-
-                <h3>
-                    No graduates found
-                </h3>
-
-
-                <p>
-
-                    We couldn't find any graduates matching your
-                    current search and filters. Try changing your
-                    criteria to explore the class archive.
-
-                </p>
-
-
-                <a
-                    href="{{ route('public.graduates') }}"
-                    class="btn btn-primary">
-                    Browse all graduates
-                </a>
+                </svg>
 
             </div>
 
-            @endif
+
+            <h3>
+                No graduates found
+            </h3>
 
 
-            {{-- =================================================
-                 NAMED-ONLY GRADUATES
-                 ================================================= --}}
+            <p>
 
-            @if($namedOnly->isNotEmpty())
+                We couldn't find any graduates matching your
+                current search and filters. Try changing your
+                criteria to explore the class archive.
 
-            <div class="graduates-named-only">
+            </p>
 
-                <strong>
-                    Also graduating this year
-                </strong>
 
-                {{ $namedOnly->implode(' · ') }}
-
-            </div>
-
-            @endif
+            <a
+                href="{{ route('public.graduates') }}"
+                class="btn btn-primary">
+                Browse all graduates
+            </a>
 
         </div>
 
-    </section>
+        @endif
+
+
+        {{-- =================================================
+                 NAMED-ONLY GRADUATES
+                 ================================================= --}}
+
+        @if($namedOnly->isNotEmpty())
+
+        <div class="graduates-named-only">
+
+            <strong>
+                Also graduating this year
+            </strong>
+
+            {{ $namedOnly->implode(' · ') }}
+
+        </div>
+
+        @endif
+
+    </div>
+
+</section>
 
 </div>
 
