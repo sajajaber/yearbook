@@ -125,24 +125,76 @@
     .gallery-heading h2 { margin:0; color:var(--grad-ink); font-size:1.55rem; font-weight:800; }
     .gallery-heading span { color:var(--grad-muted); font-size:.85rem; font-weight:600; }
 
-    .graduation-gallery { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
-    .graduation-gallery-item {
-        position:relative; min-height:245px; overflow:hidden; border-radius:16px; background:var(--grad-blue-light);
-        box-shadow:0 8px 25px rgba(0,42,92,.08); animation:galleryReveal .65s ease-out both;
+    /* Graduation gallery now mirrors the editorial event gallery. */
+    .graduation-gallery {
+        display:grid;
+        grid-template-columns:repeat(12, 1fr);
+        gap:14px;
     }
-    .graduation-gallery-item:first-child { grid-column:span 2; min-height:330px; }
+
+    .graduation-gallery-item {
+        position:relative;
+        grid-column:span 4;
+        height:245px;
+        min-height:0;
+        overflow:hidden;
+        border-radius:16px;
+        background:var(--grad-ink);
+        box-shadow:0 8px 25px rgba(0,42,92,.08);
+        cursor:pointer;
+        isolation:isolate;
+        animation:galleryReveal .65s ease-out both;
+    }
+
+    .graduation-gallery-item:first-child {
+        grid-column:span 8;
+        height:360px;
+    }
+
+    .graduation-gallery-item:nth-child(4n + 2) {
+        grid-column:span 4;
+    }
+
+    .graduation-gallery-item::after {
+        content:'';
+        position:absolute;
+        inset:0;
+        z-index:1;
+        background:linear-gradient(to top, rgba(0,27,61,.62), transparent 45%);
+        opacity:.68;
+        pointer-events:none;
+        transition:opacity 280ms cubic-bezier(.2,.8,.2,1);
+    }
 
     .graduation-gallery-item img,
     .graduation-gallery-item video {
-        width:100%; height:100%; min-height:inherit; object-fit:cover; display:block;
-        transition:transform .8s cubic-bezier(.2,.65,.25,1), filter .5s ease;
+        width:100%;
+        height:100%;
+        min-height:0;
+        object-fit:cover;
+        display:block;
+        transition:transform 600ms cubic-bezier(.2,.8,.2,1), filter 400ms ease;
     }
-    .graduation-gallery-item:hover img { transform:scale(1.065); filter:saturate(1.08); }
-    .graduation-gallery-item video { background:#001b3d; }
+
+    .graduation-gallery-item:hover img {
+        transform:scale(1.07);
+        filter:saturate(1.08);
+    }
+
+    .graduation-gallery-item:hover::after { opacity:.82; }
+    .graduation-gallery-item video { background:#001b3d; cursor:default; }
 
     .media-document {
-        min-height:245px; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center;
-        gap:15px; padding:30px; text-align:center; color:var(--grad-ink);
+        min-height:100%;
+        height:100%;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        justify-content:center;
+        gap:15px;
+        padding:30px;
+        text-align:center;
+        color:var(--grad-ink);
         background:linear-gradient(135deg,#f8fbff,#eaf3fb);
     }
     .media-document-icon { display:grid; place-items:center; width:64px; height:64px; border-radius:18px; background:var(--grad-gold-light); color:var(--grad-ink); }
@@ -150,8 +202,27 @@
     .media-document a { display:inline-flex; align-items:center; justify-content:center; padding:9px 14px; border-radius:10px; background:var(--grad-ink); color:#fff; text-decoration:none; font-size:.8rem; font-weight:800; transition:transform .2s, background .2s; }
     .media-document a:hover { transform:translateY(-2px); background:var(--grad-blue); }
 
-    .gallery-overlay { position:absolute; left:18px; bottom:16px; z-index:2; display:flex; align-items:center; gap:8px; padding:7px 11px; border-radius:999px; background:rgba(0,24,54,.72); color:#fff; font-size:.76rem; font-weight:700; backdrop-filter:blur(8px); }
-    .gallery-overlay-icon { display:grid; place-items:center; width:26px; height:26px; border-radius:50%; background:rgba(255,255,255,.92); color:var(--grad-ink); }
+    .gallery-overlay {
+        position:absolute;
+        left:18px;
+        bottom:16px;
+        z-index:2;
+        display:flex;
+        align-items:center;
+        gap:8px;
+        max-width:calc(100% - 36px);
+        padding:7px 11px;
+        border-radius:999px;
+        background:rgba(0,24,54,.72);
+        color:#fff;
+        font-size:.76rem;
+        font-weight:700;
+        backdrop-filter:blur(8px);
+        white-space:nowrap;
+        overflow:hidden;
+        text-overflow:ellipsis;
+    }
+    .gallery-overlay-icon { display:grid; place-items:center; width:26px; height:26px; flex:0 0 26px; border-radius:50%; background:rgba(255,255,255,.92); color:var(--grad-ink); }
 
     .graduation-sidebar { position:sticky; top:25px; }
     .details-card { padding:27px; animation-delay:.15s; }
@@ -200,11 +271,13 @@
     @media (max-width:1050px) { .graduates-grid{grid-template-columns:repeat(3,minmax(0,1fr));} }
     @media (max-width:900px) {
         .graduation-layout{grid-template-columns:1fr}.graduation-sidebar{position:static}.graduates-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+        .graduation-gallery-item,.graduation-gallery-item:first-child{grid-column:span 6;height:280px;}
+        .graduation-gallery-item:first-child{height:340px;}
     }
     @media (max-width:650px) {
         .graduation-hero{min-height:400px}.graduation-hero-content,.graduation-content{width:min(100% - 30px,1180px)}
         .graduation-hero-content{padding:65px 0 45px}.graduation-content{padding:55px 0 70px}
-        .graduation-gallery{grid-template-columns:1fr}.graduation-gallery-item,.graduation-gallery-item:first-child{grid-column:span 1;min-height:240px}
+        .graduation-gallery{grid-template-columns:1fr}.graduation-gallery-item,.graduation-gallery-item:first-child{grid-column:span 1;height:240px;min-height:240px}
         .graduates-section{margin-top:60px}.graduates-heading{display:block}.graduates-count{margin-top:18px}.graduates-grid{grid-template-columns:1fr;gap:17px}.graduate-image{height:280px}
     }
     @media (prefers-reduced-motion:reduce) { *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;} }
