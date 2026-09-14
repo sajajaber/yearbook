@@ -3,8 +3,8 @@
         <style>
             .yearbook-pagination{display:flex;justify-content:center;width:100%;margin:0;padding:18px 0;box-sizing:border-box}
             .yearbook-pagination-controls{display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap}
-            .yearbook-pagination-controls a,.yearbook-pagination-controls span{display:inline-flex;align-items:center;justify-content:center;height:32px;min-width:20px;padding:0 3px;border:0;background:transparent;color:#64748b;font:600 .72rem/1 "Inter",sans-serif;text-decoration:none;box-sizing:border-box;transition:color .18s ease,opacity .18s ease}
-            .yearbook-pagination-controls a:hover{color:#002a5c}
+            .yearbook-pagination-controls a,.yearbook-pagination-controls span{display:inline-flex;align-items:center;justify-content:center;height:32px;min-width:20px;padding:0 3px;border:0;background:transparent;color:#64748b;font:600 .72rem/1 "Inter",sans-serif;text-decoration:none;box-sizing:border-box;transition:none}
+            .yearbook-pagination-controls a:hover{color:#64748b;background:transparent;text-decoration:none}
             .yearbook-pagination-controls a:focus-visible{outline:2px solid #ffb034;outline-offset:5px;border-radius:2px}
             .yearbook-pagination-controls .is-current{color:#002a5c;position:relative}
             .yearbook-pagination-controls .is-current:after{content:"";position:absolute;left:3px;right:3px;bottom:1px;height:2px;background:#ffb034;border-radius:2px}
