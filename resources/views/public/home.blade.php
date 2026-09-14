@@ -52,7 +52,6 @@
         margin: 0 auto;
     }
 
-
     /* =========================================================
         HERO / COVER
         ========================================================= */
@@ -73,17 +72,14 @@
         content: "";
         position: absolute;
         inset: 0;
-
         background:
             linear-gradient(90deg,
                 rgba(7, 26, 51, 0.97) 0%,
                 rgba(7, 26, 51, 0.82) 42%,
                 rgba(7, 26, 51, 0.28) 72%,
                 rgba(7, 26, 51, 0.52) 100%);
-
         z-index: 2;
         pointer-events: none;
-
         transition: opacity 1.4s ease;
     }
 
@@ -99,17 +95,14 @@
         height: 100%;
         object-fit: cover;
         display: block;
-
         filter: saturate(0.82);
         transform: scale(1.08);
-
         will-change: transform, opacity, filter;
     }
 
     .yb-cover-empty {
         width: 100%;
         height: 100%;
-
         background:
             radial-gradient(circle at 75% 30%,
                 rgba(215, 168, 62, 0.18),
@@ -125,16 +118,13 @@
         z-index: 3;
         pointer-events: none;
         opacity: 0.25;
-
         background-image:
             linear-gradient(rgba(255, 255, 255, .08) 1px,
                 transparent 1px),
             linear-gradient(90deg,
                 rgba(255, 255, 255, .08) 1px,
                 transparent 1px);
-
         background-size: 80px 80px;
-
         transition:
             transform 1.5s var(--yb-ease),
             opacity 1s ease;
@@ -143,16 +133,12 @@
     .yb-cover-inner {
         position: relative;
         z-index: 4;
-
         width: min(1240px, calc(100% - 48px));
         margin: 0 auto;
-
         min-height: 100svh;
-
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-
         padding: 42px 0 50px;
     }
 
@@ -166,7 +152,6 @@
         display: flex;
         align-items: center;
         gap: 14px;
-
         text-decoration: none;
         color: var(--yb-white);
     }
@@ -174,16 +159,12 @@
     .yb-brand-mark {
         width: 48px;
         height: 48px;
-
         border: 1px solid rgba(255, 255, 255, .55);
-
         display: grid;
         place-items: center;
-
         font-size: 0.72rem;
         font-weight: 800;
         letter-spacing: 1px;
-
         transition:
             background .35s ease,
             border-color .35s ease,
@@ -207,29 +188,23 @@
 
     .yb-edition {
         text-align: right;
-
         font-size: 0.68rem;
         text-transform: uppercase;
         letter-spacing: 2px;
-
         color: rgba(255, 255, 255, .72);
     }
 
     .yb-edition strong {
         display: block;
-
         color: var(--yb-gold-light);
-
         font-size: 0.82rem;
         margin-top: 5px;
     }
 
     .yb-cover-main {
         max-width: 920px;
-
         margin-top: auto;
         margin-bottom: auto;
-
         padding: 80px 0;
     }
 
@@ -237,28 +212,20 @@
         display: flex;
         align-items: center;
         gap: 15px;
-
         text-transform: uppercase;
         letter-spacing: 3px;
-
         font-size: 0.72rem;
         font-weight: 800;
-
         color: var(--yb-gold-light);
-
         margin-bottom: 24px;
     }
 
     .yb-cover-kicker::before {
         content: "";
-
         width: 42px;
         height: 1px;
-
         background: var(--yb-gold);
-
-        transition:
-            width .8s var(--yb-ease);
+        transition: width .8s var(--yb-ease);
     }
 
     .yearbook-wrapper.page-animations .yb-cover-kicker::before {
@@ -267,17 +234,11 @@
 
     .yb-cover-title {
         font-family: var(--yb-serif);
-
         font-size: clamp(3.4rem, 7.5vw, 7.5rem);
-
         line-height: 0.95;
-
         letter-spacing: -0.045em;
-
         font-weight: 800;
-
         max-width: 900px;
-
         text-wrap: balance;
     }
 
@@ -288,13 +249,9 @@
 
     .yb-cover-description {
         max-width: 500px;
-
         margin-top: 28px;
-
         font-size: 1rem;
-
         line-height: 1.7;
-
         color: rgba(255, 255, 255, 0.78);
     }
 
@@ -302,33 +259,24 @@
         display: flex;
         align-items: center;
         gap: 24px;
-
         margin-top: 34px;
-
         flex-wrap: wrap;
     }
 
     .yb-cover-link {
         position: relative;
         overflow: hidden;
-
         display: inline-flex;
         align-items: center;
         gap: 12px;
-
         padding: 14px 22px;
-
         background: var(--yb-gold);
         color: var(--yb-ink);
-
         text-decoration: none;
-
         font-size: 0.76rem;
         font-weight: 800;
-
         text-transform: uppercase;
         letter-spacing: 1.4px;
-
         transition:
             transform .45s var(--yb-ease),
             background .35s ease,
@@ -337,29 +285,21 @@
 
     .yb-cover-link::before {
         content: "";
-
         position: absolute;
         inset: 0;
-
         background:
             linear-gradient(110deg,
                 transparent 20%,
                 rgba(255, 255, 255, .28) 50%,
                 transparent 80%);
-
         transform: translateX(-120%);
-
-        transition:
-            transform .8s var(--yb-ease);
+        transition: transform .8s var(--yb-ease);
     }
 
     .yb-cover-link:hover {
         transform: translateY(-4px);
-
         background: var(--yb-gold-light);
-
-        box-shadow:
-            0 15px 35px rgba(0, 0, 0, .18);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, .18);
     }
 
     .yb-cover-link:hover::before {
@@ -369,11 +309,8 @@
     .yb-cover-link-arrow {
         position: relative;
         z-index: 1;
-
         font-size: 1rem;
-
-        transition:
-            transform .45s var(--yb-ease);
+        transition: transform .45s var(--yb-ease);
     }
 
     .yb-cover-link:hover .yb-cover-link-arrow {
@@ -382,7 +319,6 @@
 
     .yb-cover-actions>a:last-child {
         position: relative;
-
         transition:
             color .3s ease,
             transform .4s var(--yb-ease);
@@ -397,18 +333,14 @@
         display: flex;
         justify-content: space-between;
         align-items: flex-end;
-
         border-top: 1px solid var(--yb-dark-line);
-
         padding-top: 18px;
     }
 
     .yb-cover-caption {
         font-size: 0.7rem;
-
         text-transform: uppercase;
         letter-spacing: 1.7px;
-
         color: rgba(255, 255, 255, .55);
     }
 
@@ -416,11 +348,8 @@
         display: flex;
         align-items: center;
         gap: 12px;
-
         color: rgba(255, 255, 255, .65);
-
         font-size: 0.65rem;
-
         text-transform: uppercase;
         letter-spacing: 2px;
     }
@@ -428,17 +357,13 @@
     .yb-scroll-line {
         width: 55px;
         height: 1px;
-
         background: rgba(255, 255, 255, .5);
-
-        transition:
-            width .5s var(--yb-ease);
+        transition: width .5s var(--yb-ease);
     }
 
     .yb-cover-scroll:hover .yb-scroll-line {
         width: 85px;
     }
-
 
     /* =========================================================
         INTRODUCTION
@@ -451,24 +376,17 @@
 
     .yb-intro-grid {
         display: grid;
-
         grid-template-columns: 0.7fr 1.3fr;
-
         gap: 80px;
-
         align-items: start;
     }
 
     .yb-overline {
         font-size: 0.68rem;
         font-weight: 800;
-
         letter-spacing: 2.5px;
-
         text-transform: uppercase;
-
         color: var(--yb-gold);
-
         margin-bottom: 16px;
     }
 
@@ -479,19 +397,12 @@
 
     .yb-intro-number {
         font-family: var(--yb-serif);
-
         font-size: clamp(5rem, 10vw, 9rem);
-
         line-height: .75;
-
         color: var(--yb-blue);
-
         font-weight: 900;
-
         letter-spacing: -0.08em;
-
         margin: 20px 0;
-
         transition:
             transform .7s var(--yb-ease),
             color .4s ease;
@@ -504,24 +415,17 @@
 
     .yb-intro-side p {
         max-width: 260px;
-
         color: var(--yb-muted);
-
         font-size: .86rem;
         line-height: 1.7;
     }
 
     .yb-intro-heading {
         font-family: var(--yb-serif);
-
         font-size: clamp(2.3rem, 5vw, 5rem);
-
         line-height: 1.02;
-
         letter-spacing: -.055em;
-
         margin: 0;
-
         max-width: 760px;
     }
 
@@ -532,15 +436,11 @@
 
     .yb-intro-copy {
         max-width: 680px;
-
         margin-top: 32px;
-
         font-size: 1.05rem;
         line-height: 1.9;
-
         color: var(--yb-muted);
     }
-
 
     /* =========================================================
         NUMBERS
@@ -548,48 +448,33 @@
 
     .yb-numbers {
         background: var(--yb-blue);
-
         color: var(--yb-white);
-
         padding: 75px 0;
-
         position: relative;
     }
 
     .yb-numbers::after {
         content: "THE YEAR";
-
         position: absolute;
-
         right: -10px;
         bottom: -34px;
-
         font-size: clamp(5rem, 14vw, 13rem);
-
         font-weight: 900;
-
         letter-spacing: -.08em;
-
         color: rgba(255, 255, 255, .035);
-
         pointer-events: none;
-
         line-height: .8;
     }
 
     .yb-number-grid {
         display: grid;
-
         grid-template-columns: repeat(3, 1fr);
     }
 
     .yb-number-item {
         padding: 10px 50px;
-
         border-left: 1px solid var(--yb-dark-line);
-
-        transition:
-            transform .5s var(--yb-ease);
+        transition: transform .5s var(--yb-ease);
     }
 
     .yb-number-item:first-child {
@@ -603,17 +488,11 @@
 
     .yb-number-value {
         font-family: var(--yb-serif);
-
         font-size: clamp(3.3rem, 6vw, 6rem);
-
         line-height: .9;
-
         letter-spacing: -.06em;
-
         color: var(--yb-gold-light);
-
         margin-bottom: 15px;
-
         transition:
             transform .5s var(--yb-ease),
             color .4s ease;
@@ -626,16 +505,11 @@
 
     .yb-number-label {
         text-transform: uppercase;
-
         letter-spacing: 2px;
-
         font-size: .68rem;
-
         font-weight: 800;
-
         color: rgba(255, 255, 255, .7);
     }
-
 
     /* =========================================================
         YEAR TIMELINE
@@ -648,25 +522,17 @@
 
     .yb-section-header {
         display: flex;
-
         justify-content: space-between;
-
         align-items: flex-end;
-
         gap: 30px;
-
         margin-bottom: 80px;
     }
 
     .yb-section-header h2 {
         font-family: var(--yb-serif);
-
         font-size: clamp(2.7rem, 6vw, 6rem);
-
         line-height: .9;
-
         letter-spacing: -.065em;
-
         margin: 0;
     }
 
@@ -677,12 +543,9 @@
 
     .yb-section-header-note {
         max-width: 300px;
-
         color: var(--yb-muted);
-
         font-size: .82rem;
         line-height: 1.65;
-
         text-align: right;
     }
 
@@ -693,32 +556,21 @@
 
     .yb-timeline::before {
         content: "";
-
         position: absolute;
-
         left: 25px;
         top: 0;
         bottom: 0;
-
         width: 1px;
-
         background: var(--yb-line);
-
         transform-origin: top;
-
-        transition:
-            transform 1.5s var(--yb-ease);
+        transition: transform 1.5s var(--yb-ease);
     }
 
     .yb-event {
         position: relative;
-
         display: grid;
-
         grid-template-columns: 180px 1fr;
-
         gap: 45px;
-
         padding: 0 0 75px;
     }
 
@@ -728,24 +580,15 @@
 
     .yb-event::before {
         content: "";
-
         position: absolute;
-
         left: -75px;
         top: 5px;
-
         width: 11px;
         height: 11px;
-
         background: var(--yb-paper);
-
         border: 2px solid var(--yb-gold);
-
         border-radius: 50%;
-
-        box-shadow:
-            0 0 0 7px var(--yb-paper);
-
+        box-shadow: 0 0 0 7px var(--yb-paper);
         transition:
             transform .45s var(--yb-ease),
             background .35s ease,
@@ -754,9 +597,7 @@
 
     .yb-event.is-visible::before {
         transform: scale(1.15);
-
         background: var(--yb-gold);
-
         box-shadow:
             0 0 0 7px var(--yb-paper),
             0 0 0 10px rgba(215, 168, 62, .12);
@@ -764,43 +605,28 @@
 
     .yb-event-date {
         font-family: var(--yb-serif);
-
         font-size: 1.05rem;
-
         color: var(--yb-blue);
-
         line-height: 1.3;
     }
 
     .yb-event-date span {
         display: block;
-
         font-family: var(--yb-sans);
-
         text-transform: uppercase;
-
         font-size: .62rem;
-
         font-weight: 800;
-
         letter-spacing: 1.8px;
-
         color: var(--yb-muted);
-
         margin-bottom: 7px;
     }
 
     .yb-event-content {
         display: grid;
-
         grid-template-columns: minmax(0, 1fr) 270px;
-
         gap: 30px;
-
         align-items: start;
-
         padding-bottom: 30px;
-
         border-bottom: 1px solid var(--yb-line);
     }
 
@@ -810,15 +636,10 @@
 
     .yb-event-title {
         font-family: var(--yb-serif);
-
         font-size: clamp(1.5rem, 2.5vw, 2.4rem);
-
         line-height: 1.12;
-
         letter-spacing: -.04em;
-
         margin: 0 0 13px;
-
         transition:
             color .3s ease,
             transform .45s var(--yb-ease);
@@ -831,30 +652,22 @@
 
     .yb-event-description {
         font-size: .88rem;
-
         line-height: 1.7;
-
         color: var(--yb-muted);
-
         max-width: 600px;
-
         margin: 0;
     }
 
     .yb-event-image,
     .yb-event-placeholder {
         width: 100%;
-
         aspect-ratio: 1.35 / 1;
-
         object-fit: cover;
-
         display: block;
     }
 
     .yb-event-image {
         filter: saturate(.88);
-
         transition:
             transform 1s var(--yb-ease),
             filter .6s ease;
@@ -867,65 +680,40 @@
 
     .yb-event-placeholder {
         background: var(--yb-blue-soft);
-
         display: grid;
-
         place-items: center;
-
         color: var(--yb-blue);
-
         font-size: .65rem;
-
         font-weight: 800;
-
         text-transform: uppercase;
-
         letter-spacing: 1.5px;
     }
 
     .yb-event-link {
         position: relative;
-
         display: inline-flex;
-
         align-items: center;
-
         gap: 8px;
-
         color: var(--yb-blue);
-
         text-decoration: none;
-
         text-transform: uppercase;
-
         font-size: .65rem;
-
         letter-spacing: 1.5px;
-
         font-weight: 800;
-
         margin-top: 22px;
     }
 
     .yb-event-link::after {
         content: "";
-
         position: absolute;
-
         left: 0;
         bottom: -6px;
-
         width: 100%;
         height: 1px;
-
         background: currentColor;
-
         transform: scaleX(0);
-
         transform-origin: right;
-
-        transition:
-            transform .45s var(--yb-ease);
+        transition: transform .45s var(--yb-ease);
     }
 
     .yb-event-link:hover::after {
@@ -934,14 +722,12 @@
     }
 
     .yb-event-link span {
-        transition:
-            transform .4s var(--yb-ease);
+        transition: transform .4s var(--yb-ease);
     }
 
     .yb-event-link:hover span {
         transform: translateX(5px);
     }
-
 
     /* =========================================================
         PEOPLE / GRADUATES
@@ -954,25 +740,17 @@
 
     .yb-people-heading {
         display: grid;
-
         grid-template-columns: 1fr 1fr;
-
         gap: 70px;
-
         align-items: end;
-
         margin-bottom: 70px;
     }
 
     .yb-people-heading h2 {
         font-family: var(--yb-serif);
-
         font-size: clamp(3rem, 7vw, 7rem);
-
         line-height: .84;
-
         letter-spacing: -.07em;
-
         margin: 0;
     }
 
@@ -983,39 +761,26 @@
 
     .yb-people-heading p {
         max-width: 410px;
-
         margin: 0 0 5px auto;
-
         color: var(--yb-muted);
-
         font-size: .9rem;
-
         line-height: 1.8;
     }
 
     .yb-graduation-grid {
         display: grid;
-
         grid-template-columns: repeat(12, 1fr);
-
         gap: 18px;
     }
 
     .yb-graduation-card {
         position: relative;
-
         min-height: 330px;
-
         overflow: hidden;
-
         text-decoration: none;
-
         color: var(--yb-white);
-
         background: var(--yb-blue);
-
         isolation: isolate;
-
         transition:
             transform .6s var(--yb-ease),
             box-shadow .6s ease;
@@ -1039,24 +804,19 @@
 
     .yb-graduation-card:hover {
         transform: translateY(-8px);
-
-        box-shadow:
-            0 25px 60px rgba(7, 26, 51, .18);
+        box-shadow: 0 25px 60px rgba(7, 26, 51, .18);
     }
 
     .yb-graduation-image,
     .yb-graduation-placeholder {
         position: absolute;
-
         inset: 0;
-
         width: 100%;
         height: 100%;
     }
 
     .yb-graduation-image {
         object-fit: cover;
-
         transition:
             transform 1.1s var(--yb-ease),
             filter .7s ease;
@@ -1076,18 +836,13 @@
 
     .yb-graduation-card::after {
         content: "";
-
         position: absolute;
-
         inset: 0;
-
         background:
             linear-gradient(180deg,
                 rgba(7, 26, 51, 0) 25%,
                 rgba(7, 26, 51, .86) 100%);
-
-        transition:
-            background .6s ease;
+        transition: background .6s ease;
     }
 
     .yb-graduation-card:hover::after {
@@ -1099,9 +854,7 @@
 
     .yb-graduation-info {
         position: absolute;
-
         z-index: 2;
-
         left: 28px;
         right: 28px;
         bottom: 26px;
@@ -1109,49 +862,32 @@
 
     .yb-graduation-date {
         font-size: .63rem;
-
         text-transform: uppercase;
-
         letter-spacing: 1.8px;
-
         color: var(--yb-gold-light);
-
         font-weight: 800;
-
         display: block;
-
         margin-bottom: 8px;
     }
 
     .yb-graduation-title {
         font-family: var(--yb-serif);
-
         font-size: clamp(1.25rem, 2.5vw, 2rem);
-
         line-height: 1.05;
-
         margin: 0;
     }
 
     .yb-graduation-arrow {
         position: absolute;
-
         z-index: 3;
-
         top: 24px;
         right: 24px;
-
         width: 42px;
         height: 42px;
-
         border: 1px solid rgba(255, 255, 255, .45);
-
         display: grid;
-
         place-items: center;
-
         font-size: 1rem;
-
         transition:
             transform .45s var(--yb-ease),
             background .35s ease,
@@ -1161,146 +897,10 @@
 
     .yb-graduation-card:hover .yb-graduation-arrow {
         transform: rotate(45deg);
-
         background: var(--yb-gold);
-
         border-color: var(--yb-gold);
-
         color: var(--yb-ink);
     }
-
-
-    /* =========================================================
-        MOMENTS / PHOTO MOSAIC
-        ========================================================= */
-
-    .yb-moments {
-        padding: 135px 0;
-        background: var(--yb-paper);
-    }
-
-    .yb-moments-header {
-        display: flex;
-
-        justify-content: space-between;
-
-        align-items: baseline;
-
-        margin-bottom: 55px;
-    }
-
-    .yb-moments-header h2 {
-        font-family: var(--yb-serif);
-
-        font-size: clamp(3rem, 7vw, 7rem);
-
-        line-height: .85;
-
-        letter-spacing: -.07em;
-
-        margin: 0;
-    }
-
-    .yb-moments-header p {
-        color: var(--yb-muted);
-
-        font-size: .72rem;
-
-        text-transform: uppercase;
-
-        letter-spacing: 1.8px;
-
-        margin: 0;
-    }
-
-    .yb-photo-mosaic {
-        display: grid;
-
-        grid-template-columns: 1.1fr .65fr .95fr;
-
-        grid-template-rows: 250px 180px;
-
-        gap: 15px;
-    }
-
-    .yb-mosaic-item {
-        position: relative;
-
-        overflow: hidden;
-
-        background: var(--yb-blue-soft);
-
-        transition:
-            box-shadow .5s ease;
-    }
-
-    .yb-mosaic-item:hover {
-        box-shadow:
-            0 20px 45px rgba(7, 26, 51, .15);
-    }
-
-    .yb-mosaic-item:nth-child(1) {
-        grid-row: span 2;
-    }
-
-    .yb-mosaic-item:nth-child(2) {
-        grid-row: span 1;
-    }
-
-    .yb-mosaic-item:nth-child(3) {
-        grid-row: span 2;
-    }
-
-    .yb-mosaic-item img {
-        width: 100%;
-        height: 100%;
-
-        object-fit: cover;
-
-        transition:
-            transform 1.1s var(--yb-ease),
-            filter .7s ease;
-    }
-
-    .yb-mosaic-item:hover img {
-        transform: scale(1.07);
-        filter: saturate(1.05);
-    }
-
-    .yb-mosaic-label {
-        position: absolute;
-
-        left: 16px;
-        bottom: 15px;
-
-        background: var(--yb-white);
-
-        color: var(--yb-ink);
-
-        padding: 8px 11px;
-
-        font-size: .6rem;
-
-        text-transform: uppercase;
-
-        letter-spacing: 1.4px;
-
-        font-weight: 800;
-
-        transform: translateY(8px);
-
-        opacity: 0;
-
-        transition:
-            transform .45s var(--yb-ease),
-            opacity .35s ease;
-    }
-
-    .yb-mosaic-item:hover .yb-mosaic-label {
-        transform: translateY(0);
-        opacity: 1;
-    }
-
 
     /* =========================================================
         CAMPUS / WORLD
@@ -1308,37 +908,25 @@
 
     .yb-campus {
         background: var(--yb-ink);
-
         color: var(--yb-white);
-
         padding: 130px 0;
-
         position: relative;
     }
 
     .yb-campus-header {
         display: grid;
-
         grid-template-columns: .65fr 1.35fr;
-
         gap: 70px;
-
         margin-bottom: 70px;
     }
 
     .yb-campus-index {
         font-family: var(--yb-serif);
-
         font-size: clamp(5rem, 10vw, 10rem);
-
         line-height: .75;
-
         color: var(--yb-gold-light);
-
         letter-spacing: -.08em;
-
-        transition:
-            transform .8s var(--yb-ease);
+        transition: transform .8s var(--yb-ease);
     }
 
     .yb-campus:hover .yb-campus-index {
@@ -1347,34 +935,24 @@
 
     .yb-campus-header h2 {
         font-family: var(--yb-serif);
-
         font-size: clamp(3rem, 6vw, 6rem);
-
         line-height: .9;
-
         letter-spacing: -.07em;
-
         margin: 0;
     }
 
     .yb-campus-header h2 em {
         color: var(--yb-gold-light);
-
         font-weight: 400;
     }
 
     .yb-campus-header p {
         color: rgba(255, 255, 255, .62);
-
         max-width: 600px;
-
         line-height: 1.8;
-
         font-size: .9rem;
-
         margin-top: 25px;
     }
-
 
     /* =========================================================
         CAMPUS MARQUEE
@@ -1382,26 +960,17 @@
 
     .yb-campus-strip {
         position: relative;
-
         width: 100%;
-
         overflow: hidden;
-
         padding: 22px 0;
-
         border-top: 1px solid var(--yb-dark-line);
         border-bottom: 1px solid var(--yb-dark-line);
-
-        /*
-         * Soft fade at the left and right edges.
-         */
         mask-image:
             linear-gradient(to right,
                 transparent 0%,
                 black 8%,
                 black 92%,
                 transparent 100%);
-
         -webkit-mask-image:
             linear-gradient(to right,
                 transparent 0%,
@@ -1412,44 +981,23 @@
 
     .yb-campus-track {
         display: flex;
-
         align-items: center;
-
         width: max-content;
-
-        /*
-         * Slow continuous movement.
-         *
-         * 70 seconds gives the marquee a subtle,
-         * premium editorial feel.
-         */
-        animation:
-            ybCampusMarquee 70s linear infinite;
-
+        animation: ybCampusMarquee 70s linear infinite;
         will-change: transform;
     }
 
     .yb-campus-name {
         flex: 0 0 auto;
-
         padding: 20px 27px;
-
         margin-right: 14px;
-
         border: 1px solid var(--yb-dark-line);
-
         color: rgba(255, 255, 255, .7);
-
         text-transform: uppercase;
-
         letter-spacing: 1.8px;
-
         font-size: .68rem;
-
         font-weight: 800;
-
         white-space: nowrap;
-
         transition:
             border-color .3s ease,
             color .3s ease,
@@ -1459,20 +1007,12 @@
 
     .yb-campus-name:hover {
         border-color: var(--yb-gold);
-
         color: var(--yb-gold-light);
-
         background: rgba(215, 168, 62, .08);
-
         transform: translateY(-5px);
     }
 
-    /*
-     * The two identical campus lists create the
-     * seamless infinite loop.
-     */
     @keyframes ybCampusMarquee {
-
         from {
             transform: translateX(-50%);
         }
@@ -1480,9 +1020,7 @@
         to {
             transform: translateX(0);
         }
-
     }
-
 
     /* =========================================================
         ARCHIVE
@@ -1490,31 +1028,22 @@
 
     .yb-archive {
         background: var(--yb-gold);
-
         color: var(--yb-ink);
-
         padding: 120px 0 130px;
     }
 
     .yb-archive-inner {
         display: grid;
-
         grid-template-columns: 1fr .7fr;
-
         gap: 100px;
-
         align-items: end;
     }
 
     .yb-archive-heading {
         font-family: var(--yb-serif);
-
         font-size: clamp(3.5rem, 8vw, 8rem);
-
         line-height: .82;
-
         letter-spacing: -.075em;
-
         margin: 0;
     }
 
@@ -1524,39 +1053,24 @@
 
     .yb-archive-copy {
         max-width: 390px;
-
         font-size: .9rem;
-
         line-height: 1.8;
-
         margin: 28px 0 0;
     }
 
     .yb-archive-link {
         display: inline-flex;
-
         align-items: center;
-
         gap: 16px;
-
         margin-top: 30px;
-
         padding: 17px 25px;
-
         border: 1px solid var(--yb-ink);
-
         color: var(--yb-ink);
-
         text-decoration: none;
-
         text-transform: uppercase;
-
         font-size: .66rem;
-
         font-weight: 900;
-
         letter-spacing: 1.7px;
-
         transition:
             background .35s ease,
             color .35s ease,
@@ -1565,15 +1079,12 @@
 
     .yb-archive-link:hover {
         background: var(--yb-ink);
-
         color: var(--yb-gold-light);
-
         transform: translateY(-4px);
     }
 
     .yb-archive-link span {
-        transition:
-            transform .45s var(--yb-ease);
+        transition: transform .45s var(--yb-ease);
     }
 
     .yb-archive-link:hover span {
@@ -1586,25 +1097,15 @@
 
     .yb-archive-year {
         position: relative;
-
         display: flex;
-
         justify-content: space-between;
-
         align-items: center;
-
         padding: 19px 0;
-
         border-bottom: 1px solid rgba(7, 26, 51, .3);
-
         text-decoration: none;
-
         color: var(--yb-ink);
-
         font-family: var(--yb-serif);
-
         font-size: 1.35rem;
-
         transition:
             padding-left .5s var(--yb-ease),
             background .35s ease;
@@ -1612,19 +1113,13 @@
 
     .yb-archive-year::before {
         content: "";
-
         position: absolute;
-
         left: 0;
         bottom: 0;
-
         width: 0;
         height: 2px;
-
         background: var(--yb-ink);
-
-        transition:
-            width .55s var(--yb-ease);
+        transition: width .55s var(--yb-ease);
     }
 
     .yb-archive-year:hover {
@@ -1637,21 +1132,15 @@
 
     .yb-archive-year span:last-child {
         font-family: var(--yb-sans);
-
         font-size: .65rem;
-
         text-transform: uppercase;
-
         letter-spacing: 1.5px;
-
-        transition:
-            transform .4s var(--yb-ease);
+        transition: transform .4s var(--yb-ease);
     }
 
     .yb-archive-year:hover span:last-child {
         transform: translateX(5px);
     }
-
 
     /* =========================================================
         FOOTER
@@ -1659,40 +1148,27 @@
 
     .public-footer {
         position: relative;
-
         margin-top: auto;
-
         overflow: hidden;
-
         background:
             linear-gradient(135deg,
                 #002a5c 0%,
                 #001d42 100%);
-
         color: #fff;
-
         border-top: 4px solid #ffb034;
     }
 
     .public-footer::before {
         content: "";
-
         position: absolute;
-
         width: 420px;
         height: 420px;
-
         right: -180px;
         top: -250px;
-
         border: 1px solid rgba(255, 176, 52, .18);
-
         border-radius: 50%;
-
         pointer-events: none;
-
-        transition:
-            transform 1.2s var(--yb-ease);
+        transition: transform 1.2s var(--yb-ease);
     }
 
     .public-footer:hover::before {
@@ -1701,50 +1177,33 @@
 
     .public-footer::after {
         content: "";
-
         position: absolute;
-
         width: 250px;
         height: 250px;
-
         left: -160px;
         bottom: -180px;
-
         border: 1px solid rgba(255, 255, 255, .07);
-
         border-radius: 50%;
-
         pointer-events: none;
     }
 
     .public-footer-inner {
         position: relative;
-
         z-index: 1;
-
         max-width: 1280px;
-
         margin: 0 auto;
-
         padding: 58px 32px 28px;
-
         display: flex;
-
         flex-direction: column;
-
         width: 100%;
     }
 
     .public-footer-top {
         display: grid;
-
         grid-template-columns:
             minmax(260px, .85fr) minmax(0, 1.5fr);
-
         gap: 70px;
-
         width: 100%;
-
         padding-bottom: 44px;
     }
 
@@ -1754,52 +1213,35 @@
 
     .public-footer-brand .footer-eyebrow {
         margin: 0 0 13px;
-
         color: #ffce6b;
-
         font-size: 10px;
-
         font-weight: 700;
-
         letter-spacing: 2px;
-
         text-transform: uppercase;
     }
 
     .public-footer-brand h2 {
         margin: 0;
-
         color: #fff;
-
         font-family: "Merriweather", Georgia, serif;
-
         font-size: clamp(23px, 3vw, 32px);
-
         line-height: 1.25;
     }
 
     .public-footer-brand p:not(.footer-eyebrow) {
         margin: 13px 0 0;
-
         color: #d8e3ef;
-
         font-family: "Merriweather", Georgia, serif;
-
         font-size: 14px;
-
         line-height: 1.6;
     }
 
     .footer-gold-line {
         width: 46px;
         height: 3px;
-
         margin-top: 24px;
-
         background: #ffb034;
-
-        transition:
-            width .7s var(--yb-ease);
+        transition: width .7s var(--yb-ease);
     }
 
     .public-footer-brand:hover .footer-gold-line {
@@ -1808,40 +1250,28 @@
 
     .public-footer-contact {
         display: grid;
-
         grid-template-columns:
             repeat(2, minmax(0, 1fr));
-
         gap: 26px 38px;
     }
 
     .footer-contact-item {
         display: flex;
-
         align-items: flex-start;
-
         gap: 14px;
-
         min-width: 0;
     }
 
     .footer-contact-icon {
         flex: 0 0 40px;
-
         width: 40px;
         height: 40px;
-
         display: inline-flex;
-
         align-items: center;
         justify-content: center;
-
         border: 1px solid rgba(255, 176, 52, .35);
-
         background: rgba(255, 255, 255, .055);
-
         color: #ffce6b;
-
         transition:
             transform .4s var(--yb-ease),
             background .25s ease,
@@ -1849,26 +1279,18 @@
     }
 
     .footer-contact-item:hover .footer-contact-icon {
-        transform:
-            translateY(-4px) rotate(-4deg);
-
+        transform: translateY(-4px) rotate(-4deg);
         background: rgba(255, 176, 52, .12);
-
         border-color: rgba(255, 176, 52, .65);
     }
 
     .footer-contact-icon svg {
         width: 18px;
         height: 18px;
-
         stroke: currentColor;
-
         fill: none;
-
         stroke-width: 1.7;
-
         stroke-linecap: round;
-
         stroke-linejoin: round;
     }
 
@@ -1878,34 +1300,22 @@
 
     .footer-contact-copy strong {
         display: block;
-
         margin-bottom: 5px;
-
         color: #fff;
-
         font-size: 10px;
-
         font-weight: 700;
-
         letter-spacing: 1.5px;
-
         text-transform: uppercase;
     }
 
     .footer-contact-copy a,
     .footer-contact-copy span {
         display: block;
-
         color: #d8e3ef;
-
         font-size: 12px;
-
         line-height: 1.55;
-
         overflow-wrap: anywhere;
-
-        transition:
-            color .2s ease;
+        transition: color .2s ease;
     }
 
     .footer-contact-copy a:hover {
@@ -1914,27 +1324,16 @@
 
     .public-footer-bottom {
         display: flex;
-
         width: 100%;
-
         flex: 0 0 100%;
-
         align-items: center;
-
         justify-content: space-between;
-
         gap: 20px;
-
         margin-top: 0;
-
         padding-top: 22px;
-
         border-top: 1px solid rgba(216, 227, 239, .16);
-
         color: #aebfd2;
-
         font-size: 10px;
-
         letter-spacing: .5px;
     }
 
@@ -1944,13 +1343,9 @@
 
     .public-footer-bottom a {
         display: inline-block;
-
         color: #ffce6b;
-
         font-weight: 700;
-
         text-decoration: none;
-
         transition:
             color .25s ease,
             transform .4s var(--yb-ease);
@@ -1958,10 +1353,8 @@
 
     .public-footer-bottom a:hover {
         color: #fff;
-
         transform: translateX(4px);
     }
-
 
     /* =========================================================
         PREMIUM SCROLL REVEALS
@@ -1969,29 +1362,18 @@
 
     .scroll-animations-ready .yb-reveal {
         opacity: 0;
-
-        transform:
-            translate3d(0, 45px, 0);
-
+        transform: translate3d(0, 45px, 0);
         transition:
             opacity .85s ease,
             transform 1s var(--yb-ease);
-
-        transition-delay:
-            var(--yb-delay, 0ms);
-
-        will-change:
-            opacity,
-            transform;
+        transition-delay: var(--yb-delay, 0ms);
+        will-change: opacity, transform;
     }
 
     .scroll-animations-ready .yb-reveal.is-visible {
         opacity: 1;
-
-        transform:
-            translate3d(0, 0, 0);
+        transform: translate3d(0, 0, 0);
     }
-
 
     /* =========================================================
         IMAGE REVEALS
@@ -1999,60 +1381,56 @@
 
     .scroll-animations-ready .yb-reveal-img {
         opacity: 0;
-
-        clip-path:
-            inset(12% 0 12% 0);
-
-        transform:
-            scale(1.08);
-
+        clip-path: inset(12% 0 12% 0);
+        transform: scale(1.08);
         transition:
             opacity .9s ease,
             clip-path 1.1s var(--yb-ease),
             transform 1.2s var(--yb-ease);
-
-        transition-delay:
-            var(--yb-delay, 0ms);
+        transition-delay: var(--yb-delay, 0ms);
     }
 
     .scroll-animations-ready .yb-reveal-img.is-visible {
         opacity: 1;
-
-        clip-path:
-            inset(0 0 0 0);
-
-        transform:
-            scale(1);
+        clip-path: inset(0 0 0 0);
+        transform: scale(1);
     }
 
-
     /* =========================================================
-        GRADUATION / MOSAIC REVEAL
+        GRADUATION REVEAL
         ========================================================= */
 
-    .scroll-animations-ready .yb-graduation-card,
-    .scroll-animations-ready .yb-mosaic-item {
+    .scroll-animations-ready .yb-graduation-card {
         opacity: 0;
-
-        transform:
-            translate3d(0, 35px, 0) scale(.96);
-
+        transform: translate3d(0, 35px, 0) scale(.96);
         transition:
             opacity .8s ease,
             transform 1s var(--yb-ease);
-
-        transition-delay:
-            var(--yb-delay, 0ms);
+        transition-delay: var(--yb-delay, 0ms);
     }
 
-    .scroll-animations-ready .yb-graduation-card.is-visible,
+    .scroll-animations-ready .yb-graduation-card.is-visible {
+        opacity: 1;
+        transform: translate3d(0, 0, 0) scale(1);
+    }
+
+    /* =========================================================
+        MOSAIC REVEAL
+        ========================================================= */
+
+    .scroll-animations-ready .yb-mosaic-item {
+        opacity: 0;
+        transform: translate3d(0, 35px, 0) scale(.96);
+        transition:
+            opacity .8s ease,
+            transform 1s var(--yb-ease);
+        transition-delay: var(--yb-delay, 0ms);
+    }
+
     .scroll-animations-ready .yb-mosaic-item.is-visible {
         opacity: 1;
-
-        transform:
-            translate3d(0, 0, 0) scale(1);
+        transform: translate3d(0, 0, 0) scale(1);
     }
-
 
     /* =========================================================
         LETTER REVEAL
@@ -2060,52 +1438,35 @@
 
     .yb-split-word {
         display: inline-block;
-
         overflow: hidden;
-
         vertical-align: top;
-
         padding-bottom: .12em;
         padding-right: .15em;
-
         margin-bottom: -.12em;
     }
 
     .yb-split-char {
         display: inline-block;
-
         opacity: 0;
-
-        transform:
-            translate3d(0, 115%, 0) rotate(5deg);
-
+        transform: translate3d(0, 115%, 0) rotate(5deg);
         transition:
             transform .85s var(--yb-ease),
             opacity .55s ease;
-
-        transition-delay:
-            var(--yb-char-delay, 0ms);
-
-        will-change:
-            transform,
-            opacity;
+        transition-delay: var(--yb-char-delay, 0ms);
+        will-change: transform, opacity;
     }
 
     .yb-split-ready.is-visible .yb-split-char {
         opacity: 1;
-
-        transform:
-            translate3d(0, 0, 0) rotate(0deg);
+        transform: translate3d(0, 0, 0) rotate(0deg);
     }
-
 
     /* =========================================================
         SCROLL INDICATOR
         ========================================================= */
 
     .yb-scroll-pulse {
-        animation:
-            ybScrollPulse 2.8s ease-in-out infinite;
+        animation: ybScrollPulse 2.8s ease-in-out infinite;
     }
 
     @keyframes ybScrollPulse {
@@ -2122,16 +1483,13 @@
         }
     }
 
-
     /* =========================================================
         NAVBAR
         ========================================================= */
 
     .yb-nav {
         background: transparent !important;
-
         box-shadow: none !important;
-
         transition:
             background-color .45s ease,
             backdrop-filter .45s ease,
@@ -2142,94 +1500,63 @@
     }
 
     .yb-nav.is-scrolled {
-        background:
-            rgba(7, 26, 51, .88) !important;
-
-        -webkit-backdrop-filter:
-            blur(14px);
-
-        backdrop-filter:
-            blur(14px);
-
-        box-shadow:
-            0 8px 30px rgba(0, 0, 0, .12) !important;
-
+        background: rgba(7, 26, 51, .88) !important;
+        -webkit-backdrop-filter: blur(14px);
+        backdrop-filter: blur(14px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, .12) !important;
         padding-top: 8px !important;
         padding-bottom: 8px !important;
     }
-
 
     /* =========================================================
         HERO LOAD ANIMATIONS
         ========================================================= */
 
     .yearbook-wrapper.page-animations .yb-cover-image img {
-        animation:
-            ybHeroImageIn 1.8s var(--yb-ease) forwards;
+        animation: ybHeroImageIn 1.8s var(--yb-ease) forwards;
     }
 
     .yearbook-wrapper.page-animations .yb-cover-kicker {
-        animation:
-            ybRevealUp .9s .18s var(--yb-ease) both;
+        animation: ybRevealUp .9s .18s var(--yb-ease) both;
     }
 
     .yearbook-wrapper.page-animations .yb-cover-description {
-        animation:
-            ybRevealUp .9s .58s var(--yb-ease) both;
+        animation: ybRevealUp .9s .58s var(--yb-ease) both;
     }
 
     .yearbook-wrapper.page-animations .yb-cover-actions {
-        animation:
-            ybRevealUp .9s .72s var(--yb-ease) both;
+        animation: ybRevealUp .9s .72s var(--yb-ease) both;
     }
 
     .yearbook-wrapper.page-animations .yb-cover-bottom {
-        animation:
-            ybRevealUp .9s .9s var(--yb-ease) both;
+        animation: ybRevealUp .9s .9s var(--yb-ease) both;
     }
 
     @keyframes ybHeroImageIn {
-
         from {
             opacity: 0;
-
-            transform:
-                scale(1.10);
-
-            filter:
-                saturate(.5) brightness(.7);
+            transform: scale(1.10);
+            filter: saturate(.5) brightness(.7);
         }
 
         to {
             opacity: 1;
-
-            transform:
-                scale(1);
-
-            filter:
-                saturate(.82) brightness(1);
+            transform: scale(1);
+            filter: saturate(.82) brightness(1);
         }
-
     }
 
     @keyframes ybRevealUp {
-
         from {
             opacity: 0;
-
-            transform:
-                translate3d(0, 38px, 0);
+            transform: translate3d(0, 38px, 0);
         }
 
         to {
             opacity: 1;
-
-            transform:
-                translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0);
         }
-
     }
-
 
     /* =========================================================
         RESPONSIVE
@@ -2241,7 +1568,6 @@
         .yb-campus-header,
         .yb-archive-inner {
             grid-template-columns: 1fr;
-
             gap: 45px;
         }
 
@@ -2251,23 +1577,18 @@
 
         .yb-number-grid {
             grid-template-columns: 1fr;
-
             gap: 35px;
         }
 
         .yb-number-item,
         .yb-number-item:first-child {
             border-left: 0;
-
-            border-top:
-                1px solid var(--yb-dark-line);
-
+            border-top: 1px solid var(--yb-dark-line);
             padding: 30px 0 0;
         }
 
         .yb-number-item:first-child {
             border-top: 0;
-
             padding-top: 0;
         }
 
@@ -2278,7 +1599,6 @@
 
         .yb-section-header-note {
             text-align: left;
-
             margin-top: 20px;
         }
 
@@ -2292,9 +1612,7 @@
 
         .yb-event {
             grid-template-columns: 1fr;
-
             gap: 20px;
-
             padding-bottom: 55px;
         }
 
@@ -2308,7 +1626,6 @@
 
         .yb-people-heading {
             grid-template-columns: 1fr;
-
             gap: 25px;
         }
 
@@ -2320,21 +1637,8 @@
             grid-column: span 12;
         }
 
-        .yb-photo-mosaic {
-            grid-template-columns: 1fr 1fr;
-
-            grid-template-rows:
-                260px 200px;
-        }
-
-        .yb-mosaic-item:nth-child(1),
-        .yb-mosaic-item:nth-child(3) {
-            grid-row: span 2;
-        }
-
         .public-footer-top {
             grid-template-columns: 1fr;
-
             gap: 40px;
         }
 
@@ -2344,7 +1648,6 @@
 
         .yb-footer-actions {
             align-items: flex-start;
-
             margin-top: 45px;
         }
 
@@ -2353,25 +1656,20 @@
         }
     }
 
-
     @media (max-width: 600px) {
 
         .yb-container,
         .yb-cover-inner {
-            width:
-                min(calc(100% - 30px),
-                    1240px);
+            width: min(calc(100% - 30px), 1240px);
         }
 
         .yb-cover {
             min-height: 760px;
-
             height: 100svh;
         }
 
         .yb-cover-inner {
             min-height: 100svh;
-
             padding-top: 25px;
             padding-bottom: 30px;
         }
@@ -2385,10 +1683,7 @@
         }
 
         .yb-cover-title {
-            font-size:
-                clamp(3.7rem,
-                    19vw,
-                    6rem);
+            font-size: clamp(3.7rem, 19vw, 6rem);
         }
 
         .yb-cover-description {
@@ -2398,23 +1693,12 @@
         .yb-introduction,
         .yb-timeline-section,
         .yb-people,
-        .yb-moments,
         .yb-campus {
             padding: 90px 0;
         }
 
         .yb-numbers {
             padding: 60px 0;
-        }
-
-        .yb-photo-mosaic {
-            display: flex;
-
-            flex-direction: column;
-        }
-
-        .yb-mosaic-item {
-            min-height: 260px;
         }
 
         .yb-cover-bottom {
@@ -2425,51 +1709,38 @@
             margin-top: 18px;
         }
 
-        /*
-         * Keep the marquee smooth on mobile while
-         * preventing it from becoming distracting.
-         */
         .yb-campus-track {
             animation-duration: 55s;
         }
 
         .yb-campus-name {
             padding: 17px 22px;
-
             margin-right: 10px;
-
             font-size: .62rem;
         }
 
         .public-footer-inner {
-            padding:
-                46px 20px 22px;
+            padding: 46px 20px 22px;
         }
 
         .public-footer-contact {
             grid-template-columns: 1fr;
-
             gap: 22px;
         }
 
         .public-footer-bottom {
             flex-direction: column;
-
             align-items: flex-start;
-
             justify-content: flex-start;
-
             gap: 10px;
         }
     }
-
 
     /* =========================================================
         ACCESSIBILITY — REDUCED MOTION
         ========================================================= */
 
     @media (prefers-reduced-motion: reduce) {
-
         html {
             scroll-behavior: auto;
         }
@@ -2478,11 +1749,8 @@
         *::before,
         *::after {
             animation-duration: .01ms !important;
-
             animation-iteration-count: 1 !important;
-
             transition-duration: .01ms !important;
-
             scroll-behavior: auto !important;
         }
 
@@ -2494,13 +1762,8 @@
             animation: none !important;
         }
 
-        /*
-         * Stop the campus marquee for users who
-         * prefer reduced motion.
-         */
         .yb-campus-track {
             animation: none !important;
-
             transform: translateX(0) !important;
         }
 
@@ -2509,15 +1772,12 @@
         .scroll-animations-ready .yb-graduation-card,
         .scroll-animations-ready .yb-mosaic-item {
             opacity: 1 !important;
-
             transform: none !important;
-
             clip-path: none !important;
         }
 
         .yb-split-char {
             opacity: 1 !important;
-
             transform: none !important;
         }
 
@@ -2529,15 +1789,13 @@
 
 @endsection
 
-
 @section('content')
 
 <div class="yearbook-wrapper">
 
-
     {{-- =====================================================
-        01 — COVER
-        ===================================================== --}}
+    01 — COVER
+    ===================================================== --}}
 
     <section class="yb-cover" id="top">
 
@@ -2557,17 +1815,13 @@
 
         </div>
 
-
         <div class="yb-cover-grid"></div>
-
 
         <div class="yb-cover-inner">
 
             <div class="yb-cover-top">
 
-                <a
-                    href="{{ url('/') }}"
-                    class="yb-brand">
+                <a href="{{ url('/') }}" class="yb-brand">
 
                     <div class="yb-brand-mark">
                         LIU
@@ -2579,7 +1833,6 @@
                     </div>
 
                 </a>
-
 
                 <div class="yb-edition">
 
@@ -2593,55 +1846,35 @@
 
             </div>
 
-
             <div class="yb-cover-main">
 
                 <div class="yb-cover-kicker">
-
                     {{ $currentYear->title ?? 'Archive Edition' }}
-
                 </div>
-
 
                 @if($currentYear)
 
-                <h1
-                    class="yb-cover-title"
-                    data-split-load>
-
+                <h1 class="yb-cover-title" data-split-load>
                     A year<br>
-
                     <span>worth</span><br>
-
                     remembering
-
                 </h1>
 
                 @else
 
-                <h1
-                    class="yb-cover-title"
-                    data-split-load>
-
+                <h1 class="yb-cover-title" data-split-load>
                     The<br>
-
                     <span>yearbook</span><br>
-
                     archive.
-
                 </h1>
 
                 @endif
 
-
                 <p class="yb-cover-description">
-
                     A living collection of the people, places,
                     celebrations, and moments that shaped our
                     university year.
-
                 </p>
-
 
                 <div class="yb-cover-actions">
 
@@ -2657,17 +1890,16 @@
 
                     </a>
 
-
                     <a
                         href="{{ route('public.graduates') }}"
                         style="
-                            color: rgba(255,255,255,.75);
-                            text-decoration:none;
-                            font-size:.68rem;
-                            text-transform:uppercase;
-                            letter-spacing:1.5px;
-                            font-weight:800;
-                        ">
+                        color: rgba(255,255,255,.75);
+                        text-decoration:none;
+                        font-size:.68rem;
+                        text-transform:uppercase;
+                        letter-spacing:1.5px;
+                        font-weight:800;
+                    ">
 
                         Meet the class →
 
@@ -2677,15 +1909,11 @@
 
             </div>
 
-
             <div class="yb-cover-bottom">
 
                 <div class="yb-cover-caption">
-
                     People · Places · Moments · 2026
-
                 </div>
-
 
                 <div class="yb-cover-scroll">
 
@@ -2703,8 +1931,8 @@
 
 
     {{-- =====================================================
-        02 — INTRODUCTION
-        ===================================================== --}}
+    02 — INTRODUCTION
+    ===================================================== --}}
 
     <section class="yb-introduction">
 
@@ -2718,23 +1946,16 @@
                         The year in perspective
                     </div>
 
-
                     <div class="yb-intro-number">
-
                         {{ $currentYear ? substr($currentYear->title, -2) : '00' }}
-
                     </div>
 
-
                     <p>
-
                         Every academic year leaves behind more
                         than dates and ceremonies. It leaves stories.
-
                     </p>
 
                 </div>
-
 
                 <div>
 
@@ -2750,13 +1971,10 @@
 
                     </h2>
 
-
                     <p class="yb-intro-copy">
-
                         Explore the people who graduated, the events
                         that brought the community together, and the
                         moments that became part of our shared history.
-
                     </p>
 
                 </div>
@@ -2769,8 +1987,8 @@
 
 
     {{-- =====================================================
-        03 — NUMBERS
-        ===================================================== --}}
+    03 — NUMBERS
+    ===================================================== --}}
 
     <section class="yb-numbers">
 
@@ -2790,7 +2008,6 @@
 
                 </div>
 
-
                 <div class="yb-number-item">
 
                     <div class="yb-number-value">
@@ -2802,7 +2019,6 @@
                     </div>
 
                 </div>
-
 
                 <div class="yb-number-item">
 
@@ -2824,8 +2040,8 @@
 
 
     {{-- =====================================================
-        04 — THE YEAR / EVENTS TIMELINE
-        ===================================================== --}}
+    04 — THE YEAR / EVENTS TIMELINE
+    ===================================================== --}}
 
     @if($featuredEvents->isNotEmpty())
 
@@ -2843,23 +2059,16 @@
                         Chapter one
                     </div>
 
-
                     <h2 data-split-scroll>
-
                         The year<br>
-
                         <em>unfolds.</em>
-
                     </h2>
 
                 </div>
 
-
                 <p class="yb-section-header-note">
-
                     A selection of moments, celebrations and
                     events that defined the academic year.
-
                 </p>
 
             </div>
@@ -2890,13 +2099,10 @@
                                 {{ $event->title }}
                             </h3>
 
-
                             @if($event->description)
 
                             <p class="yb-event-description">
-
                                 {{ Str::limit($event->description, 180) }}
-
                             </p>
 
                             @endif
@@ -2919,18 +2125,30 @@
 
                         <div>
 
+                            {{-- IMPORTANT:
+                                     Only select an actual image.
+                                     The old code used media->first(),
+                                     which could return a video/document.
+                                --}}
                             @php
-                            $image = $event->media->first();
+                            $image = $event->media->firstWhere('type', 'image');
                             @endphp
 
 
                             @if($image)
 
+                            @php
+                            $eventImageUrl = method_exists($image, 'thumbnailUrl')
+                            ? $image->thumbnailUrl()
+                            : asset('storage/' . $image->path);
+                            @endphp
+
                             <img
-                                src="{{ asset('storage/' . $image->path) }}"
-                                alt="{{ $event->title }}"
+                                src="{{ $eventImageUrl }}"
+                                alt="{{ $image->alt_text ?: $event->title }}"
                                 class="yb-event-image yb-reveal-img"
-                                loading="lazy">
+                                loading="lazy"
+                                onerror="this.onerror=null; this.src='{{ asset('storage/' . $image->path) }}';">
 
                             @else
 
@@ -2958,8 +2176,8 @@
 
 
     {{-- =====================================================
-        05 — GRADUATIONS / PEOPLE
-        ===================================================== --}}
+    05 — GRADUATIONS / PEOPLE
+    ===================================================== --}}
 
     @if($graduations->isNotEmpty())
 
@@ -2977,26 +2195,19 @@
                         Chapter two
                     </div>
 
-
                     <h2 data-split-scroll>
-
                         The<br>
-
                         <span>people.</span>
-
                     </h2>
 
                 </div>
 
-
                 <p>
-
                     Behind every ceremony is a collection of
                     people, ambitions, friendships and stories.
                     Explore the graduation moments that marked
                     the end of one chapter and the beginning
                     of another.
-
                 </p>
 
             </div>
@@ -3011,17 +2222,24 @@
                     class="yb-graduation-card">
 
                     @php
-                    $image = $graduation->media->first();
+                    $image = $graduation->media->firstWhere('type', 'image');
                     @endphp
 
 
                     @if($image)
 
+                    @php
+                    $graduationImageUrl = method_exists($image, 'thumbnailUrl')
+                    ? $image->thumbnailUrl()
+                    : asset('storage/' . $image->path);
+                    @endphp
+
                     <img
-                        src="{{ asset('storage/' . $image->path) }}"
-                        alt="{{ $graduation->name ?? 'Graduation Ceremony' }}"
+                        src="{{ $graduationImageUrl }}"
+                        alt="{{ $image->alt_text ?: ($graduation->name ?? 'Graduation Ceremony') }}"
                         class="yb-graduation-image"
-                        loading="lazy">
+                        loading="lazy"
+                        onerror="this.onerror=null; this.src='{{ asset('storage/' . $image->path) }}';">
 
                     @else
 
@@ -3038,16 +2256,11 @@
                     <div class="yb-graduation-info">
 
                         <span class="yb-graduation-date">
-
                             {{ \Carbon\Carbon::parse($graduation->created_at)->format('F Y') }}
-
                         </span>
 
-
                         <h3 class="yb-graduation-title">
-
                             {{ $graduation->name ?? 'Graduation Ceremony' }}
-
                         </h3>
 
                     </div>
@@ -3066,8 +2279,8 @@
 
 
     {{-- =====================================================
-        06 — CAMPUSES
-        ===================================================== --}}
+    06 — CAMPUSES
+    ===================================================== --}}
 
     <section class="yb-campus">
 
@@ -3079,30 +2292,22 @@
                     10
                 </div>
 
-
                 <div>
 
                     <div class="yb-overline">
                         Chapter three
                     </div>
 
-
                     <h2 data-split-scroll>
-
                         One university.<br>
-
                         <em>Many places.</em>
-
                     </h2>
 
-
                     <p>
-
                         From Lebanon to the wider world, the year
                         was experienced across campuses, communities
                         and classrooms. Explore the places that make
                         up the LIU story.
-
                     </p>
 
                 </div>
@@ -3110,114 +2315,35 @@
             </div>
 
 
-            {{-- =================================================
-                CONTINUOUS CAMPUS MARQUEE
-                ================================================= --}}
-
             <div class="yb-campus-strip">
 
                 <div class="yb-campus-track">
 
-                    {{-- First set --}}
+                    <span class="yb-campus-name">Beirut</span>
+                    <span class="yb-campus-name">Bekaa</span>
+                    <span class="yb-campus-name">Saida</span>
+                    <span class="yb-campus-name">Nabatieh</span>
+                    <span class="yb-campus-name">Tripoli</span>
+                    <span class="yb-campus-name">Mount Lebanon</span>
+                    <span class="yb-campus-name">Tyre</span>
+                    <span class="yb-campus-name">Rayak</span>
+                    <span class="yb-campus-name">Akkar</span>
+                    <span class="yb-campus-name">Yemen</span>
+                    <span class="yb-campus-name">Senegal</span>
+                    <span class="yb-campus-name">Mauritania</span>
 
-                    <span class="yb-campus-name">
-                        Beirut
-                    </span>
-
-                    <span class="yb-campus-name">
-                        Bekaa
-                    </span>
-
-                    <span class="yb-campus-name">
-                        Saida
-                    </span>
-
-                    <span class="yb-campus-name">
-                        Nabatieh
-                    </span>
-
-                    <span class="yb-campus-name">
-                        Tripoli
-                    </span>
-
-                    <span class="yb-campus-name">
-                        Mount Lebanon
-                    </span>
-
-                    <span class="yb-campus-name">
-                        Tyre
-                    </span>
-
-                    <span class="yb-campus-name">
-                        Rayak
-                    </span>
-
-                    <span class="yb-campus-name">
-                        Akkar
-                    </span>
-
-                    <span class="yb-campus-name">
-                        Yemen
-                    </span>
-
-                    <span class="yb-campus-name">
-                        Senegal
-                    </span>
-
-                    <span class="yb-campus-name">
-                        Mauritania
-                    </span>
-
-
-                    {{-- Identical second set for seamless looping --}}
-
-                    <span class="yb-campus-name">
-                        Beirut
-                    </span>
-
-                    <span class="yb-campus-name">
-                        Bekaa
-                    </span>
-
-                    <span class="yb-campus-name">
-                        Saida
-                    </span>
-
-                    <span class="yb-campus-name">
-                        Nabatieh
-                    </span>
-
-                    <span class="yb-campus-name">
-                        Tripoli
-                    </span>
-
-                    <span class="yb-campus-name">
-                        Mount Lebanon
-                    </span>
-
-                    <span class="yb-campus-name">
-                        Tyre
-                    </span>
-
-                    <span class="yb-campus-name">
-                        Rayak
-                    </span>
-
-                    <span class="yb-campus-name">
-                        Akkar
-                    </span>
-
-                    <span class="yb-campus-name">
-                        Yemen
-                    </span>
-
-                    <span class="yb-campus-name">
-                        Senegal
-                    </span>
-
-                    <span class="yb-campus-name">
-                        Mauritania
-                    </span>
+                    <span class="yb-campus-name">Beirut</span>
+                    <span class="yb-campus-name">Bekaa</span>
+                    <span class="yb-campus-name">Saida</span>
+                    <span class="yb-campus-name">Nabatieh</span>
+                    <span class="yb-campus-name">Tripoli</span>
+                    <span class="yb-campus-name">Mount Lebanon</span>
+                    <span class="yb-campus-name">Tyre</span>
+                    <span class="yb-campus-name">Rayak</span>
+                    <span class="yb-campus-name">Akkar</span>
+                    <span class="yb-campus-name">Yemen</span>
+                    <span class="yb-campus-name">Senegal</span>
+                    <span class="yb-campus-name">Mauritania</span>
 
                 </div>
 
@@ -3229,8 +2355,8 @@
 
 
     {{-- =====================================================
-        07 — ARCHIVE
-        ===================================================== --}}
+    07 — ARCHIVE
+    ===================================================== --}}
 
     <section class="yb-archive">
 
@@ -3244,7 +2370,6 @@
                         The collection
                     </div>
 
-
                     <h2
                         class="yb-archive-heading"
                         data-split-scroll>
@@ -3255,15 +2380,11 @@
 
                     </h2>
 
-
                     <p class="yb-archive-copy">
-
                         Yesterday becomes history. Explore the archive
                         and discover the people, moments and milestones
                         that came before this edition.
-
                     </p>
-
 
                     <a
                         href="{{ route('public.archive') }}"
@@ -3355,8 +2476,8 @@
 
 
     {{-- =====================================================
-        08 — FOOTER
-        ===================================================== --}}
+    08 — FOOTER
+    ===================================================== --}}
 
     <footer class="public-footer">
 
@@ -3370,16 +2491,13 @@
                         Lebanese International University
                     </p>
 
-
                     <h2>
                         Lebanese International University
                     </h2>
 
-
                     <p>
                         Excellence in Education
                     </p>
-
 
                     <div
                         class="footer-gold-line"
@@ -3390,8 +2508,6 @@
 
 
                 <div class="public-footer-contact">
-
-                    {{-- Email --}}
 
                     <div class="footer-contact-item">
 
@@ -3415,7 +2531,6 @@
 
                         </span>
 
-
                         <div class="footer-contact-copy">
 
                             <strong>
@@ -3431,8 +2546,6 @@
                     </div>
 
 
-                    {{-- Phone --}}
-
                     <div class="footer-contact-item">
 
                         <span
@@ -3442,27 +2555,26 @@
                             <svg viewBox="0 0 24 24">
 
                                 <path d="
-                                    M7.2 3.5
-                                    5 4.4
-                                    c-.8.3-1.3 1.1-1.1 2
-                                    1.2 6.8 6.9 12.5 13.7 13.7
-                                    .9.2 1.7-.3 2-1.1
-                                    l.9-2.2
-                                    c.3-.7 0-1.5-.7-1.9
-                                    l-2.8-1.4
-                                    c-.6-.3-1.4-.2-1.8.4
-                                    l-1.1 1.3
-                                    c-2.3-1.1-4.1-2.9-5.2-5.2
-                                    l1.3-1.1
-                                    c.5-.4.7-1.2.4-1.8
-                                    L9.1 4.2
-                                    c-.4-.7-1.2-1-1.9-.7Z">
+                                M7.2 3.5
+                                5 4.4
+                                c-.8.3-1.3 1.1-1.1 2
+                                1.2 6.8 6.9 12.5 13.7 13.7
+                                .9.2 1.7-.3 2-1.1
+                                l.9-2.2
+                                c.3-.7 0-1.5-.7-1.9
+                                l-2.8-1.4
+                                c-.6-.3-1.4-.2-1.8.4
+                                l-1.1 1.3
+                                c-2.3-1.1-4.1-2.9-5.2-5.2
+                                l1.3-1.1
+                                c.5-.4.7-1.2.4-1.8
+                                L9.1 4.2
+                                c-.4-.7-1.2-1-1.9-.7Z">
                                 </path>
 
                             </svg>
 
                         </span>
-
 
                         <div class="footer-contact-copy">
 
@@ -3479,8 +2591,6 @@
                     </div>
 
 
-                    {{-- Fax --}}
-
                     <div class="footer-contact-item">
 
                         <span
@@ -3490,13 +2600,11 @@
                             <svg viewBox="0 0 24 24">
 
                                 <path d="M6 4h12v16H6z"></path>
-
                                 <path d="M9 8h6M9 12h6M9 16h4"></path>
 
                             </svg>
 
                         </span>
-
 
                         <div class="footer-contact-copy">
 
@@ -3513,8 +2621,6 @@
                     </div>
 
 
-                    {{-- Address --}}
-
                     <div class="footer-contact-item">
 
                         <span
@@ -3524,10 +2630,10 @@
                             <svg viewBox="0 0 24 24">
 
                                 <path d="
-                                    M12 21
-                                    s7-6.1 7-12
-                                    a7 7 0 1 0-14 0
-                                    c0 5.9 7 12 7 12Z">
+                                M12 21
+                                s7-6.1 7-12
+                                a7 7 0 1 0-14 0
+                                c0 5.9 7 12 7 12Z">
                                 </path>
 
                                 <circle
@@ -3539,7 +2645,6 @@
                             </svg>
 
                         </span>
-
 
                         <div class="footer-contact-copy">
 
@@ -3564,13 +2669,10 @@
             <div class="public-footer-bottom">
 
                 <span>
-
                     © {{ now()->year }}
                     Lebanese International University —
                     Digital Yearbook
-
                 </span>
-
 
                 <a href="{{ route('search.index') }}">
                     Search the archive
@@ -3586,7 +2688,6 @@
 
 @endsection
 
-
 @push('scripts')
 
 <script>
@@ -3595,15 +2696,9 @@
         const wrapper =
             document.querySelector('.yearbook-wrapper');
 
-
         if (!wrapper) {
             return;
         }
-
-
-        /* =========================================================
-           REDUCED MOTION
-           ========================================================= */
 
         const prefersReducedMotion =
             window.matchMedia(
@@ -3625,13 +2720,11 @@
                 const parts =
                     node.textContent.split(/(\s+)/);
 
-
                 parts.forEach(function(part) {
 
                     if (part === '') {
                         return;
                     }
-
 
                     if (/^\s+$/.test(part)) {
 
@@ -3642,13 +2735,11 @@
                         return;
                     }
 
-
                     const wordSpan =
                         document.createElement('span');
 
                     wordSpan.className =
                         'yb-split-word';
-
 
                     Array.from(part).forEach(function(ch) {
 
@@ -3661,7 +2752,6 @@
                         charSpan.textContent =
                             ch;
 
-
                         charSpan.style.setProperty(
                             '--yb-char-delay',
                             Math.min(
@@ -3670,9 +2760,7 @@
                             ) + 'ms'
                         );
 
-
                         counter.i += 1;
-
 
                         wordSpan.appendChild(
                             charSpan
@@ -3680,13 +2768,11 @@
 
                     });
 
-
                     frag.appendChild(
                         wordSpan
                     );
 
                 });
-
 
                 node.parentNode.replaceChild(
                     frag,
@@ -3695,7 +2781,6 @@
 
                 return;
             }
-
 
             if (
                 node.nodeType === Node.ELEMENT_NODE &&
@@ -3727,11 +2812,9 @@
                 return;
             }
 
-
             const counter = {
                 i: 0
             };
-
 
             Array.from(
                 el.childNodes
@@ -3744,11 +2827,9 @@
 
             });
 
-
             el.classList.add(
                 'yb-split-ready'
             );
-
 
             el.dataset.ybSplit =
                 'done';
@@ -3764,7 +2845,6 @@
             wrapper.querySelector(
                 '[data-split-load]'
             );
-
 
         if (loadHeading) {
 
@@ -3791,13 +2871,11 @@
                         heading
                     );
 
-
                     heading.classList.add(
                         'is-visible'
                     );
 
                 });
-
 
             return;
         }
@@ -3812,7 +2890,6 @@
             wrapper.classList.add(
                 'page-animations'
             );
-
 
             if (loadHeading) {
 
@@ -3840,13 +2917,11 @@
                 '.yb-nav'
             );
 
-
         function updateNavbar() {
 
             if (!nav) {
                 return;
             }
-
 
             nav.classList.toggle(
                 'is-scrolled',
@@ -3855,9 +2930,7 @@
 
         }
 
-
         updateNavbar();
-
 
         window.addEventListener(
             'scroll',
@@ -3878,7 +2951,6 @@
                 )
             );
 
-
         scrollHeadings.forEach(
             splitHeading
         );
@@ -3886,10 +2958,6 @@
 
         /* =========================================================
            REVEAL ELEMENTS
-           
-           IMPORTANT:
-           Campus names are intentionally NOT included here.
-           They have their own continuous marquee animation.
            ========================================================= */
 
         const revealItems =
@@ -3903,8 +2971,6 @@
                         '.yb-event',
                         '.yb-people-heading > p',
                         '.yb-graduation-card',
-                        '.yb-moments-header',
-                        '.yb-mosaic-item',
                         '.yb-campus-header > p',
                         '.yb-archive-inner',
                         '.public-footer-top',
@@ -3921,7 +2987,6 @@
                 item.classList.add(
                     'yb-reveal'
                 );
-
 
                 item.style.setProperty(
                     '--yb-delay',
@@ -3983,7 +3048,6 @@
                                     'is-visible'
                                 );
 
-
                                 observer.unobserve(
                                     entry.target
                                 );
@@ -3995,7 +3059,6 @@
 
                 }, {
                     threshold: 0.12,
-
                     rootMargin: '0px 0px -8% 0px'
                 }
             );
@@ -4021,7 +3084,6 @@
                 '.yb-cover-scroll'
             );
 
-
         if (scrollHint) {
 
             scrollHint.classList.add(
@@ -4040,11 +3102,9 @@
                 '.yb-cover-image img'
             );
 
-
         if (heroImage) {
 
             let ticking = false;
-
 
             function updateHeroParallax() {
 
@@ -4059,7 +3119,6 @@
                             70
                         );
 
-
                     heroImage.style.transform =
                         'scale(1.03) translate3d(0, ' +
                         offset +
@@ -4067,11 +3126,9 @@
 
                 }
 
-
                 ticking = false;
 
             }
-
 
             window.addEventListener(
                 'scroll',
