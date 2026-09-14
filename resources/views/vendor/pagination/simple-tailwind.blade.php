@@ -3,8 +3,8 @@
         <style>
             .yearbook-pagination{display:flex;align-items:center;justify-content:center;width:100%;margin:0;padding:8px 0;box-sizing:border-box}
             .yearbook-pagination-controls{display:flex;align-items:center;justify-content:center;gap:5px;flex-wrap:wrap}
-            .yearbook-pagination-controls a,.yearbook-pagination-controls span{display:inline-flex;align-items:center;justify-content:center;min-width:36px;height:36px;padding:0 9px;border:1px solid #d8e3ef;border-radius:8px;background:#fff;color:#002a5c;font:700 .72rem/1 "Inter",sans-serif;text-decoration:none;box-sizing:border-box;transition:all .18s ease}
-            .yearbook-pagination-controls a:hover{border-color:#002a5c;background:#002a5c;color:#fff;transform:translateY(-1px)}
+            .yearbook-pagination-controls a,.yearbook-pagination-controls span{display:inline-flex;align-items:center;justify-content:center;min-width:36px;height:36px;padding:0 9px;border:1px solid #d8e3ef;border-radius:8px;background:#fff;color:#002a5c;font:700 .72rem/1 "Inter",sans-serif;text-decoration:none;box-sizing:border-box;transition:background .18s ease,border-color .18s ease,color .18s ease}
+            .yearbook-pagination-controls a:hover{border-color:#d8e3ef;background:#f8fafc;color:#002a5c}
             .yearbook-pagination-controls a:focus-visible{outline:2px solid #ffb034;outline-offset:2px}
             .yearbook-pagination-controls .is-current{border-color:#002a5c;background:#002a5c;color:#fff}
             .yearbook-pagination-controls .is-disabled{border-color:#edf2f7;background:#f8fafc;color:#b5bfca;cursor:not-allowed}
