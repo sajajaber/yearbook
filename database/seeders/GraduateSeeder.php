@@ -64,6 +64,7 @@ class GraduateSeeder extends Seeder
                 'school_id' => $school->id,
                 'major_id' => $major->id,
                 'campus_id' => $campus->id,
+                'academic_year_id' => $graduation->academic_year_id,
                 'graduation_id' => $graduation->id,
                 'degree_level' => $degreeLevel,
                 'consent_status' => $consent,
