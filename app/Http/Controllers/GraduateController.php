@@ -27,11 +27,8 @@ class GraduateController extends Controller
     {
         $isReviewer = auth()->user()->role?->role_name === 'reviewer';
 
-        $query = Graduate::with(['school', 'major', 'campus', 'graduation', 'aiGenerations', 'portraitMedia'])
-            ->when(
-                $isReviewer,
-                fn($query) => $query->where('publish_status', '!=', 'draft')
-            )
+        $query = Graduate::with(['school', 'major', 'campus', 'graduation', 'aiGenerations', 'portraitMedia', 'resumeMedia'])
+            ->when($isReviewer, fn($query) => $query->where('publish_status', '!=', 'draft'))
             ->orderBy('name');
 
         $query->when($request->filled('status') && $request->status !== 'all', fn($q) => $q->where('publish_status', $request->status));
@@ -53,17 +50,13 @@ class GraduateController extends Controller
 
         $statusCounts = Graduate::selectRaw('publish_status, COUNT(*) as total')
             ->when($isReviewer, fn($query) => $query->where('publish_status', '!=', 'draft'))
-            ->groupBy('publish_status')
-            ->pluck('total', 'publish_status');
+            ->groupBy('publish_status')->pluck('total', 'publish_status');
 
         $consentGranted = Graduate::when($isReviewer, fn($query) => $query->where('publish_status', '!=', 'draft'))
-            ->where('consent_status', 'granted')
-            ->count();
+            ->where('consent_status', 'granted')->count();
 
         return view('graduates.index', [
-            'graduates' => $graduates,
-            'statusCounts' => $statusCounts,
-            'consentGranted' => $consentGranted,
+            'graduates' => $graduates, 'statusCounts' => $statusCounts, 'consentGranted' => $consentGranted,
             'schools' => School::where('status', 'active')->orderBy('name')->get(),
             'campuses' => Campus::where('status', 'active')->orderBy('name')->get(),
             'majors' => Major::orderBy('name')->get(),
@@ -84,11 +77,7 @@ class GraduateController extends Controller
     {
         $graduate = Graduate::create($request->validated());
         $this->savePortrait($graduate, $request);
-        // The graduate form has no gallery-media picker yet, so media_ids is
-        // never actually submitted. Only touch the pivot when it is present —
-        // otherwise sync([]) would immediately detach the portrait that
-        // savePortrait() just attached (this is what was breaking every
-        // graduate profile photo on the public site).
+        $this->saveResume($graduate, $request);
         if ($request->has('media_ids')) {
             $this->syncMediaWithOrder($graduate, $request->input('media_ids', []));
         }
@@ -101,9 +90,7 @@ class GraduateController extends Controller
         $graduate = Graduate::findOrFail($id);
         $graduate->update($request->validated());
         $this->savePortrait($graduate, $request);
-        // See store(): don't wipe the existing media pivot (including the
-        // portrait) on every edit just because the form doesn't submit a
-        // media_ids field.
+        $this->saveResume($graduate, $request);
         if ($request->has('media_ids')) {
             $this->syncMediaWithOrder($graduate, $request->input('media_ids', []));
         }
@@ -113,21 +100,23 @@ class GraduateController extends Controller
 
     public function edit(string $id)
     {
-        $graduate = Graduate::findOrFail($id);
+        $graduate = Graduate::with('resumeMedia')->findOrFail($id);
         return view('graduates.edit', [
             'graduate' => $graduate,
-            'schools' => School::all(),
-            'majors' => Major::all(),
-            'campuses' => Campus::all(),
-            'graduations' => Graduation::all(),
+            'schools' => School::all(), 'majors' => Major::all(), 'campuses' => Campus::all(), 'graduations' => Graduation::all(),
         ]);
     }
 
     public function destroy(string $id)
     {
         $graduate = Graduate::findOrFail($id);
-        $graduate->update(['portrait_media_id' => null]);
+        $resume = $graduate->resumeMedia;
+        $graduate->update(['portrait_media_id' => null, 'resume_media_id' => null]);
         $graduate->delete();
+        if ($resume) {
+            Storage::disk('public')->delete($resume->path);
+            $resume->delete();
+        }
         AuditLog::record('deleted', $graduate);
         return redirect()->route('graduates.index');
     }
@@ -174,12 +163,8 @@ class GraduateController extends Controller
             return redirect()->route('graduates.edit', $graduate)->with('error', 'AI biography generation failed. Please try again or contact an administrator.');
         }
         AiGeneration::create([
-            'content_type' => 'graduate_biography',
-            'source_record_id' => $graduate->id,
-            'source_record_type' => 'graduate',
-            'prompt_version' => 'v1',
-            'generated_text' => $generatedText,
-            'status' => 'pending_review',
+            'content_type' => 'graduate_biography', 'source_record_id' => $graduate->id, 'source_record_type' => 'graduate',
+            'prompt_version' => 'v1', 'generated_text' => $generatedText, 'status' => 'pending_review',
         ]);
         AuditLog::record('ai_generation_created', $graduate);
         return redirect()->route('graduates.edit', $graduate)->with('success', 'AI biography generated — pending review.');
@@ -193,33 +178,50 @@ class GraduateController extends Controller
         $storage = Storage::disk('public');
         $uploadedPath = $portrait->store('media/portraits', 'public');
         $processor = app(ImageProcessor::class);
-
-        // Keep the stored graduate portrait lightweight and consistently framed.
         $optimizedPath = $processor->createPortrait($uploadedPath, 'public');
         $path = $optimizedPath ?: $uploadedPath;
 
-        // The optimized portrait replaces the temporary original when available.
-        if ($optimizedPath && $optimizedPath !== $uploadedPath) {
-            $storage->delete($uploadedPath);
-        }
-
-        // Generate the smaller preview used by the media library and other grids.
+        if ($optimizedPath && $optimizedPath !== $uploadedPath) $storage->delete($uploadedPath);
         $thumbnailPath = $processor->createThumbnail($path, 'public');
 
         $media = Media::create([
-            'file_name' => $portrait->getClientOriginalName(),
-            'path' => $path,
-            'thumbnail_path' => $thumbnailPath,
-            'type' => 'image',
-            'caption' => $graduate->name . ' profile photo',
-            'alt_text' => 'Profile photo of ' . $graduate->name,
-            'credit' => null,
-            'tags' => ['graduate-portrait', 'profile-photo'],
-            'uploaded_by' => $request->user()->id,
+            'file_name' => $portrait->getClientOriginalName(), 'path' => $path, 'thumbnail_path' => $thumbnailPath,
+            'type' => 'image', 'caption' => $graduate->name . ' profile photo', 'alt_text' => 'Profile photo of ' . $graduate->name,
+            'credit' => null, 'tags' => ['graduate-portrait', 'profile-photo'], 'uploaded_by' => $request->user()->id,
             'checksum' => md5_file($portrait->getRealPath()),
         ]);
 
         $graduate->update(['portrait_media_id' => $media->id]);
         $graduate->media()->syncWithoutDetaching([$media->id => ['display_order' => 0]]);
+    }
+
+    private function saveResume(Graduate $graduate, Request $request): void
+    {
+        if (! $request->hasFile('resume')) return;
+
+        $resume = $request->file('resume');
+        $storage = Storage::disk('public');
+        $oldMedia = $graduate->resumeMedia;
+        $path = $resume->store('media/resumes', 'public');
+
+        $media = Media::create([
+            'file_name' => $resume->getClientOriginalName(),
+            'path' => $path,
+            'thumbnail_path' => null,
+            'type' => 'document',
+            'caption' => $graduate->name . ' resume',
+            'alt_text' => null,
+            'credit' => null,
+            'tags' => ['graduate-resume', 'resume', 'cv'],
+            'uploaded_by' => $request->user()->id,
+            'checksum' => md5_file($resume->getRealPath()),
+        ]);
+
+        $graduate->update(['resume_media_id' => $media->id]);
+
+        if ($oldMedia && $oldMedia->id !== $media->id) {
+            $storage->delete($oldMedia->path);
+            $oldMedia->delete();
+        }
     }
 }
