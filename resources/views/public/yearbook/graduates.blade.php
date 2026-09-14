@@ -1971,21 +1971,21 @@
         @php
 
         /*
-* Keep every graduate equal.
-*
-* Graduates belong to an academic year directly.
-* Ceremony attendance is optional, so ceremony dates
-* must not determine the yearbook grouping.
-*/
+        * Keep every graduate equal.
+        *
+        * Graduates belong to an academic year directly.
+        * Ceremony attendance is optional, so ceremony dates
+        * must not determine the yearbook grouping.
+        */
 
-$groupedGraduates = $graduates
-->getCollection()
-->groupBy(function ($graduate) {
+        $groupedGraduates = $graduates
+        ->getCollection()
+        ->groupBy(function ($graduate) {
 
-return $graduate->academicYear?->title
-    ?? 'Academic Year';
+        return $graduate->academicYear?->title
+            ?? 'Academic Year';
 
-});
+        });
 
         @endphp
 
