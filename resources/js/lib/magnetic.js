@@ -67,6 +67,32 @@ function initYearbookGalleryLightbox() {
 
     const style = document.createElement("style");
     style.textContent = `
+        .event-gallery-item,
+        .graduation-gallery-item{position:relative;isolation:isolate}
+        .event-gallery-item::after,
+        .graduation-gallery-item::after{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(to top,rgba(0,27,61,.82),rgba(0,27,61,.08) 55%,transparent 78%);opacity:.35;pointer-events:none;transition:opacity 280ms ease}
+        .event-gallery-item img,
+        .event-gallery-item video,
+        .graduation-gallery-item img,
+        .graduation-gallery-item video{position:relative;z-index:0;display:block;width:100%;height:100%;object-fit:cover;transition:transform 600ms cubic-bezier(.2,.8,.2,1),filter 400ms ease}
+        .event-gallery-item:hover img,
+        .event-gallery-item:hover video,
+        .graduation-gallery-item:hover img,
+        .graduation-gallery-item:hover video{transform:scale(1.055);filter:saturate(1.08)}
+        .event-gallery-item:hover::after,
+        .graduation-gallery-item:hover::after,
+        .event-gallery-item:focus-visible::after,
+        .graduation-gallery-item:focus-visible::after{opacity:1}
+        .event-gallery-caption,
+        .gallery-caption,
+        .gallery-overlay{position:absolute!important;right:16px!important;bottom:16px!important;left:16px!important;z-index:3!important;display:flex!important;align-items:center!important;gap:8px!important;width:auto!important;margin:0!important;padding:10px 13px!important;border:1px solid rgba(255,255,255,.14)!important;border-radius:12px!important;background:rgba(0,27,61,.76)!important;color:rgba(255,255,255,.96)!important;font:600 12px/1.45 Inter,sans-serif!important;letter-spacing:.01em!important;box-shadow:0 10px 30px rgba(0,0,0,.2)!important;backdrop-filter:blur(12px)!important;opacity:0!important;transform:translateY(12px)!important;pointer-events:none!important;transition:opacity 260ms ease,transform 260ms ease!important}
+        .gallery-overlay-icon{flex:0 0 auto}
+        .event-gallery-item:hover .event-gallery-caption,
+        .graduation-gallery-item:hover .gallery-overlay,
+        .graduation-gallery-item:hover .gallery-caption,
+        .event-gallery-item:focus-visible .event-gallery-caption,
+        .graduation-gallery-item:focus-visible .gallery-overlay,
+        .graduation-gallery-item:focus-visible .gallery-caption{opacity:1!important;transform:translateY(0)!important}
         .yearbook-gallery-lightbox{position:fixed;inset:0;z-index:99999;display:grid;place-items:center;padding:34px 70px;visibility:hidden;opacity:0;pointer-events:none;transition:opacity 220ms ease,visibility 220ms ease}
         .yearbook-gallery-lightbox.is-open{visibility:visible;opacity:1;pointer-events:auto}
         .yearbook-gallery-backdrop{position:absolute;inset:0;background:rgba(0,12,28,.94);backdrop-filter:blur(12px)}
@@ -94,7 +120,7 @@ function initYearbookGalleryLightbox() {
             .yearbook-gallery-counter{top:2px;font-size:10px}
             .yearbook-gallery-caption{bottom:74px;padding:9px 12px;font-size:11px}
         }
-        @media(prefers-reduced-motion:reduce){.yearbook-gallery-lightbox,.yearbook-gallery-media img,.yearbook-gallery-media video,.yearbook-gallery-close,.yearbook-gallery-nav{transition:none!important;animation:none!important}}
+        @media(prefers-reduced-motion:reduce){.yearbook-gallery-lightbox,.yearbook-gallery-media img,.yearbook-gallery-media video,.yearbook-gallery-close,.yearbook-gallery-nav,.event-gallery-caption,.gallery-caption,.gallery-overlay{transition:none!important;animation:none!important}}
     `;
     document.head.appendChild(style);
 
