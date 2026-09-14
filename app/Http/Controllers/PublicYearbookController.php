@@ -196,7 +196,9 @@ class PublicYearbookController extends Controller
         $campus = $request->input('campus');
         $degree = $request->input('degree');
         $sort = $request->input('sort', 'name');
-        $year = $request->input('year');
+
+        $activeAcademicYear = AcademicYear::where('status', 'active')->latest()->first();
+        $year = $request->has('year') ? $request->input('year') : $activeAcademicYear?->id;
 
         $baseFilters = function ($query) use ($search, $school, $major, $campus, $degree, $year) {
             if ($search) $query->where('name', 'like', "%{$search}%");
