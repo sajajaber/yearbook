@@ -16,6 +16,7 @@ use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PublicYearbookController;
+use App\Http\Controllers\PublicGraduateResumeController;
 use App\Http\Controllers\YearbookPdfController;
 use App\Models\HeroImage;
 use Illuminate\Support\Facades\Route;
@@ -38,6 +39,7 @@ Route::prefix('yearbook')->name('public.')->group(function () {
     Route::get('/events', [PublicYearbookController::class, 'events'])->name('events');
     Route::get('/graduates', [PublicYearbookController::class, 'graduates'])->name('graduates');
     Route::get('/graduates/{id}', [PublicYearbookController::class, 'graduateDetail'])->name('graduate.detail');
+    Route::get('/graduates/{id}/resume', [PublicGraduateResumeController::class, 'show'])->name('graduate.resume');
     Route::get('/timeline', [PublicYearbookController::class, 'timeline'])->name('timeline');
     Route::get('/graduates/{id}/pdf', [YearbookPdfController::class, 'graduate'])->name('graduate.pdf');
 
