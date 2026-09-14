@@ -372,12 +372,11 @@
                             <p class="graduation-card-desc">{{ Str::limit($graduation->description, 110) }}</p>
                             @endif
                         </div>
-                    </div>
+                    </article>
                 </a>
                 @endforeach
             </div>
 
-            <!-- Pagination -->
             @if($graduations->hasPages())
             <div class="pagination">
                 @if($graduations->onFirstPage())
