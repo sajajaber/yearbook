@@ -1,0 +1,69 @@
+name: Fix public graduation route and add view modes
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Patch routes and public view modes
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          routes = Path('routes/web.php')
+          text = routes.read_text(encoding='utf-8')
+
+          old = """  Route::get('/{academicYear}/pdf', [YearbookPdfController::class, 'book'])->name('book.pdf');\n  Route::get('/{academicYear}', [PublicYearbookController::class, 'book'])->name('book');\n  Route::get('/graduations/{id}', [PublicYearbookController::class, 'graduationDetail'])->name('graduation.detail');\n  Route::get('/graduations', [PublicYearbookController::class, 'graduations'])->name('graduations');"""
+          new = """  Route::get('/graduations/{id}', [PublicYearbookController::class, 'graduationDetail'])->name('graduation.detail');\n  Route::get('/graduations', [PublicYearbookController::class, 'graduations'])->name('graduations');\n  Route::get('/{academicYear}/pdf', [YearbookPdfController::class, 'book'])->name('book.pdf');\n  Route::get('/{academicYear}', [PublicYearbookController::class, 'book'])->name('book');"""
+          if old not in text:
+              raise SystemExit('Expected public yearbook route block not found')
+          routes.write_text(text.replace(old, new, 1), encoding='utf-8')
+
+          events = Path('resources/views/public/yearbook/events.blade.php')
+          text = events.read_text(encoding='utf-8')
+          css = r'''\n    /* =========================================================\n       VIEW MODE SWITCHER\n       ========================================================= */\n    .public-view-modes {\n        display:flex;\n        align-items:center;\n        gap:4px;\n        padding:4px;\n        border:1px solid var(--events-line);\n        border-radius:12px;\n        background:var(--events-white);\n        box-shadow:0 6px 22px rgba(0,42,92,.05);\n    }\n    .public-view-mode {\n        border:0;\n        border-radius:8px;\n        padding:9px 13px;\n        background:transparent;\n        color:var(--events-muted);\n        font-size:.68rem;\n        font-weight:800;\n        letter-spacing:.6px;\n        text-transform:uppercase;\n        cursor:pointer;\n        transition:all .3s ease;\n    }\n    .public-view-mode:hover { background:var(--events-paper); color:var(--events-dark); }\n    .public-view-mode.is-active { background:var(--events-dark); color:#fff; }\n    .events-list.view-large {\n        display:grid;\n        grid-template-columns:repeat(2,minmax(0,1fr));\n        gap:16px;\n        border-top:0;\n    }\n    .events-list.view-large .event-list-link {\n        height:100%;\n    }\n    .events-list.view-large .event-list-item {\n        height:100%;\n        min-height:250px;\n        grid-template-columns:1fr 34px;\n        grid-template-rows:auto 1fr;\n        align-items:start;\n        gap:18px;\n        padding:28px;\n        border:1px solid var(--events-line);\n        border-radius:18px;\n        background:var(--events-white);\n        box-shadow:0 10px 35px rgba(0,42,92,.045);\n    }\n    .events-list.view-large .event-list-date { grid-column:1/-1; }\n    .events-list.view-large .event-list-main { grid-column:1; }\n    .events-list.view-large .event-list-arrow { grid-column:2; grid-row:2; }\n    .events-list.view-large .event-list-link:hover .event-list-item {\n        padding:28px;\n        transform:translateY(-5px);\n        background:var(--events-white);\n        box-shadow:0 20px 45px rgba(0,42,92,.10);\n    }\n    @media (max-width:760px) {\n        .events-list.view-large { grid-template-columns:1fr; }\n    }\n'''
+          marker = "    /* =========================================================\n        EVENTS LIST\n        ========================================================= */"
+          if 'public-view-modes' not in text:
+              if marker not in text:
+                  raise SystemExit('Events CSS marker not found')
+              text = text.replace(marker, css + '\n' + marker, 1)
+
+          js = r'''\n<script>\ndocument.addEventListener('DOMContentLoaded', function () {\n    const list = document.querySelector('.events-list');\n    const intro = document.querySelector('.events-section-intro');\n    if (!list || !intro || document.querySelector('.public-view-modes')) return;\n\n    const wrap = document.createElement('div');\n    wrap.className = 'public-view-modes';\n    wrap.setAttribute('aria-label', 'Event display');\n    wrap.innerHTML = `\n        <button type="button" class="public-view-mode is-active" data-view="list">List</button>\n        <button type="button" class="public-view-mode" data-view="large">Large</button>\n    `;\n    intro.appendChild(wrap);\n\n    const buttons = wrap.querySelectorAll('.public-view-mode');\n    const key = 'yearbook-events-view';\n    const apply = (mode) => {\n        list.classList.toggle('view-large', mode === 'large');\n        buttons.forEach(btn => btn.classList.toggle('is-active', btn.dataset.view === mode));\n        localStorage.setItem(key, mode);\n    };\n    buttons.forEach(btn => btn.addEventListener('click', () => apply(btn.dataset.view)));\n    apply(localStorage.getItem(key) === 'large' ? 'large' : 'list');\n});\n</script>\n'''
+          if 'yearbook-events-view' not in text:
+              text = text.replace("@endsection\n", js + "\n@endsection\n", 1)
+          events.write_text(text, encoding='utf-8')
+
+          graduates = Path('resources/views/public/yearbook/graduates.blade.php')
+          text = graduates.read_text(encoding='utf-8')
+          gcss = r'''\n    /* =========================================================\n       GRADUATE VIEW MODE SWITCHER\n       ========================================================= */\n    .graduates-page .public-view-modes {\n        display:flex;\n        align-items:center;\n        gap:4px;\n        padding:4px;\n        border:1px solid var(--g-line);\n        border-radius:12px;\n        background:#fff;\n        box-shadow:0 6px 22px rgba(0,42,92,.05);\n    }\n    .graduates-page .public-view-mode {\n        border:0;\n        border-radius:8px;\n        padding:9px 13px;\n        background:transparent;\n        color:var(--g-muted);\n        font-size:.68rem;\n        font-weight:800;\n        letter-spacing:.6px;\n        text-transform:uppercase;\n        cursor:pointer;\n        transition:all .3s ease;\n    }\n    .graduates-page .public-view-mode:hover { background:#f3f6f9; color:var(--g-ink); }\n    .graduates-page .public-view-mode.is-active { background:var(--g-ink); color:#fff; }\n    .graduates-page .graduates-grid.view-list {\n        display:flex;\n        flex-direction:column;\n        gap:0;\n    }\n    .graduates-page .graduates-grid.view-list .graduate-card {\n        display:grid;\n        grid-template-columns:112px minmax(0,1fr) auto;\n        align-items:center;\n        gap:22px;\n        min-height:128px;\n        padding:18px 20px;\n        border-bottom:1px solid var(--g-line);\n        border-radius:0;\n        box-shadow:none;\n        background:transparent;\n    }\n    .graduates-page .graduates-grid.view-list .graduate-card:first-child { border-top:1px solid var(--g-line); }\n    .graduates-page .graduates-grid.view-list .graduate-card:hover {\n        transform:none;\n        background:#fff;\n        box-shadow:0 10px 28px rgba(0,42,92,.06);\n    }\n    .graduates-page .graduates-grid.view-list .graduate-card-image {\n        width:112px;\n        height:92px;\n        border-radius:12px;\n    }\n    .graduates-page .graduates-grid.view-list .graduate-card-content { min-width:0; }\n    .graduates-page .graduates-grid.view-list .graduate-card-name { margin-bottom:5px; }\n    @media (max-width:700px) {\n        .graduates-page .graduates-grid.view-list .graduate-card { grid-template-columns:82px minmax(0,1fr); }\n        .graduates-page .graduates-grid.view-list .graduate-card-image { width:82px; height:82px; }\n        .graduates-page .graduates-grid.view-list .graduate-card-action { display:none; }\n    }\n'''
+          gmarker = "    /* =========================================================\n        GRADUATE"
+          if 'GRADUATE VIEW MODE SWITCHER' not in text:
+              idx = text.find(gmarker)
+              if idx == -1:
+                  raise SystemExit('Graduates CSS marker not found')
+              text = text[:idx] + gcss + '\n' + text[idx:]
+
+          gjs = r'''\n<script>\ndocument.addEventListener('DOMContentLoaded', function () {\n    const grid = document.querySelector('.graduates-grid');\n    const intro = document.querySelector('.graduates-section-intro, .graduates-results-header, .graduates-results-head');\n    if (!grid || !intro || document.querySelector('.graduates-page .public-view-modes')) return;\n\n    const wrap = document.createElement('div');\n    wrap.className = 'public-view-modes';\n    wrap.setAttribute('aria-label', 'Graduate display');\n    wrap.innerHTML = `\n        <button type="button" class="public-view-mode is-active" data-view="cards">Cards</button>\n        <button type="button" class="public-view-mode" data-view="list">List</button>\n    `;\n    intro.appendChild(wrap);\n\n    const buttons = wrap.querySelectorAll('.public-view-mode');\n    const key = 'yearbook-graduates-view';\n    const apply = (mode) => {\n        grid.classList.toggle('view-list', mode === 'list');\n        buttons.forEach(btn => btn.classList.toggle('is-active', btn.dataset.view === mode));\n        localStorage.setItem(key, mode);\n    };\n    buttons.forEach(btn => btn.addEventListener('click', () => apply(btn.dataset.view)));\n    apply(localStorage.getItem(key) === 'list' ? 'list' : 'cards');\n});\n</script>\n'''
+          if 'yearbook-graduates-view' not in text:
+              text = text.replace("@endsection\n", gjs + "\n@endsection\n", 1)
+          graduates.write_text(text, encoding='utf-8')
+          PY
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add routes/web.php resources/views/public/yearbook/events.blade.php resources/views/public/yearbook/graduates.blade.php
+          git diff --cached --quiet && exit 0
+          git commit -m "Fix graduation route and add public view modes"
+          git push
