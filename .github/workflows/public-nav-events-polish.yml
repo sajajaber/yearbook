@@ -1,4 +1,4 @@
-name: Fix public event media template
+name: Repair public event template
 on:
   push:
     branches:
@@ -6,19 +6,21 @@ on:
 permissions:
   contents: write
 jobs:
-  fix:
+  repair:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
       - name: Repair Blade variables
         run: |
-          python -c 'from pathlib import Path; p=Path("resources/views/public/yearbook/events.blade.php"); s=p.read_text(); s=s.replace("@php( = ->media->first())", "@php($eventMedia = $event->media->first())"); s=s.replace("@if( && ->type === \'image\')", "@if($eventMedia && $eventMedia->type === \'image\')"); s=s.replace("{{ ->thumbnailUrl() }}", "{{ $eventMedia->thumbnailUrl() }}"); s=s.replace("@elseif()", "@elseif($eventMedia)"); s=s.replace("{{ str_pad(->iteration, 2, \'0\', STR_PAD_LEFT) }}", "{{ str_pad($loop->iteration, 2, \'0\', STR_PAD_LEFT) }}"); p.write_text(s)'
+          sed -i 's/@php( = ->media->first())/@php($eventMedia = $event->media->first())/' resources/views/public/yearbook/events.blade.php
+          sed -i 's/@if( && ->type === '\''image'\'')/@if($eventMedia \&\& $eventMedia->type === '\''image'\'')/' resources/views/public/yearbook/events.blade.php
+          sed -i 's/{{ ->thumbnailUrl() }}/{{ $eventMedia->thumbnailUrl() }}/' resources/views/public/yearbook/events.blade.php
+          sed -i 's/@elseif()/@elseif($eventMedia)/' resources/views/public/yearbook/events.blade.php
+          sed -i 's/{{ str_pad(->iteration, 2, '\''0'\'', STR_PAD_LEFT) }}/{{ str_pad($loop->iteration, 2, '\''0'\'', STR_PAD_LEFT) }}/' resources/views/public/yearbook/events.blade.php
       - name: Commit repaired template
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add resources/views/public/yearbook/events.blade.php
-          git diff --cached --quiet || git commit -m "Repair event media template"
+          git diff --cached --quiet || git commit -m "Repair public event template"
           git push || true
