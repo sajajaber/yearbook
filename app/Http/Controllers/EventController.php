@@ -57,7 +57,10 @@ class EventController extends Controller
         $categories = EventCategory::all();
         $campuses = Campus::all();
         $schools = School::all();
-        $mediaItems = Media::orderByDesc('created_at')->orderBy('file_name')->get();
+        $mediaItems = Media::whereDoesntHave('portraitGraduates')
+            ->orderByDesc('created_at')
+            ->orderBy('file_name')
+            ->get();
 
         return view('events.create', compact('academicYears', 'categories', 'campuses', 'schools', 'mediaItems'));
     }
@@ -69,7 +72,10 @@ class EventController extends Controller
         $categories = EventCategory::all();
         $campuses = Campus::all();
         $schools = School::all();
-        $mediaItems = Media::orderByDesc('created_at')->orderBy('file_name')->get();
+        $mediaItems = Media::whereDoesntHave('portraitGraduates')
+            ->orderByDesc('created_at')
+            ->orderBy('file_name')
+            ->get();
 
         return view('events.edit', compact('event', 'academicYears', 'categories', 'campuses', 'schools', 'mediaItems'));
     }
