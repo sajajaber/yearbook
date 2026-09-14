@@ -1,0 +1,86 @@
+name: Fix public graduates academic-year grouping
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  fix-public-graduates:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Update graduates academic-year grouping
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path("resources/views/public/yearbook/graduates.blade.php")
+          text = path.read_text(encoding="utf-8")
+
+          old = r'''        /*
+        * Keep every graduate equal.
+        *
+        * Graduates are grouped by ceremony year
+        * when that information exists.
+        */
+
+        $groupedGraduates = $graduates
+        ->getCollection()
+        ->groupBy(function ($graduate) {
+
+        if (
+        $graduate->graduation?->ceremony_date
+        ) {
+
+        return \\Carbon\\Carbon::parse(
+        $graduate->graduation->ceremony_date
+        )->format('Y');
+
+        }
+
+        return 'Class';
+
+        });'''
+
+          new = r'''        /*
+        * Keep every graduate equal.
+        *
+        * Graduates belong to an academic year directly.
+        * Ceremony attendance is optional, so ceremony dates
+        * must not determine the yearbook grouping.
+        */
+
+        $groupedGraduates = $graduates
+        ->getCollection()
+        ->groupBy(function ($graduate) {
+
+        return $graduate->academicYear?->title
+            ?? 'Academic Year';
+
+        });'''
+
+          if old not in text:
+              raise SystemExit("Expected ceremony-year grouping block was not found; no file was changed.")
+
+          text = text.replace(old, new, 1)
+          path.write_text(text, encoding="utf-8")
+
+      - name: Commit and push
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add resources/views/public/yearbook/graduates.blade.php
+          git rm .github/workflows/fix-public-graduates-academic-year.yml
+          git commit -m "Group public graduates by academic year"
+          git push
