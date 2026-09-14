@@ -15,27 +15,22 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Apply graduates directory updates
-        shell: python
+      - name: Update files
         run: |
+          python - <<'PY'
           from pathlib import Path
           import re
-
-          if 'Calm graduates directory' in '${{ github.event.head_commit.message }}':
-              raise SystemExit(0)
 
           view_path = Path('resources/views/public/yearbook/graduates.blade.php')
           view = view_path.read_text(encoding='utf-8')
 
-          view, removed = re.subn(
-              r'\s*<nav class="graduates-degree-switcher" aria-label="Graduate level">.*?</nav>\s*',
-              '\n',
-              view,
-              count=1,
-              flags=re.S,
-          )
-          if removed != 1:
-              raise SystemExit('Could not find the degree switcher markup.')
+          if 'graduates-degree-switcher' in view:
+              view, removed = re.subn(
+                  r'\s*<nav class="graduates-degree-switcher" aria-label="Graduate level">.*?</nav>\s*',
+                  '\n', view, count=1, flags=re.S
+              )
+              if removed != 1:
+                  raise SystemExit('Degree switcher markup not found.')
 
           calm_css = r'''
     /* =========================================================
@@ -54,13 +49,8 @@ jobs:
             linear-gradient(135deg, #f8fafc 0%, #ffffff 58%, #f1f6fb 100%);
     }
 
-    .graduates-hero h1 {
-        letter-spacing: -2.8px;
-    }
-
-    .graduates-discovery {
-        margin-bottom: 54px;
-    }
+    .graduates-hero h1 { letter-spacing: -2.8px; }
+    .graduates-discovery { margin-bottom: 54px; }
 
     .graduates-filter-shell {
         border-color: rgba(0,42,92,.08);
@@ -83,19 +73,13 @@ jobs:
         box-shadow: 0 0 0 3px rgba(216,173,82,.08);
     }
 
-    .graduates-filter-button {
-        background: #173d67;
-        box-shadow: none;
-    }
-
+    .graduates-filter-button { background: #173d67; box-shadow: none; }
     .graduates-filter-button:hover {
         background: #d8ad52;
         box-shadow: 0 8px 20px rgba(23,61,103,.10);
     }
 
-    .graduates-archive-header {
-        margin-bottom: 26px;
-    }
+    .graduates-archive-header { margin-bottom: 26px; }
 
     .graduates-year-number {
         background: #edf3f8;
@@ -115,17 +99,9 @@ jobs:
         box-shadow: 0 18px 38px rgba(15,23,42,.075);
     }
 
-    .graduate-portrait {
-        background: linear-gradient(145deg, #173d67, #315f88);
-    }
-
-    .graduate-card-body {
-        padding: 20px 20px 21px;
-    }
-
-    .graduate-name {
-        letter-spacing: -.2px;
-    }
+    .graduate-portrait { background: linear-gradient(145deg, #173d67, #315f88); }
+    .graduate-card-body { padding: 20px 20px 21px; }
+    .graduate-name { letter-spacing: -.2px; }
 
     .graduates-empty {
         border-color: #dfe7ef;
@@ -136,23 +112,18 @@ jobs:
 
           if 'CALM EDITORIAL FINISH' not in view:
               view = view.replace('</style>', calm_css + '\n</style>', 1)
-
           view_path.write_text(view, encoding='utf-8')
 
           controller_path = Path('app/Http/Controllers/PublicYearbookController.php')
           controller = controller_path.read_text(encoding='utf-8')
           old = "        $year = $request->input('year');\n        $degree = $request->input('degree');"
           new = "        $activeAcademicYear = AcademicYear::where('status', 'active')->latest()->first();\n        $year = $request->has('year') ? $request->input('year') : $activeAcademicYear?->id;\n        $degree = $request->input('degree');"
-          if old not in controller:
-              raise SystemExit('Could not find the graduates year filter block.')
-          controller = controller.replace(old, new, 1)
+          if old in controller:
+              controller = controller.replace(old, new, 1)
+          elif "$activeAcademicYear = AcademicYear::where('status', 'active')->latest()->first();" not in controller:
+              raise SystemExit('Graduates year filter block not found.')
           controller_path.write_text(controller, encoding='utf-8')
-
-          final_view = view_path.read_text(encoding='utf-8')
-          if 'graduates-degree-switcher' in final_view:
-              raise SystemExit('Degree switcher marker still present.')
-          if 'CALM EDITORIAL FINISH' not in final_view:
-              raise SystemExit('Calm styling was not applied.')
+          PY
 
       - name: Commit changes
         run: |
