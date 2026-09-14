@@ -1665,16 +1665,16 @@
                         </div>
 
 
-                        @php( = ->media->first())
+                        @php($eventMedia = $event->media->first())
                         <div class="event-list-media" aria-hidden="true">
-                            @if( && ->type === 'image')
-                                <img src="{{ ->thumbnailUrl() }}" alt="" loading="lazy">
-                            @elseif()
+                            @if($eventMedia && $eventMedia->type === 'image')
+                                <img src="{{ $eventMedia->thumbnailUrl() }}" alt="" loading="lazy">
+                            @elseif($eventMedia)
                                 <span class="event-media-mark">▶</span>
                             @else
                                 <span class="event-media-mark">✦</span>
                             @endif
-                            <span class="event-media-index">{{ str_pad(->iteration, 2, '0', STR_PAD_LEFT) }}</span>
+                            <span class="event-media-index">{{ str_pad($loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
                         </div>
 
                         {{-- MAIN CONTENT --}}
