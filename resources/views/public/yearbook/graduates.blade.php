@@ -4,113 +4,12 @@
 
 @section('extra-css')
 <style>
-    .graduates-page { --g-ink:var(--ink,#002a5c); --g-gold:#d7ad59; --g-muted:#718096; --g-line:#e2e8ef; --g-paper:#f7f9fb; --g-ease:cubic-bezier(.16,1,.3,1); background:#f4f1eb; }
-
-    .graduates-hero { min-height:620px; padding:90px 7vw 100px; position:relative; overflow:hidden; isolation:isolate; display:flex; align-items:flex-end; background:var(--g-ink); color:#fff; }
-    .graduates-hero::before,.graduates-hero::after { content:""; position:absolute; border:1px solid rgba(255,255,255,.12); border-radius:50%; pointer-events:none; opacity:0; transform:scale(.72) rotate(-12deg); animation:graduatesHeroCircleIn 1.4s cubic-bezier(.16,1,.3,1) .15s forwards,graduatesHeroFloat 10s ease-in-out 1.8s infinite; }
-    .graduates-hero::before { width:520px; height:520px; right:-160px; top:-180px; }
-    .graduates-hero::after { width:720px; height:720px; right:-260px; top:-280px; border-color:rgba(255,255,255,.06); animation:graduatesHeroCircleIn 1.6s cubic-bezier(.16,1,.3,1) .25s forwards,graduatesHeroFloatLarge 13s ease-in-out 2s infinite; }
-    .graduates-hero-grid { position:absolute; inset:0; opacity:0; background-image:linear-gradient(rgba(255,255,255,.5) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.5) 1px,transparent 1px); background-size:80px 80px; mask-image:linear-gradient(to right,transparent,black 60%); -webkit-mask-image:linear-gradient(to right,transparent,black 60%); pointer-events:none; transform:scale(1.06); animation:graduatesHeroGridIn 1.4s ease .1s forwards; }
-    .graduates-hero-glow { position:absolute; width:480px; height:480px; right:12%; bottom:-340px; border-radius:50%; background:radial-gradient(circle,rgba(255,176,52,.2),transparent 68%); filter:blur(10px); opacity:0; animation:graduatesHeroGlowIn 1.5s ease .45s forwards; pointer-events:none; }
-    .graduates-hero-inner { position:relative; z-index:2; width:100%; max-width:1180px; margin:0 auto; display:block; }
-    .graduates-hero-content { max-width:1050px; }
-    .graduates-kicker { display:flex; align-items:center; gap:14px; margin-bottom:30px; color:var(--red,#ffb034); font-size:11px; font-weight:800; letter-spacing:3px; text-transform:uppercase; opacity:0; transform:translateY(20px); animation:graduatesHeroReveal .8s cubic-bezier(.16,1,.3,1) .05s forwards; }
-    .graduates-kicker::before { content:""; width:42px; height:2px; background:currentColor; transform-origin:left; transform:scaleX(0); animation:graduatesHeroLineIn .7s cubic-bezier(.16,1,.3,1) .4s forwards; }
-    .graduates-hero h1 { margin:0; max-width:950px; color:#fff; font-size:clamp(58px,9vw,132px); line-height:.88; letter-spacing:-5px; font-weight:800; opacity:0; transform:translateY(55px); animation:graduatesHeroTitleIn 1.05s cubic-bezier(.16,1,.3,1) .12s forwards; }
-    .graduates-hero h1 em { display:block; margin-top:16px; color:#aebdcd; font-family:"Merriweather",serif; font-weight:400; font-size:.56em; line-height:1.2; letter-spacing:-2px; opacity:0; transform:translateY(25px); animation:graduatesHeroReveal .9s cubic-bezier(.16,1,.3,1) .38s forwards; }
-    .graduates-hero-bottom { margin-top:55px; display:flex; justify-content:space-between; align-items:flex-end; gap:40px; max-width:850px; opacity:0; transform:translateY(25px); animation:graduatesHeroReveal .9s cubic-bezier(.16,1,.3,1) .52s forwards; }
-    .graduates-hero-copy { max-width:510px; margin:0; color:#b9c6d6; font-size:15px; line-height:1.8; }
-    .graduates-hero-count { flex-shrink:0; text-align:right; opacity:0; transform:translateX(25px); animation:graduatesHeroCountIn .8s cubic-bezier(.16,1,.3,1) .68s forwards; }
-    .graduates-hero-count strong { display:block; color:#fff; font-size:44px; line-height:1; font-weight:700; }
-    .graduates-hero-count span { display:block; margin-top:7px; color:#8293a7; font-size:10px; text-transform:uppercase; letter-spacing:2px; }
-
-    @keyframes graduatesHeroReveal { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
-    @keyframes graduatesHeroTitleIn { from{opacity:0;transform:translateY(55px)} to{opacity:1;transform:translateY(0)} }
-    @keyframes graduatesHeroCountIn { from{opacity:0;transform:translateX(25px)} to{opacity:1;transform:translateX(0)} }
-    @keyframes graduatesHeroGridIn { from{opacity:0;transform:scale(1.06)} to{opacity:.08;transform:scale(1)} }
-    @keyframes graduatesHeroCircleIn { from{opacity:0;transform:scale(.72) rotate(-12deg)} to{opacity:1;transform:scale(1) rotate(0)} }
-    @keyframes graduatesHeroLineIn { from{transform:scaleX(0)} to{transform:scaleX(1)} }
-    @keyframes graduatesHeroFloat { 0%,100%{transform:translate3d(0,0,0)} 50%{transform:translate3d(-18px,20px,0)} }
-    @keyframes graduatesHeroFloatLarge { 0%,100%{transform:translate3d(0,0,0)} 50%{transform:translate3d(-25px,15px,0)} }
-    @keyframes graduatesHeroGlowIn { from{opacity:0;transform:scale(.7)} to{opacity:1;transform:scale(1)} }
-    @keyframes graduateCardIn { from{opacity:0;transform:translateY(25px)} to{opacity:1;transform:translateY(0)} }
-
-    .graduates-discovery { position:relative; z-index:3; margin:-18px 0 56px; }
-    .graduates-filter-shell { padding:8px; border:1px solid rgba(0,42,92,.08); border-radius:18px; background:rgba(255,255,255,.97); box-shadow:0 14px 40px rgba(15,23,42,.055); backdrop-filter:blur(12px); }
-    .graduates-filter-form { display:grid; grid-template-columns:minmax(190px,1.5fr) repeat(4,minmax(115px,1fr)) auto; gap:7px; }
-    .graduates-filter-field { min-width:0; }
-    .graduates-filter-field input,.graduates-filter-field select { box-sizing:border-box; width:100%; height:52px; padding:0 13px; border:1px solid #edf1f5; border-radius:11px; background:#f8fafc; color:var(--g-ink); font-size:.74rem; font-weight:700; }
-    .graduates-filter-field input:focus,.graduates-filter-field select:focus { outline:none; border-color:#d8e1ea; background:#fff; box-shadow:0 0 0 3px rgba(215,173,89,.08); }
-    .graduates-filter-button { min-width:95px; height:52px; border:0; border-radius:11px; background:var(--g-ink); color:#fff; font-size:.7rem; font-weight:900; letter-spacing:.5px; text-transform:uppercase; cursor:pointer; transition:transform .35s var(--g-ease),background .25s ease,box-shadow .35s ease; }
-    .graduates-filter-button:hover { transform:translateY(-2px); background:#123f6e; box-shadow:0 10px 24px rgba(0,42,92,.14); }
-    .graduates-active-filters { display:flex; flex-wrap:wrap; align-items:center; gap:7px; margin-top:10px; padding:0 4px; }
-    .graduates-active-label { color:#8995a2; font-size:.61rem; font-weight:900; letter-spacing:1.1px; text-transform:uppercase; }
-    .graduates-filter-tag { padding:6px 9px; border:1px solid var(--g-line); border-radius:999px; background:#f8fafc; color:var(--g-ink); font-size:.63rem; font-weight:800; }
-    .graduates-filter-tag a { margin-left:5px; color:#8b97a4; text-decoration:none; }
-    .graduates-clear { color:#9c7b38; font-size:.64rem; font-weight:900; text-decoration:none; }
-    .graduates-header { display:flex; align-items:end; justify-content:space-between; gap:20px; margin-bottom:24px; }
-    .graduates-kicker-small { margin-bottom:7px; color:#b48738; font-size:.65rem; font-weight:900; letter-spacing:2px; text-transform:uppercase; }
-    .graduates-header h2 { margin:0; color:var(--g-ink); font-size:clamp(1.8rem,3vw,2.5rem); line-height:1; letter-spacing:-1px; }
-    .graduates-count { color:var(--g-muted); font-size:.7rem; font-weight:700; }
-    .graduates-view-tools { display:flex; align-items:center; gap:4px; padding:4px; border:1px solid var(--g-line); border-radius:12px; background:#fff; }
-    .graduates-view-button { border:0; border-radius:8px; padding:9px 13px; background:transparent; color:var(--g-muted); font-size:.65rem; font-weight:900; letter-spacing:.5px; text-transform:uppercase; cursor:pointer; transition:all .25s ease; }
-    .graduates-view-button:hover { background:var(--g-paper); color:var(--g-ink); }
-    .graduates-view-button.is-active { background:var(--g-ink); color:#fff; }
-    .graduates-year-group { margin-bottom:50px; }
-    .graduates-year-heading { display:flex; align-items:center; gap:13px; margin-bottom:17px; }
-    .graduates-year-number { padding:7px 10px; border:1px solid #dce5ed; border-radius:8px; background:#eef3f7; color:var(--g-ink); font-size:.65rem; font-weight:900; }
-    .graduates-year-line { flex:1; height:1px; background:var(--g-line); }
-
-    /* Creative portrait-first graduate cards */
-    .graduates-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:22px; }
-    .graduate-link { display:block; color:inherit; text-decoration:none; }
-    .graduate-card { position:relative; height:100%; overflow:hidden; border:1px solid #dfe6ed; border-radius:22px; background:#fff; box-shadow:0 7px 25px rgba(15,23,42,.045); transition:transform .55s var(--g-ease),box-shadow .55s ease,border-color .3s ease; opacity:0; animation:graduateCardIn .75s var(--g-ease) forwards; }
-    .graduate-link:nth-child(2) .graduate-card{animation-delay:.05s}.graduate-link:nth-child(3) .graduate-card{animation-delay:.1s}.graduate-link:nth-child(4) .graduate-card{animation-delay:.15s}.graduate-link:nth-child(5) .graduate-card{animation-delay:.2s}.graduate-link:nth-child(6) .graduate-card{animation-delay:.25s}.graduate-link:nth-child(7) .graduate-card{animation-delay:.3s}.graduate-link:nth-child(8) .graduate-card{animation-delay:.35s}
-    .graduate-card::before { content:''; position:absolute; z-index:3; top:0; left:0; width:100%; height:4px; background:linear-gradient(90deg,var(--g-gold),#f4dca5,transparent); transform:scaleX(.2); transform-origin:left; transition:transform .55s var(--g-ease); }
-    .graduate-card::after { content:''; position:absolute; z-index:2; inset:0; pointer-events:none; border:1px solid transparent; border-radius:22px; transition:border-color .35s ease; }
-    .graduate-link:hover .graduate-card { transform:translateY(-9px); border-color:rgba(215,173,89,.5); box-shadow:0 24px 52px rgba(15,23,42,.12); }
-    .graduate-link:hover .graduate-card::before { transform:scaleX(1); }
-    .graduate-link:hover .graduate-card::after { border-color:rgba(215,173,89,.25); }
-    .graduate-portrait { position:relative; height:325px; overflow:hidden; background:linear-gradient(145deg,#173d67,#416d94); }
-    .graduate-portrait::after { content:''; position:absolute; inset:0; background:linear-gradient(to top,rgba(0,23,50,.58) 0%,rgba(0,23,50,.08) 42%,transparent 68%); pointer-events:none; transition:opacity .45s ease; }
-    .graduate-link:hover .graduate-portrait::after { opacity:.72; }
-    .graduate-portrait img { display:block; width:100%; height:100%; object-fit:cover; transition:transform .8s var(--g-ease),filter .5s ease; }
-    .graduate-link:hover .graduate-portrait img { transform:scale(1.07); filter:saturate(1.06); }
-    .graduate-placeholder { display:flex; align-items:center; justify-content:center; width:100%; height:100%; color:rgba(255,255,255,.92); font-size:4rem; font-weight:900; background:radial-gradient(circle at 50% 30%,rgba(255,255,255,.12),transparent 45%); }
-    .graduate-badge { position:absolute; z-index:4; top:15px; padding:7px 10px; border-radius:999px; font-size:.57rem; font-weight:900; letter-spacing:.35px; box-shadow:0 6px 16px rgba(0,0,0,.12); }
-    .graduate-degree-badge { left:15px; background:var(--g-gold); color:var(--g-ink); }
-    .graduate-year-badge { right:15px; max-width:62%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; background:rgba(255,255,255,.94); color:var(--g-ink); backdrop-filter:blur(8px); }
-    .graduate-card-body { position:relative; padding:20px 20px 21px; }
-    .graduate-name { margin:0 0 8px; color:var(--g-ink); font-size:1.03rem; line-height:1.25; font-weight:850; letter-spacing:-.2px; transition:color .3s ease; }
-    .graduate-link:hover .graduate-name { color:#9c7b38; }
-    .graduate-major { margin:0 0 5px; color:#334e6b; font-size:.73rem; font-weight:700; line-height:1.45; }
-    .graduate-school { margin:0; color:var(--g-muted); font-size:.65rem; line-height:1.5; }
-    .graduate-card-footer { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:16px; padding-top:13px; border-top:1px solid #edf1f4; }
-    .graduate-view { color:var(--g-ink); font-size:.63rem; font-weight:900; transition:color .25s ease,transform .35s var(--g-ease); }
-    .graduate-link:hover .graduate-view { color:#9c7b38; transform:translateX(3px); }
-
-    .graduates-grid.view-list { display:flex; flex-direction:column; gap:0; }
-    .graduates-grid.view-list .graduate-link { display:block; }
-    .graduates-grid.view-list .graduate-card { display:grid; grid-template-columns:112px minmax(0,1fr) auto; align-items:center; gap:22px; min-height:126px; padding:17px 19px; border-radius:0; border-left:0; border-right:0; box-shadow:none; background:transparent; animation:none; opacity:1; }
-    .graduates-grid.view-list .graduate-card:first-child { border-top:1px solid var(--g-line); }
-    .graduates-grid.view-list .graduate-card::before,.graduates-grid.view-list .graduate-card::after { display:none; }
-    .graduates-grid.view-list .graduate-link:hover .graduate-card { transform:none; background:#fff; box-shadow:0 10px 28px rgba(15,23,42,.06); }
-    .graduates-grid.view-list .graduate-portrait { width:112px; height:90px; border-radius:12px; }
-    .graduates-grid.view-list .graduate-badge { top:8px; }
-    .graduates-grid.view-list .graduate-card-body { padding:0; }
-    .graduates-grid.view-list .graduate-card-footer { margin:0; padding:0; border:0; }
-    .graduates-empty { padding:70px 30px; text-align:center; border:1px dashed #dce5ed; border-radius:18px; background:#fff; }
-    .graduates-empty h3 { margin:0 0 8px; color:var(--g-ink); }
-    .graduates-empty p { margin:0 0 20px; color:var(--g-muted); font-size:.85rem; }
-    .graduates-named-only { margin-top:35px; padding:24px 0; border-top:1px dashed var(--g-line); color:var(--g-muted); font-size:.8rem; line-height:2; }
-    .graduates-named-only strong { display:block; color:var(--g-ink); }
-    .graduates-pagination { display:flex; justify-content:center; flex-wrap:wrap; gap:7px; margin:42px 0 72px; }
-    .graduates-pagination a,.graduates-pagination span { display:inline-flex; align-items:center; justify-content:center; min-width:39px; height:39px; padding:0 10px; border:1px solid var(--g-line); border-radius:9px; background:#fff; color:var(--g-ink); text-decoration:none; font-size:.68rem; font-weight:800; }
-    @media(max-width:1100px){ .graduates-filter-form{grid-template-columns:repeat(3,minmax(0,1fr));} .graduates-grid{grid-template-columns:repeat(3,minmax(0,1fr));} }
-    @media(max-width:850px){ .graduates-hero{min-height:560px;padding:72px 6vw 78px;} .graduates-hero-inner{display:block;} .graduates-hero h1{font-size:clamp(54px,11vw,100px);} .graduates-hero-bottom{display:block;margin-top:40px;max-width:700px;} .graduates-hero-count{text-align:left;margin-top:24px;} .graduates-hero-copy{max-width:650px;} .graduates-grid{grid-template-columns:repeat(2,minmax(0,1fr));} }
-    @media(max-width:650px){ .graduates-hero{min-height:540px;padding:60px 24px 62px;} .graduates-hero h1{letter-spacing:-3px;} .graduates-hero h1 em{letter-spacing:-1px;} .graduates-hero-bottom{margin-top:34px;} .graduates-hero-count strong{font-size:38px;} .graduates-filter-form{grid-template-columns:1fr 1fr;} .graduates-header{align-items:flex-start;flex-direction:column;} .graduates-view-tools{align-self:flex-end;} .graduates-grid{grid-template-columns:1fr;} .graduate-portrait{height:360px;} .graduates-grid.view-list .graduate-card{grid-template-columns:78px minmax(0,1fr);gap:15px;padding:15px 4px;} .graduates-grid.view-list .graduate-portrait{width:78px;height:78px;} .graduates-grid.view-list .graduate-card-footer{display:none;} }
-    @media(max-width:430px){ .graduates-filter-form{grid-template-columns:1fr;} .graduate-portrait{height:330px;} }
-    @media(prefers-reduced-motion:reduce){ .graduates-page *{transition:none!important;animation:none!important;} .graduate-card{opacity:1!important;} }
+/* Keep the existing graduates design; add comfortable page gutters and clean Cards/List controls. */
+.graduates-page > main.container { max-width:1240px; padding-left:32px; padding-right:32px; }
+.graduates-view-tools { display:flex; align-items:center; gap:4px; }
+.graduates-view-button { min-width:70px; }
+@media(max-width:850px){.graduates-page > main.container{padding-left:24px;padding-right:24px;}}
+@media(max-width:650px){.graduates-page > main.container{padding-left:18px;padding-right:18px;}}
 </style>
 @endsection
 
@@ -158,7 +57,6 @@
             </div>
 
             @if($graduates->count())
-                @php($currentGroup = null)
                 <div class="graduates-year-group">
                     <div class="graduates-year-heading"><span class="graduates-year-number">{{ $year ? optional($years->firstWhere('id', $year))->title : 'Selected year' }}</span><span class="graduates-year-line"></span></div>
                     <div class="graduates-grid" id="graduates-grid">
@@ -183,7 +81,6 @@
                         @endforeach
                     </div>
                 </div>
-
                 <div class="graduates-pagination">{!! $graduates->onEachSide(1)->links('pagination::simple-tailwind') !!}</div>
             @else
                 <div class="graduates-empty"><h3>No graduate profiles found</h3><p>Try another academic year, degree level, school, campus or search term.</p><a class="graduate-view" href="{{ route('public.graduates') }}">Reset filters →</a></div>
