@@ -1,16 +1,18 @@
 @if ($paginator->hasPages())
     <nav class="yearbook-pagination" role="navigation" aria-label="Pagination Navigation">
         <style>
-            .yearbook-pagination{display:flex;align-items:center;justify-content:center;width:100%;margin:0;padding:8px 0;box-sizing:border-box}
-            .yearbook-pagination-controls{display:flex;align-items:center;justify-content:center;gap:5px;flex-wrap:wrap}
-            .yearbook-pagination-controls a,.yearbook-pagination-controls span{display:inline-flex;align-items:center;justify-content:center;min-width:36px;height:36px;padding:0 9px;border:1px solid #d8e3ef;border-radius:8px;background:#fff;color:#002a5c;font:700 .72rem/1 "Inter",sans-serif;text-decoration:none;box-sizing:border-box;transition:background .18s ease,border-color .18s ease,color .18s ease}
-            .yearbook-pagination-controls a:hover{border-color:#d8e3ef;background:#f8fafc;color:#002a5c}
-            .yearbook-pagination-controls a:focus-visible{outline:2px solid #ffb034;outline-offset:2px}
-            .yearbook-pagination-controls .is-current{border-color:#002a5c;background:#002a5c;color:#fff}
-            .yearbook-pagination-controls .is-disabled{border-color:#edf2f7;background:#f8fafc;color:#b5bfca;cursor:not-allowed}
-            .yearbook-pagination-controls .is-ellipsis{min-width:20px;padding:0;border-color:transparent;background:transparent;color:#94a3b8}
-            .yearbook-pagination-label{gap:5px;padding:0 11px!important}
-            @media(max-width:560px){.yearbook-pagination-controls{gap:4px}.yearbook-pagination-controls a,.yearbook-pagination-controls span{min-width:34px;height:34px;padding:0 7px}.yearbook-pagination-label{min-width:34px!important;padding:0!important}.yearbook-pagination-label span:not([aria-hidden]){display:none}}
+            .yearbook-pagination{display:flex;justify-content:center;width:100%;margin:0;padding:18px 0;box-sizing:border-box}
+            .yearbook-pagination-controls{display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap}
+            .yearbook-pagination-controls a,.yearbook-pagination-controls span{display:inline-flex;align-items:center;justify-content:center;height:32px;min-width:20px;padding:0 3px;border:0;background:transparent;color:#64748b;font:600 .72rem/1 "Inter",sans-serif;text-decoration:none;box-sizing:border-box;transition:color .18s ease,opacity .18s ease}
+            .yearbook-pagination-controls a:hover{color:#002a5c}
+            .yearbook-pagination-controls a:focus-visible{outline:2px solid #ffb034;outline-offset:5px;border-radius:2px}
+            .yearbook-pagination-controls .is-current{color:#002a5c;position:relative}
+            .yearbook-pagination-controls .is-current:after{content:"";position:absolute;left:3px;right:3px;bottom:1px;height:2px;background:#ffb034;border-radius:2px}
+            .yearbook-pagination-controls .is-disabled{color:#cbd5e1;cursor:not-allowed}
+            .yearbook-pagination-controls .is-ellipsis{min-width:12px;padding:0;color:#94a3b8}
+            .yearbook-pagination-label{gap:7px!important;color:#002a5c!important;font-weight:700!important}
+            .yearbook-pagination-label span[aria-hidden="true"]{font-size:1.05rem;line-height:1;font-weight:400}
+            @media(max-width:560px){.yearbook-pagination{padding:14px 0}.yearbook-pagination-controls{gap:11px}.yearbook-pagination-controls a,.yearbook-pagination-controls span{height:30px;min-width:18px}.yearbook-pagination-label span:not([aria-hidden]){display:none}.yearbook-pagination-label{padding:0 4px!important}}
         </style>
         <div class="yearbook-pagination-controls">
             @if ($paginator->onFirstPage())
