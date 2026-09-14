@@ -75,9 +75,9 @@ class PublicYearbookController extends Controller
         $graduationIds = Graduation::where('academic_year_id', $academicYear->id)->pluck('id');
 
         $baseQuery = fn($level) => Graduate::where(function ($q) use ($academicYear, $graduationIds) {
-                $q->where('academic_year_id', $academicYear->id)
-                    ->orWhereIn('graduation_id', $graduationIds);
-            })
+            $q->where('academic_year_id', $academicYear->id)
+                ->orWhereIn('graduation_id', $graduationIds);
+        })
             ->where('publish_status', 'published')
             ->where('consent_status', 'granted')
             ->where('degree_level', $level)
@@ -249,10 +249,34 @@ class PublicYearbookController extends Controller
         return view('public.yearbook.timeline', compact('events', 'years', 'categories'));
     }
 
-    public function graduations()
+    public function graduations(Request $request)
     {
-        $graduations = Graduation::orderByDesc('created_at')->with(['media', 'academicYear', 'campuses', 'schools'])->paginate(12);
-        return view('public.yearbook.graduations', compact('graduations'));
+        $query = Graduation::with(['media', 'academicYear', 'campuses', 'schools']);
+
+        if ($year = $request->input('year')) {
+            $query->whereYear('ceremony_date', $year);
+        }
+
+        if ($campus = $request->input('campus')) {
+            $query->whereHas('campuses', fn($q) => $q->where('campuses.id', $campus));
+        }
+
+        $graduations = $query->orderByDesc('created_at')->paginate(12)->withQueryString();
+
+        // Cross-database-safe distinct year extraction — whereYear() above
+        // works on any driver via Laravel's grammar, but selecting a raw
+        // YEAR(...) column does not (sqlite has no YEAR() function), so pull
+        // the dates and derive years in PHP instead.
+        $years = Graduation::whereNotNull('ceremony_date')
+            ->pluck('ceremony_date')
+            ->map(fn($date) => Carbon::parse($date)->year)
+            ->unique()
+            ->sortDesc()
+            ->values();
+
+        $campuses = Campus::orderBy('name')->get(['id', 'name']);
+
+        return view('public.yearbook.graduations', compact('graduations', 'years', 'campuses'));
     }
 
     public function search(Request $request, SemanticSearchService $semanticSearch)
