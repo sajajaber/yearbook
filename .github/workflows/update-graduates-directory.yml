@@ -1,0 +1,351 @@
+name: Update public graduates directory
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  update-graduates-directory:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Update graduates controller and seeder
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          controller = Path('app/Http/Controllers/PublicYearbookController.php')
+          text = controller.read_text(encoding='utf-8')
+
+          old = """        $activeAcademicYear = AcademicYear::where('status', 'active')->latest()->first();
+          $year = $request->has('year') ? $request->input('year') : $activeAcademicYear?->id;
+
+          $baseFilters = function ($query) use ($search, $school, $major, $campus, $year) {
+              if ($search) $query->where('name', 'like', \"%{$search}%\");
+              if ($school) $query->where('school_id', $school);
+              if ($major) $query->where('major_id', $major);
+              if ($campus) $query->where('campus_id', $campus);
+              if ($year) $query->where('academic_year_id', $year);
+          };"""
+
+          new = """        $year = $request->input('year');
+          $degree = $request->input('degree');
+
+          $baseFilters = function ($query) use ($search, $school, $major, $campus, $year, $degree) {
+              if ($search) $query->where('name', 'like', \"%{$search}%\");
+              if ($school) $query->where('school_id', $school);
+              if ($major) $query->where('major_id', $major);
+              if ($campus) $query->where('campus_id', $campus);
+              if ($year) {
+                  $query->where(function ($q) use ($year) {
+                      $q->where('academic_year_id', $year)
+                          ->orWhereHas('graduation', fn($graduation) => $graduation->where('academic_year_id', $year));
+                  });
+              }
+              if (in_array($degree, ['undergraduate', 'graduate'], true)) {
+                  $query->where('degree_level', $degree);
+              }
+          };"""
+
+          if old not in text:
+              raise SystemExit('Graduates controller filter block not found.')
+          controller.write_text(text.replace(old, new, 1), encoding='utf-8')
+
+          text = controller.read_text(encoding='utf-8')
+          old_return = "return view('public.yearbook.graduates', compact('graduates', 'namedOnly', 'schools', 'majors', 'campuses', 'years', 'search', 'school', 'major', 'campus', 'year', 'sort'));"
+          new_return = "return view('public.yearbook.graduates', compact('graduates', 'namedOnly', 'schools', 'majors', 'campuses', 'years', 'search', 'school', 'major', 'campus', 'year', 'degree', 'sort'));"
+          if old_return not in text:
+              raise SystemExit('Graduates view return statement not found.')
+          controller.write_text(text.replace(old_return, new_return, 1), encoding='utf-8')
+
+          seeder = Path('database/seeders/GraduateSeeder.php')
+          text = seeder.read_text(encoding='utf-8')
+          old = """                'campus_id' => $campus->id,
+                  'graduation_id' => $graduation->id,
+                  'degree_level' => $degreeLevel,"""
+          new = """                'campus_id' => $campus->id,
+                  'academic_year_id' => $graduation->academic_year_id,
+                  'graduation_id' => $graduation->id,
+                  'degree_level' => $degreeLevel,"""
+          if old not in text:
+              raise SystemExit('GraduateSeeder create block not found.')
+          seeder.write_text(text.replace(old, new, 1), encoding='utf-8')
+          PY
+
+      - name: Redesign graduates Blade directory
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          path = Path('resources/views/public/yearbook/graduates.blade.php')
+          text = path.read_text(encoding='utf-8')
+
+          # Fix the academic-year field placement and make the filter grid coherent.
+          old = re.compile(r"\n\s*\{\{-- Year --\}\}\n\s*<select\s+name=\"year\".*?@endforeach\s*</select>\s*\n\s*</div>\n\s*\n\s*\n\s*\{\{-- Submit --\}\}", re.S)
+          new = r'''
+
+                    {{-- Academic Year --}}
+
+                    <div class="graduates-filter-field">
+
+                        <select
+                            name="year"
+                            aria-label="Filter by academic year">
+
+                            <option value="">
+                                All Academic Years
+                            </option>
+
+                            @foreach($years as $academicYear)
+
+                            <option
+                                value="{{ $academicYear->id }}"
+                                @selected((string) $academicYear->id === (string) $year)>
+                                {{ $academicYear->title }}
+                            </option>
+
+                            @endforeach
+
+                        </select>
+
+                    </div>
+
+
+                    {{-- Submit --}}'''
+          text, count = old.subn(new, text, count=1)
+          if count != 1:
+              raise SystemExit('Academic-year filter block not found.')
+
+          # Add degree selection immediately before the school filter.
+          marker = """                    {{-- School --}}"""
+          degree_field = r'''
+                    {{-- Degree Level --}}
+
+                    <div class="graduates-filter-field">
+
+                        <select
+                            name="degree"
+                            aria-label="Filter by degree level">
+
+                            <option value="">All Degree Levels</option>
+                            <option value="undergraduate" @selected($degree === 'undergraduate')>Undergraduate</option>
+                            <option value="graduate" @selected($degree === 'graduate')>Graduate</option>
+
+                        </select>
+
+                    </div>
+
+
+'''
+          if marker not in text:
+              raise SystemExit('School filter marker not found.')
+          text = text.replace(marker, degree_field + marker, 1)
+
+          # Replace the archive heading and grouping block.
+          text = text.replace('                    Class Archive', '                    Academic Year Archive', 1)
+          text = text.replace('                    Meet the graduates', '                    Meet the undergraduate & graduate community', 1)
+
+          old_group = re.compile(r"        /\*\n\s*\* Keep every graduate equal\..*?\n\s*\$groupedGraduates = \$graduates\n\s*->getCollection\(\)\n\s*->groupBy\(function \(\$graduate\) \{.*?\n\s*\}\);", re.S)
+          new_group = '''        /*
+        * Graduates are grouped by their academic-year membership.
+        */
+
+        $groupedGraduates = $graduates
+            ->getCollection()
+            ->groupBy(function ($graduate) {
+                return $graduate->academicYear?->title
+                    ?? $graduate->graduation?->academicYear?->title
+                    ?? 'Academic Year';
+            });'''
+          text, count = old_group.subn(new_group, text, count=1)
+          if count != 1:
+              raise SystemExit('Academic-year grouping block not found.')
+
+          # Use the explicit portrait relationship first, with gallery media as fallback.
+          text = text.replace("                $portrait =\n                $graduate->media->first();", "                $portrait = $graduate->portraitMedia ?? $graduate->media->first();", 1)
+
+          # Replace ceremony-year card metadata with academic year + degree label.
+          text = text.replace("                            {{-- Graduation Year --}}", "                            {{-- Academic year --}}", 1)
+          text = text.replace("                            @if($graduationYear)\n\n                            <span\n                                class=\"graduate-year-badge\">\n                                {{ $graduationYear }}\n                            </span>\n\n                            @endif", "                            @if($graduate->academicYear || $graduate->graduation?->academicYear)\n\n                            <span class=\"graduate-year-badge\">\n                                {{ $graduate->academicYear?->title ?? $graduate->graduation?->academicYear?->title }}\n                            </span>\n\n                            @endif", 1)
+
+          text = text.replace("                                    $graduationYear\n                                                            ? 'Class of ' . $graduationYear\n                                                            : 'Graduate'", "                                    $graduate->degree_level === 'undergraduate'\n                                        ? 'Undergraduate'\n                                        : 'Graduate'")
+
+          # Add active degree chip.
+          marker = """                @if($year)"""
+          degree_chip = r'''
+
+                @if($degree)
+
+                <div class="graduates-filter-tag">
+
+                    Degree:
+                    {{ $degree === 'undergraduate' ? 'Undergraduate' : 'Graduate' }}
+
+                    <a
+                        href="{{ route('public.graduates', array_merge(request()->query(), ['degree' => null])) }}"
+                        aria-label="Remove degree filter">
+                        ×
+                    </a>
+
+                </div>
+
+                @endif
+
+'''
+          if marker not in text:
+              raise SystemExit('Year active-filter marker not found.')
+          text = text.replace(marker, degree_chip + marker, 1)
+
+          # Update the filter visibility condition and empty copy.
+          text = text.replace('@if($search || $school || $campus || $year)', '@if($search || $school || $campus || $year || $degree)', 1)
+          text = text.replace('                    Also graduating this year', '                    Also in the yearbook', 1)
+
+          # Styling additions: degree tabs, stronger filter panel, archive label, and cards.
+          style_marker = """    /* =========================================================
+       ACTIVE FILTERS"""
+          style = r'''
+    /* =========================================================
+       DEGREE LEVEL NAVIGATION
+       ========================================================= */
+
+    .graduates-degree-switcher {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+        margin: 0 0 12px;
+        padding: 7px;
+        border: 1px solid var(--graduates-line);
+        border-radius: 16px;
+        background: rgba(255,255,255,.9);
+        box-shadow: 0 12px 30px rgba(0,42,92,.06);
+    }
+
+    .graduates-degree-switcher a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 52px;
+        padding: 10px 14px;
+        border-radius: 11px;
+        color: var(--graduates-dark);
+        text-decoration: none;
+        font-size: .78rem;
+        font-weight: 800;
+        letter-spacing: .2px;
+        transition: transform .35s var(--graduates-ease), background .3s ease, color .3s ease, box-shadow .35s ease;
+    }
+
+    .graduates-degree-switcher a:hover {
+        transform: translateY(-2px);
+        background: var(--graduates-paper);
+    }
+
+    .graduates-degree-switcher a.is-active {
+        background: var(--graduates-dark);
+        color: var(--graduates-white);
+        box-shadow: 0 8px 20px rgba(0,42,92,.14);
+    }
+
+    .graduates-degree-switcher a.is-active::after {
+        content: '';
+        width: 6px;
+        height: 6px;
+        margin-left: 8px;
+        border-radius: 50%;
+        background: var(--graduates-accent);
+    }
+
+    .graduates-section-intro {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 20px;
+        margin-bottom: 25px;
+    }
+
+    .graduates-section-intro h3 {
+        margin: 0;
+        color: var(--graduates-dark);
+        font-size: clamp(1.3rem, 2.4vw, 2rem);
+        letter-spacing: -.7px;
+    }
+
+    .graduates-degree-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 5px 9px;
+        border-radius: 999px;
+        background: rgba(255,176,52,.12);
+        color: var(--graduates-dark);
+        font-size: .62rem;
+        font-weight: 850;
+        letter-spacing: .8px;
+        text-transform: uppercase;
+    }
+
+    .graduate-year-badge {
+        max-width: calc(100% - 26px);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    @media (max-width: 650px) {
+        .graduates-degree-switcher {
+            grid-template-columns: 1fr;
+        }
+    }
+
+
+'''
+          if style_marker not in text:
+              raise SystemExit('Style insertion marker not found.')
+          text = text.replace(style_marker, style + style_marker, 1)
+
+          # Insert degree switcher before the main filter shell.
+          marker = """            <div class="graduates-filter-shell">"""
+          switcher = r'''
+            <nav class="graduates-degree-switcher" aria-label="Graduate level">
+                <a href="{{ route('public.graduates', request()->except('degree', 'page')) }}"
+                   class="{{ !$degree ? 'is-active' : '' }}">
+                    All Students
+                </a>
+                <a href="{{ route('public.graduates', array_merge(request()->except('degree', 'page'), ['degree' => 'undergraduate'])) }}"
+                   class="{{ $degree === 'undergraduate' ? 'is-active' : '' }}">
+                    Undergraduates
+                </a>
+                <a href="{{ route('public.graduates', array_merge(request()->except('degree', 'page'), ['degree' => 'graduate'])) }}"
+                   class="{{ $degree === 'graduate' ? 'is-active' : '' }}">
+                    Graduate Students
+                </a>
+            </nav>
+
+'''
+          if marker not in text:
+              raise SystemExit('Filter shell marker not found.')
+          text = text.replace(marker, switcher + marker, 1)
+
+          path.write_text(text, encoding='utf-8')
+          print('Graduates directory updated.')
+          PY
+
+      - name: Commit changes and remove one-time workflow
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app/Http/Controllers/PublicYearbookController.php database/seeders/GraduateSeeder.php resources/views/public/yearbook/graduates.blade.php
+          git commit -m "Fix graduates directory and add degree filters"
+          git rm .github/workflows/update-graduates-directory.yml
+          git commit -m "Remove one-time graduates update workflow"
+          git push
