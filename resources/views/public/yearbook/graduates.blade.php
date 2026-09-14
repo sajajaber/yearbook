@@ -1971,29 +1971,21 @@
         @php
 
         /*
-        * Keep every graduate equal.
-        *
-        * Graduates are grouped by ceremony year
-        * when that information exists.
-        */
+* Keep every graduate equal.
+*
+* Graduates belong to an academic year directly.
+* Ceremony attendance is optional, so ceremony dates
+* must not determine the yearbook grouping.
+*/
 
-        $groupedGraduates = $graduates
-        ->getCollection()
-        ->groupBy(function ($graduate) {
+$groupedGraduates = $graduates
+->getCollection()
+->groupBy(function ($graduate) {
 
-        if (
-        $graduate->graduation?->ceremony_date
-        ) {
+return $graduate->academicYear?->title
+    ?? 'Academic Year';
 
-        return \Carbon\Carbon::parse(
-        $graduate->graduation->ceremony_date
-        )->format('Y');
-
-        }
-
-        return 'Class';
-
-        });
+});
 
         @endphp
 
