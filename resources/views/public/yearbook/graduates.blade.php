@@ -4,13 +4,39 @@
 
 @section('extra-css')
 <style>
-    .graduates-page { --g-ink:var(--ink,#002a5c); --g-gold:#d7ad59; --g-muted:#718096; --g-line:#e2e8ef; --g-paper:#f7f9fb; --g-ease:cubic-bezier(.16,1,.3,1); background:#fbfcfd; }
-    .graduates-hero { padding:76px 0 60px; border-bottom:1px solid rgba(0,42,92,.06); background:radial-gradient(circle at 84% 18%,rgba(215,173,89,.11),transparent 27%),linear-gradient(135deg,#f5f8fb,#fff 64%,#f0f5f9); }
-    .graduates-hero-inner { display:grid; grid-template-columns:minmax(0,1.15fr) minmax(280px,.7fr); gap:56px; align-items:end; }
-    .graduates-kicker { display:inline-flex; align-items:center; gap:10px; margin-bottom:17px; color:#b48738; font-size:.68rem; font-weight:900; letter-spacing:2.4px; text-transform:uppercase; }
-    .graduates-kicker:before { content:''; width:30px; height:1px; background:currentColor; }
-    .graduates-hero h1 { margin:0; color:var(--g-ink); font-size:clamp(3.35rem,7vw,6.5rem); line-height:.88; letter-spacing:-3px; font-weight:900; }
-    .graduates-hero-copy { max-width:430px; margin:0 0 3px auto; color:var(--g-muted); font-size:.96rem; line-height:1.85; }
+    .graduates-page { --g-ink:var(--ink,#002a5c); --g-gold:#d7ad59; --g-muted:#718096; --g-line:#e2e8ef; --g-paper:#f7f9fb; --g-ease:cubic-bezier(.16,1,.3,1); background:#f4f1eb; }
+
+    /* =========================================================
+       ARCHIVE-STYLE HERO
+    ========================================================= */
+    .graduates-hero { min-height:620px; padding:90px 7vw 100px; position:relative; overflow:hidden; isolation:isolate; display:flex; align-items:flex-end; background:var(--g-ink); color:#fff; }
+    .graduates-hero::before,.graduates-hero::after { content:""; position:absolute; border:1px solid rgba(255,255,255,.12); border-radius:50%; pointer-events:none; opacity:0; transform:scale(.72) rotate(-12deg); animation:graduatesHeroCircleIn 1.4s cubic-bezier(.16,1,.3,1) .15s forwards,graduatesHeroFloat 10s ease-in-out 1.8s infinite; }
+    .graduates-hero::before { width:520px; height:520px; right:-160px; top:-180px; }
+    .graduates-hero::after { width:720px; height:720px; right:-260px; top:-280px; border-color:rgba(255,255,255,.06); animation:graduatesHeroCircleIn 1.6s cubic-bezier(.16,1,.3,1) .25s forwards,graduatesHeroFloatLarge 13s ease-in-out 2s infinite; }
+    .graduates-hero-grid { position:absolute; inset:0; opacity:0; background-image:linear-gradient(rgba(255,255,255,.5) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.5) 1px,transparent 1px); background-size:80px 80px; mask-image:linear-gradient(to right,transparent,black 60%); -webkit-mask-image:linear-gradient(to right,transparent,black 60%); pointer-events:none; transform:scale(1.06); animation:graduatesHeroGridIn 1.4s ease .1s forwards; }
+    .graduates-hero-glow { position:absolute; width:480px; height:480px; right:12%; bottom:-340px; border-radius:50%; background:radial-gradient(circle,rgba(255,176,52,.2),transparent 68%); filter:blur(10px); opacity:0; animation:graduatesHeroGlowIn 1.5s ease .45s forwards; pointer-events:none; }
+    .graduates-hero-inner { position:relative; z-index:2; width:100%; max-width:1180px; margin:0 auto; display:block; }
+    .graduates-hero-content { max-width:1050px; }
+    .graduates-kicker { display:flex; align-items:center; gap:14px; margin-bottom:30px; color:var(--red,#ffb034); font-size:11px; font-weight:800; letter-spacing:3px; text-transform:uppercase; opacity:0; transform:translateY(20px); animation:graduatesHeroReveal .8s cubic-bezier(.16,1,.3,1) .05s forwards; }
+    .graduates-kicker::before { content:""; width:42px; height:2px; background:currentColor; transform-origin:left; transform:scaleX(0); animation:graduatesHeroLineIn .7s cubic-bezier(.16,1,.3,1) .4s forwards; }
+    .graduates-hero h1 { margin:0; max-width:950px; color:#fff; font-size:clamp(58px,9vw,132px); line-height:.88; letter-spacing:-5px; font-weight:800; opacity:0; transform:translateY(55px); animation:graduatesHeroTitleIn 1.05s cubic-bezier(.16,1,.3,1) .12s forwards; }
+    .graduates-hero h1 em { display:block; margin-top:16px; color:#aebdcd; font-family:"Merriweather",serif; font-weight:400; font-size:.56em; line-height:1.2; letter-spacing:-2px; opacity:0; transform:translateY(25px); animation:graduatesHeroReveal .9s cubic-bezier(.16,1,.3,1) .38s forwards; }
+    .graduates-hero-bottom { margin-top:55px; display:flex; justify-content:space-between; align-items:flex-end; gap:40px; max-width:850px; opacity:0; transform:translateY(25px); animation:graduatesHeroReveal .9s cubic-bezier(.16,1,.3,1) .52s forwards; }
+    .graduates-hero-copy { max-width:510px; margin:0; color:#b9c6d6; font-size:15px; line-height:1.8; }
+    .graduates-hero-count { flex-shrink:0; text-align:right; opacity:0; transform:translateX(25px); animation:graduatesHeroCountIn .8s cubic-bezier(.16,1,.3,1) .68s forwards; }
+    .graduates-hero-count strong { display:block; color:#fff; font-size:44px; line-height:1; font-weight:700; }
+    .graduates-hero-count span { display:block; margin-top:7px; color:#8293a7; font-size:10px; text-transform:uppercase; letter-spacing:2px; }
+
+    @keyframes graduatesHeroReveal { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes graduatesHeroTitleIn { from{opacity:0;transform:translateY(55px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes graduatesHeroCountIn { from{opacity:0;transform:translateX(25px)} to{opacity:1;transform:translateX(0)} }
+    @keyframes graduatesHeroGridIn { from{opacity:0;transform:scale(1.06)} to{opacity:.08;transform:scale(1)} }
+    @keyframes graduatesHeroCircleIn { from{opacity:0;transform:scale(.72) rotate(-12deg)} to{opacity:1;transform:scale(1) rotate(0)} }
+    @keyframes graduatesHeroLineIn { from{transform:scaleX(0)} to{transform:scaleX(1)} }
+    @keyframes graduatesHeroFloat { 0%,100%{transform:translate3d(0,0,0)} 50%{transform:translate3d(-18px,20px,0)} }
+    @keyframes graduatesHeroFloatLarge { 0%,100%{transform:translate3d(0,0,0)} 50%{transform:translate3d(-25px,15px,0)} }
+    @keyframes graduatesHeroGlowIn { from{opacity:0;transform:scale(.7)} to{opacity:1;transform:scale(1)} }
+
     .graduates-discovery { position:relative; z-index:3; margin:-18px 0 56px; }
     .graduates-filter-shell { padding:8px; border:1px solid rgba(0,42,92,.08); border-radius:18px; background:rgba(255,255,255,.97); box-shadow:0 14px 40px rgba(15,23,42,.055); backdrop-filter:blur(12px); }
     .graduates-filter-form { display:grid; grid-template-columns:minmax(190px,1.5fr) repeat(4,minmax(115px,1fr)) auto; gap:7px; }
@@ -71,8 +97,8 @@
     .graduates-pagination { display:flex; justify-content:center; flex-wrap:wrap; gap:7px; margin:42px 0 72px; }
     .graduates-pagination a,.graduates-pagination span { display:inline-flex; align-items:center; justify-content:center; min-width:39px; height:39px; padding:0 10px; border:1px solid var(--g-line); border-radius:9px; background:#fff; color:var(--g-ink); text-decoration:none; font-size:.68rem; font-weight:800; }
     @media(max-width:1100px){ .graduates-filter-form{grid-template-columns:repeat(3,minmax(0,1fr));} .graduates-grid{grid-template-columns:repeat(3,minmax(0,1fr));} }
-    @media(max-width:850px){ .graduates-hero-inner{grid-template-columns:1fr;gap:28px;} .graduates-hero-copy{margin:0;max-width:650px;} .graduates-grid{grid-template-columns:repeat(2,minmax(0,1fr));} }
-    @media(max-width:650px){ .graduates-hero{padding:54px 0 44px;} .graduates-hero h1{letter-spacing:-2.5px;} .graduates-filter-form{grid-template-columns:1fr 1fr;} .graduates-header{align-items:flex-start;flex-direction:column;} .graduates-view-tools{align-self:flex-end;} .graduates-grid{grid-template-columns:1fr;} .graduates-grid.view-list .graduate-card{grid-template-columns:78px minmax(0,1fr);gap:15px;padding:15px 4px;} .graduates-grid.view-list .graduate-portrait{width:78px;height:78px;} .graduates-grid.view-list .graduate-card-footer{display:none;} }
+    @media(max-width:850px){ .graduates-hero{min-height:560px;padding:72px 6vw 78px;} .graduates-hero-inner{display:block;} .graduates-hero h1{font-size:clamp(54px,11vw,100px);} .graduates-hero-bottom{display:block;margin-top:40px;max-width:700px;} .graduates-hero-count{text-align:left;margin-top:24px;} .graduates-hero-copy{max-width:650px;} .graduates-grid{grid-template-columns:repeat(2,minmax(0,1fr));} }
+    @media(max-width:650px){ .graduates-hero{min-height:540px;padding:60px 24px 62px;} .graduates-hero h1{letter-spacing:-3px;} .graduates-hero h1 em{letter-spacing:-1px;} .graduates-hero-bottom{margin-top:34px;} .graduates-hero-count strong{font-size:38px;} .graduates-filter-form{grid-template-columns:1fr 1fr;} .graduates-header{align-items:flex-start;flex-direction:column;} .graduates-view-tools{align-self:flex-end;} .graduates-grid{grid-template-columns:1fr;} .graduates-grid.view-list .graduate-card{grid-template-columns:78px minmax(0,1fr);gap:15px;padding:15px 4px;} .graduates-grid.view-list .graduate-portrait{width:78px;height:78px;} .graduates-grid.view-list .graduate-card-footer{display:none;} }
     @media(max-width:430px){ .graduates-filter-form{grid-template-columns:1fr;} }
     @media(prefers-reduced-motion:reduce){ .graduates-page *{transition:none!important;animation:none!important;} }
 </style>
@@ -81,9 +107,17 @@
 @section('content')
 <div class="graduates-page">
     <section class="graduates-hero">
-        <div class="container graduates-hero-inner">
-            <div><div class="graduates-kicker">Faces of our year</div><h1>The people<br>behind the story.</h1></div>
-            <p class="graduates-hero-copy">Explore the graduating community by academic year, degree level, school and campus. Every profile is part of the yearbook record.</p>
+        <div class="graduates-hero-grid"></div>
+        <div class="graduates-hero-glow"></div>
+        <div class="graduates-hero-inner">
+            <div class="graduates-hero-content">
+                <div class="graduates-kicker">Faces of our year</div>
+                <h1>Graduates<em>the people behind the story.</em></h1>
+                <div class="graduates-hero-bottom">
+                    <p class="graduates-hero-copy">Explore the graduating community by academic year, degree level, school and campus. Every profile is part of the yearbook record.</p>
+                    <div class="graduates-hero-count"><strong>{{ $graduates->total() }}</strong><span>{{ Str::plural('graduate', $graduates->total()) }}</span></div>
+                </div>
+            </div>
         </div>
     </section>
 
