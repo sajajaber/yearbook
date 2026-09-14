@@ -29,7 +29,10 @@ class GraduationController extends Controller
         $academicYears = AcademicYear::where('status', '!=', 'archived')->get();
         $campuses = Campus::where('status', 'active')->get();
         $schools = School::where('status', 'active')->get();
-        $mediaItems = Media::orderByDesc('created_at')->orderBy('file_name')->get();
+        $mediaItems = Media::whereDoesntHave('portraitGraduates')
+            ->orderByDesc('created_at')
+            ->orderBy('file_name')
+            ->get();
 
         return view('graduations.create', [
             'academicYears' => $academicYears,
@@ -58,7 +61,10 @@ class GraduationController extends Controller
         $academicYears = AcademicYear::all();
         $campuses = Campus::all();
         $schools = School::all();
-        $mediaItems = Media::orderByDesc('created_at')->orderBy('file_name')->get();
+        $mediaItems = Media::whereDoesntHave('portraitGraduates')
+            ->orderByDesc('created_at')
+            ->orderBy('file_name')
+            ->get();
         $selectedMediaIds = $graduation->media->pluck('id')->all();
 
         return view('graduations.edit', [
