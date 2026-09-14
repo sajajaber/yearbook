@@ -37,6 +37,11 @@
     @keyframes graduatesHeroFloatLarge { 0%,100%{transform:translate3d(0,0,0)} 50%{transform:translate3d(-25px,15px,0)} }
     @keyframes graduatesHeroGlowIn { from{opacity:0;transform:scale(.7)} to{opacity:1;transform:scale(1)} }
 
+    /* =========================================================
+       CENTERED PAGE CONTENT
+    ========================================================= */
+    .graduates-page > main.container { width:100%; max-width:1240px; margin:0 auto; padding-left:32px; padding-right:32px; }
+
     .graduates-discovery { position:relative; z-index:3; margin:-18px 0 56px; }
     .graduates-filter-shell { padding:8px; border:1px solid rgba(0,42,92,.08); border-radius:18px; background:rgba(255,255,255,.97); box-shadow:0 14px 40px rgba(15,23,42,.055); backdrop-filter:blur(12px); }
     .graduates-filter-form { display:grid; grid-template-columns:minmax(190px,1.5fr) repeat(4,minmax(115px,1fr)) auto; gap:7px; }
@@ -97,8 +102,8 @@
     .graduates-pagination { display:flex; justify-content:center; flex-wrap:wrap; gap:7px; margin:42px 0 72px; }
     .graduates-pagination a,.graduates-pagination span { display:inline-flex; align-items:center; justify-content:center; min-width:39px; height:39px; padding:0 10px; border:1px solid var(--g-line); border-radius:9px; background:#fff; color:var(--g-ink); text-decoration:none; font-size:.68rem; font-weight:800; }
     @media(max-width:1100px){ .graduates-filter-form{grid-template-columns:repeat(3,minmax(0,1fr));} .graduates-grid{grid-template-columns:repeat(3,minmax(0,1fr));} }
-    @media(max-width:850px){ .graduates-hero{min-height:560px;padding:72px 6vw 78px;} .graduates-hero-inner{display:block;} .graduates-hero h1{font-size:clamp(54px,11vw,100px);} .graduates-hero-bottom{display:block;margin-top:40px;max-width:700px;} .graduates-hero-count{text-align:left;margin-top:24px;} .graduates-hero-copy{max-width:650px;} .graduates-grid{grid-template-columns:repeat(2,minmax(0,1fr));} }
-    @media(max-width:650px){ .graduates-hero{min-height:540px;padding:60px 24px 62px;} .graduates-hero h1{letter-spacing:-3px;} .graduates-hero h1 em{letter-spacing:-1px;} .graduates-hero-bottom{margin-top:34px;} .graduates-hero-count strong{font-size:38px;} .graduates-filter-form{grid-template-columns:1fr 1fr;} .graduates-header{align-items:flex-start;flex-direction:column;} .graduates-view-tools{align-self:flex-end;} .graduates-grid{grid-template-columns:1fr;} .graduates-grid.view-list .graduate-card{grid-template-columns:78px minmax(0,1fr);gap:15px;padding:15px 4px;} .graduates-grid.view-list .graduate-portrait{width:78px;height:78px;} .graduates-grid.view-list .graduate-card-footer{display:none;} }
+    @media(max-width:850px){ .graduates-page > main.container{padding-left:24px;padding-right:24px;} .graduates-hero{min-height:560px;padding:72px 6vw 78px;} .graduates-hero-inner{display:block;} .graduates-hero h1{font-size:clamp(54px,11vw,100px);} .graduates-hero-bottom{display:block;margin-top:40px;max-width:700px;} .graduates-hero-count{text-align:left;margin-top:24px;} .graduates-hero-copy{max-width:650px;} .graduates-grid{grid-template-columns:repeat(2,minmax(0,1fr));} }
+    @media(max-width:650px){ .graduates-page > main.container{padding-left:18px;padding-right:18px;} .graduates-hero{min-height:540px;padding:60px 24px 62px;} .graduates-hero h1{letter-spacing:-3px;} .graduates-hero h1 em{letter-spacing:-1px;} .graduates-hero-bottom{margin-top:34px;} .graduates-hero-count strong{font-size:38px;} .graduates-filter-form{grid-template-columns:1fr 1fr;} .graduates-header{align-items:flex-start;flex-direction:column;} .graduates-view-tools{align-self:flex-end;} .graduates-grid{grid-template-columns:1fr;} .graduates-grid.view-list .graduate-card{grid-template-columns:78px minmax(0,1fr);gap:15px;padding:15px 4px;} .graduates-grid.view-list .graduate-portrait{width:78px;height:78px;} .graduates-grid.view-list .graduate-card-footer{display:none;} }
     @media(max-width:430px){ .graduates-filter-form{grid-template-columns:1fr;} }
     @media(prefers-reduced-motion:reduce){ .graduates-page *{transition:none!important;animation:none!important;} }
 </style>
