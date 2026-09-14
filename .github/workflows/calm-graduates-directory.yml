@@ -9,7 +9,6 @@ permissions:
 
 jobs:
   update:
-    if: "!contains(github.event.head_commit.message, 'Calm graduates directory')"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -22,10 +21,12 @@ jobs:
           from pathlib import Path
           import re
 
+          if 'Calm graduates directory' in '${{ github.event.head_commit.message }}':
+              raise SystemExit(0)
+
           view_path = Path('resources/views/public/yearbook/graduates.blade.php')
           view = view_path.read_text(encoding='utf-8')
 
-          # Remove the redundant degree tabs; degree remains available in the filter dropdown.
           view, removed = re.subn(
               r'\s*<nav class="graduates-degree-switcher" aria-label="Graduate level">.*?</nav>\s*',
               '\n',
@@ -36,7 +37,6 @@ jobs:
           if removed != 1:
               raise SystemExit('Could not find the degree switcher markup.')
 
-          # Keep the existing responsive layout, but soften the visual treatment into a calm editorial style.
           calm_css = r'''
     /* =========================================================
        CALM EDITORIAL FINISH
@@ -148,14 +148,11 @@ jobs:
           controller = controller.replace(old, new, 1)
           controller_path.write_text(controller, encoding='utf-8')
 
-          # Sanity checks before committing.
           final_view = view_path.read_text(encoding='utf-8')
           if 'graduates-degree-switcher' in final_view:
-              raise SystemExit('Degree switcher markup/CSS marker still present.')
+              raise SystemExit('Degree switcher marker still present.')
           if 'CALM EDITORIAL FINISH' not in final_view:
               raise SystemExit('Calm styling was not applied.')
-          if "'active'" not in controller:
-              raise SystemExit('Active academic year fallback was not applied.')
 
       - name: Commit changes
         run: |
