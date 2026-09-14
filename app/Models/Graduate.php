@@ -25,7 +25,7 @@ class Graduate extends Model implements PublishableInterface
     'student_reference', 'name', 'school_id', 'major_id', 'campus_id',
     'academic_year_id', 'graduation_id', 'profile_text', 'achievements',
     'activities', 'projects', 'internships', 'future_plans', 'quote',
-    'consent_status', 'publish_status', 'portrait_media_id', 'degree_level',
+    'consent_status', 'publish_status', 'portrait_media_id', 'resume_media_id', 'degree_level',
   ];
 
   protected function casts(): array
@@ -59,4 +59,6 @@ class Graduate extends Model implements PublishableInterface
   }
 
   public function portraitMedia() { return $this->belongsTo(Media::class, 'portrait_media_id'); }
+
+  public function resumeMedia() { return $this->belongsTo(Media::class, 'resume_media_id'); }
 }
