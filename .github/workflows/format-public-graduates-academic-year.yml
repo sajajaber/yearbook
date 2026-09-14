@@ -22,39 +22,50 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
-          import re
 
           path = Path("resources/views/public/yearbook/graduates.blade.php")
-          text = path.read_text(encoding="utf-8")
+          lines = path.read_text(encoding="utf-8").splitlines(keepends=True)
 
-          pattern = re.compile(
-              r"\n\s*/\*\n\s*\* Keep every graduate equal\.\n\s*\*\n\s*\* Graduates belong to an academic year directly\.\n\s*\* Ceremony attendance is optional, so ceremony dates\n\s*\* must not determine the yearbook grouping\.\n\s*\*/\n\s*\$groupedGraduates = \$graduates\n\s*->getCollection\(\)\n\s*->groupBy\(function \(\$graduate\) \{\n\s*\n\s*return \$graduate->academicYear\?->title\n\s*\?\? 'Academic Year';\n\s*\n\s*\}\);",
-              re.DOTALL,
+          start = next(
+              (i for i, line in enumerate(lines)
+               if line.strip() == "/*" and i + 1 < len(lines)
+               and "Keep every graduate equal" in lines[i + 1]),
+              None,
           )
 
-          replacement = """
-        /*
-        * Keep every graduate equal.
-        *
-        * Graduates belong to an academic year directly.
-        * Ceremony attendance is optional, so ceremony dates
-        * must not determine the yearbook grouping.
-        */
+          if start is None:
+              raise SystemExit("Academic-year grouping start was not found.")
 
-        $groupedGraduates = $graduates
-        ->getCollection()
-        ->groupBy(function ($graduate) {
+          end = next(
+              (i for i in range(start, len(lines))
+               if lines[i].strip() == "});"),
+              None,
+          )
 
-        return $graduate->academicYear?->title
-            ?? 'Academic Year';
+          if end is None:
+              raise SystemExit("Academic-year grouping end was not found.")
 
-        });"""
+          block = [
+              "        /*\n",
+              "        * Keep every graduate equal.\n",
+              "        *\n",
+              "        * Graduates belong to an academic year directly.\n",
+              "        * Ceremony attendance is optional, so ceremony dates\n",
+              "        * must not determine the yearbook grouping.\n",
+              "        */\n",
+              "\n",
+              "        $groupedGraduates = $graduates\n",
+              "        ->getCollection()\n",
+              "        ->groupBy(function ($graduate) {\n",
+              "\n",
+              "        return $graduate->academicYear?->title\n",
+              "            ?? 'Academic Year';\n",
+              "\n",
+              "        });\n",
+          ]
 
-          updated, count = pattern.subn(replacement, text, count=1)
-          if count != 1:
-              raise SystemExit("Expected unformatted academic-year grouping block was not found.")
-
-          path.write_text(updated, encoding="utf-8")
+          lines[start:end + 1] = block
+          path.write_text("".join(lines), encoding="utf-8")
           print("Restored Blade indentation.")
           PY
 
