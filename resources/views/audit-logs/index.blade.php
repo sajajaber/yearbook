@@ -4,7 +4,6 @@
             <div>
                 <p class="eyebrow">Administration / Security</p>
                 <h1>Audit Log</h1>
-                <p>Review a chronological record of important actions performed in the yearbook office.</p>
             </div>
             <div class="audit-lock" aria-label="Administrators only">
                 <span aria-hidden="true">⌘</span>
