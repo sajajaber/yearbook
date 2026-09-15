@@ -17,30 +17,39 @@ class MediaController extends Controller
     {
         $filter = request('filter', 'all');
         $search = request('search', '');
+        $tag = trim((string) request('tag', ''));
         $sortBy = request('sort', 'latest');
 
-        $mediaItems = Media::with(['portraitGraduates', 'graduates'])
+        $mediaItems = Media::with(['portraitGraduates', 'graduates', 'events'])
             ->when($filter === 'graduate-portraits', fn($query) => $query->whereHas('portraitGraduates'))
             ->when(
                 $search,
-                fn($query) =>
-                $query->where('file_name', 'like', "%{$search}%")
-                    ->orWhere('caption', 'like', "%{$search}%")
-                    ->orWhere('alt_text', 'like', "%{$search}%")
+                fn($query) => $query->where(function ($query) use ($search) {
+                    $query->where('file_name', 'like', "%{$search}%")
+                        ->orWhere('caption', 'like', "%{$search}%")
+                        ->orWhere('alt_text', 'like', "%{$search}%");
+                })
             )
+            ->when($tag !== '', fn($query) => $query->whereJsonContains('tags', $tag))
             ->when($sortBy === 'oldest', fn($query) => $query->oldest())
             ->when($sortBy === 'name', fn($query) => $query->orderBy('file_name'))
             ->when($sortBy === 'latest', fn($query) => $query->latest())
-            ->paginate(12);
+            ->paginate(12)
+            ->withQueryString();
 
         $totalMedia = Media::count();
-
-        // Needed for the "assign to event" control on every card — without
-        // this the view throws an undefined-variable error for admin/editor
-        // users the moment it tries to render the events list.
         $events = Event::orderByDesc('event_date')->get(['id', 'title', 'event_date']);
+        $availableTags = Media::query()
+            ->whereNotNull('tags')
+            ->pluck('tags')
+            ->flatten()
+            ->filter(fn($value) => is_string($value) && trim($value) !== '')
+            ->map(fn($value) => trim($value))
+            ->unique()
+            ->sort(fn($a, $b) => strcasecmp($a, $b))
+            ->values();
 
-        return view('media.index', compact('mediaItems', 'filter', 'search', 'sortBy', 'totalMedia', 'events'));
+        return view('media.index', compact('mediaItems', 'filter', 'search', 'sortBy', 'tag', 'totalMedia', 'events', 'availableTags'));
     }
 
     public function create()
@@ -56,26 +65,37 @@ class MediaController extends Controller
         $type = $request->resolvedType() ?? $resolver->resolveType($uploadedFile);
 
         if (! $type) {
+            return redirect()->route('media.index')->with('error', 'Unsupported file type.');
+        }
+
+        $checksum = md5_file($uploadedFile->getRealPath());
+        $duplicate = Media::findByChecksum($checksum);
+
+        if ($duplicate) {
             return redirect()
                 ->route('media.index')
-                ->with('error', 'Unsupported file type.');
+                ->with('error', "This file is already in the media library as '{$duplicate->file_name}'. Upload was cancelled to prevent a duplicate asset.");
         }
 
         $path = $uploadedFile->store("media/{$type}s", 'public');
-
         $userId = auth()->id();
+
         if (! $userId) {
+            Storage::disk('public')->delete($path);
             return redirect()->route('media.index')->with('error', 'User not authenticated');
         }
 
         try {
-            // Thumbnails are only generated for images; createThumbnail() is
-            // non-fatal and returns null for anything it can't handle (missing
-            // GD, unsupported format, already-small image), so it's safe to
-            // call unconditionally here.
             $thumbnailPath = $type === 'image'
                 ? $imageProcessor->createThumbnail($path, 'public')
                 : null;
+
+            $tags = collect($validated['tags'] ?? [])
+                ->map(fn($tag) => trim((string) $tag))
+                ->filter()
+                ->unique(fn($tag) => mb_strtolower($tag))
+                ->values()
+                ->all();
 
             $media = Media::create([
                 'file_name' => $uploadedFile->getClientOriginalName(),
@@ -85,12 +105,16 @@ class MediaController extends Controller
                 'caption' => $validated['caption'] ?? null,
                 'alt_text' => $validated['alt_text'] ?? null,
                 'credit' => $validated['credit'] ?? null,
-                'tags' => [],
+                'tags' => $tags,
                 'uploaded_by' => $userId,
-                'checksum' => md5_file($uploadedFile->getRealPath()),
+                'checksum' => $checksum,
             ]);
             AuditLog::record('created', $media);
         } catch (\Exception $e) {
+            Storage::disk('public')->delete($path);
+            if (isset($thumbnailPath)) {
+                $imageProcessor->deleteThumbnail($thumbnailPath);
+            }
             \Log::error('Media upload failed: ' . $e->getMessage());
             return redirect()->route('media.index')->with('error', 'Failed to save media: ' . $e->getMessage());
         }
@@ -112,15 +136,26 @@ class MediaController extends Controller
             'caption' => 'nullable|string|max:255',
             'alt_text' => 'nullable|string|max:255',
             'credit' => 'nullable|string|max:255',
+            'tags' => 'nullable|array|max:30',
+            'tags.*' => 'nullable|string|max:50',
             'event_ids' => 'nullable|array',
             'event_ids.*' => 'exists:events,id',
         ]);
 
-        $mediaItem->update(collect($validated)->only(['caption', 'alt_text', 'credit'])->all());
+        $tags = collect($validated['tags'] ?? [])
+            ->map(fn($tag) => trim((string) $tag))
+            ->filter()
+            ->unique(fn($tag) => mb_strtolower($tag))
+            ->values()
+            ->all();
 
-        // event_ids is only present on the card's "assign to event" form, not
-        // the full edit form — only touch the pivot when it was actually
-        // submitted, so a plain caption/credit edit can't wipe it out.
+        $mediaItem->update([
+            'caption' => $validated['caption'] ?? null,
+            'alt_text' => $validated['alt_text'] ?? null,
+            'credit' => $validated['credit'] ?? null,
+            'tags' => $tags,
+        ]);
+
         if ($request->has('event_ids')) {
             $mediaItem->events()->sync($validated['event_ids'] ?? []);
         }
