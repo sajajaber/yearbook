@@ -17,7 +17,7 @@
                     <div><dt>Date</dt><dd>{{ $event->event_date?->format('F j, Y') ?? '—' }}</dd></div>
                     <div><dt>Location</dt><dd>{{ $event->location ?: '—' }}</dd></div>
                     <div><dt>Featured</dt><dd>{{ $event->featured ? 'Yes' : 'No' }}</dd></div>
-                    <div><dt>Status</dt><dd>{{ ucfirst($event->status) }}</dd></div>
+                    <div><dt>Status</dt><dd>{{ $event->status === 'reviewed' ? 'Submitted for review' : ($event->status === 'rejected' ? 'Changes requested' : ucfirst($event->status)) }}</dd></div>
                 </dl>
             </section>
 
