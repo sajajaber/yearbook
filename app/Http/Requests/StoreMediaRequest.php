@@ -14,6 +14,24 @@ class StoreMediaRequest extends FormRequest
         return true; // route middleware already restricts by role
     }
 
+    protected function prepareForValidation(): void
+    {
+        $tags = $this->input('tags', []);
+
+        if (is_string($tags)) {
+            $tags = preg_split('/[,\n]+/', $tags) ?: [];
+        }
+
+        $tags = collect($tags)
+            ->map(fn($tag) => trim((string) $tag))
+            ->filter()
+            ->unique(fn($tag) => mb_strtolower($tag))
+            ->values()
+            ->all();
+
+        $this->merge(['tags' => $tags]);
+    }
+
     public function rules(): array
     {
         $resolver = new MediaTypeResolver();
@@ -31,6 +49,8 @@ class StoreMediaRequest extends FormRequest
             'caption' => 'nullable|string|max:255',
             'alt_text' => 'nullable|string|max:255',
             'credit' => 'nullable|string|max:255',
+            'tags' => 'nullable|array|max:30',
+            'tags.*' => 'nullable|string|max:50',
         ];
     }
 
