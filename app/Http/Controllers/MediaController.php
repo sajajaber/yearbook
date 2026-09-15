@@ -124,8 +124,10 @@ class MediaController extends Controller
 
     public function edit(string $id)
     {
-        $mediaItem = Media::findOrFail($id);
-        return view('media.edit', ['mediaItem' => $mediaItem]);
+        $mediaItem = Media::with('events')->findOrFail($id);
+        $events = Event::orderByDesc('event_date')->get(['id', 'title', 'event_date']);
+
+        return view('media.edit', compact('mediaItem', 'events'));
     }
 
     public function update(Request $request, string $id)
