@@ -10,6 +10,9 @@ use App\Models\Campus;
 use App\Models\School;
 use App\Models\Media;
 use App\Models\AuditLog;
+use App\Models\ReviewFeedback;
+use App\Models\User;
+use App\Notifications\ReviewWorkflowNotification;
 use App\Services\EventAiService;
 use App\Models\AiGeneration;
 use App\Http\Requests\UpdateEventRequest;
@@ -22,7 +25,7 @@ class EventController extends Controller
 
     public function index(Request $request)
     {
-        $query = Event::with(['academicYear', 'category', 'campuses', 'schools', 'aiGenerations'])
+        $query = Event::with(['academicYear', 'category', 'campuses', 'schools', 'aiGenerations', 'reviewFeedback' => fn ($query) => $query->open()->latest()])
             ->when(
                 auth()->user()->role?->role_name === 'reviewer',
                 fn ($query) => $query->where('status', '!=', 'draft')
@@ -57,11 +60,7 @@ class EventController extends Controller
         $categories = EventCategory::all();
         $campuses = Campus::all();
         $schools = School::all();
-        $mediaItems = Media::whereDoesntHave('portraitGraduates')
-            ->orderByDesc('created_at')
-            ->orderBy('file_name')
-            ->get();
-
+        $mediaItems = Media::whereDoesntHave('portraitGraduates')->orderByDesc('created_at')->orderBy('file_name')->get();
         return view('events.create', compact('academicYears', 'categories', 'campuses', 'schools', 'mediaItems'));
     }
 
@@ -72,11 +71,7 @@ class EventController extends Controller
         $categories = EventCategory::all();
         $campuses = Campus::all();
         $schools = School::all();
-        $mediaItems = Media::whereDoesntHave('portraitGraduates')
-            ->orderByDesc('created_at')
-            ->orderBy('file_name')
-            ->get();
-
+        $mediaItems = Media::whereDoesntHave('portraitGraduates')->orderByDesc('created_at')->orderBy('file_name')->get();
         return view('events.edit', compact('event', 'academicYears', 'categories', 'campuses', 'schools', 'mediaItems'));
     }
 
@@ -98,6 +93,7 @@ class EventController extends Controller
         $validated = $request->validated();
         $validated['featured'] = $request->boolean('featured');
         $event->update($validated);
+        ReviewFeedback::where('reviewable_type', Event::class)->where('reviewable_id', $event->id)->open()->update(['status' => 'resolved']);
         AuditLog::record('updated', $event);
         $event->campuses()->sync($request->input('campus_ids', []));
         $event->schools()->sync($request->input('school_ids', []));
@@ -116,31 +112,49 @@ class EventController extends Controller
     public function submitForReview(string $id)
     {
         $event = Event::findOrFail($id);
-        $event->submitForReview();
+        if (! $event->submitForReview()) return redirect()->route('events.index')->with('error', 'The event could not be submitted for review.');
+
+        ReviewFeedback::where('reviewable_type', Event::class)->where('reviewable_id', $event->id)->open()->update(['status' => 'resolved']);
+        $this->notifyRole('reviewer', new ReviewWorkflowNotification('submitted_for_review', 'Event submitted for review', $event->title . ' is ready for review.', route('events.show', $event)));
+
         AuditLog::record('submitted_for_review', $event);
-        return redirect()->route('events.index');
+        return redirect()->route('events.index')->with('success', 'Event submitted for review.');
     }
 
     public function approve(string $id)
     {
         $event = Event::findOrFail($id);
-        $event->approve();
+        if (! $event->approve()) return redirect()->route('events.index')->with('error', 'The event could not be approved.');
+
+        $this->notifyRole('editor', new ReviewWorkflowNotification('approved', 'Event approved', $event->title . ' has been approved by the reviewer.', route('events.show', $event)));
         AuditLog::record('approved', $event);
-        return redirect()->route('events.index');
+        return redirect()->route('events.index')->with('success', 'Event approved.');
     }
 
-    public function reject(string $id)
+    public function requestChanges(Request $request, string $id)
     {
+        $request->validate(['message' => ['required', 'string', 'max:5000']]);
+
         $event = Event::findOrFail($id);
-        $event->reject();
-        AuditLog::record('rejected', $event);
-        return redirect()->route('events.index');
+        if (! $event->reject()) return redirect()->route('events.index')->with('error', 'Changes could not be requested.');
+
+        ReviewFeedback::create([
+            'reviewable_type' => Event::class,
+            'reviewable_id' => $event->id,
+            'reviewer_id' => auth()->id(),
+            'message' => $request->string('message')->toString(),
+            'status' => 'open',
+        ]);
+
+        $this->notifyRole('editor', new ReviewWorkflowNotification('changes_requested', 'Changes requested on event', $event->title . ' needs changes before it can be approved.', route('events.show', $event)));
+        AuditLog::record('changes_requested', $event);
+        return redirect()->route('events.index')->with('success', 'Changes requested. The editor has been notified.');
     }
 
     public function publish(string $id)
     {
         $event = Event::findOrFail($id);
-        $event->publish();
+        if (! $event->publish()) return redirect()->route('events.index')->with('error', 'The event could not be published.');
         AuditLog::record('published', $event);
         return redirect()->route('events.index');
     }
@@ -148,7 +162,6 @@ class EventController extends Controller
     public function generateSummary(string $id, EventAiService $aiService)
     {
         $event = Event::findOrFail($id);
-
         try {
             $generatedText = $aiService->summarizeEvent($event->title, $event->description ?? '', $event->event_date);
         } catch (\Throwable $e) {
@@ -157,16 +170,13 @@ class EventController extends Controller
             return redirect()->route('events.index')->with('error', 'AI error: ' . $e->getMessage());
         }
 
-        AiGeneration::create([
-            'content_type' => 'event_summary',
-            'source_record_id' => $event->id,
-            'source_record_type' => 'event',
-            'prompt_version' => 'v1',
-            'generated_text' => $generatedText,
-            'status' => 'pending_review',
-        ]);
-
+        AiGeneration::create(['content_type' => 'event_summary', 'source_record_id' => $event->id, 'source_record_type' => 'event', 'prompt_version' => 'v1', 'generated_text' => $generatedText, 'status' => 'pending_review']);
         AuditLog::record('ai_generation_created', $event);
         return redirect()->route('events.index')->with('success', 'AI summary generated — pending review.');
+    }
+
+    private function notifyRole(string $roleName, ReviewWorkflowNotification $notification): void
+    {
+        User::whereHas('role', fn ($query) => $query->where('role_name', $roleName))->get()->each(fn (User $user) => $user->notify($notification));
     }
 }
