@@ -568,8 +568,7 @@ class PublicYearbookController extends Controller
          * Keep the existing pagination for full graduate profiles.
          */
         $graduates = $query
-            ->paginate(12)
-            ->withQueryString();
+            ->get();
 
         /*
          * ---------------------------------------------------------
