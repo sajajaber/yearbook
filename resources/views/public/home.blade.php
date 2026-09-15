@@ -2196,8 +2196,7 @@
                     </div>
 
                     <h2 data-split-scroll>
-                        The<br>
-                        <span>people.</span>
+                        <span>Graduations</span>
                     </h2>
 
                 </div>
