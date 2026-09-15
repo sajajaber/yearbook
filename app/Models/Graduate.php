@@ -25,7 +25,8 @@ class Graduate extends Model implements PublishableInterface
   protected $fillable = [
     'student_reference', 'name', 'school_id', 'major_id', 'campus_id',
     'academic_year_id', 'graduation_id', 'profile_text', 'achievements',
-    'activities', 'projects', 'internships', 'future_plans', 'quote',
+    'activities', 'projects', 'internships', 'certifications_training',
+    'future_plans', 'professional_interests', 'approved_links', 'quote',
     'consent_status', 'publish_status', 'portrait_media_id', 'resume_media_id', 'degree_level',
     'gpa',
   ];
@@ -34,6 +35,7 @@ class Graduate extends Model implements PublishableInterface
   {
     return [
       'achievements' => 'array', 'activities' => 'array', 'projects' => 'array', 'internships' => 'array',
+      'approved_links' => 'array',
       'gpa' => 'decimal:2',
     ];
   }
