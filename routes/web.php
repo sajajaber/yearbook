@@ -11,6 +11,7 @@ use App\Http\Controllers\GraduateController;
 use App\Http\Controllers\MajorController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ReviewFeedbackController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\SearchController;
@@ -60,7 +61,6 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
     Route::resource('users', UserController::class);
 });
 
-// Only admins and editors can create or edit content.
 Route::middleware(['auth', 'verified', 'role:admin,editor'])->group(function () {
     Route::resource('academic-years', AcademicYearController::class);
     Route::resource('majors', MajorController::class);
@@ -73,11 +73,13 @@ Route::middleware(['auth', 'verified', 'role:admin,editor'])->group(function () 
     Route::resource('graduates', GraduateController::class)->except(['index', 'show']);
 });
 
-// Reviewers are read-only. They can review, approve, publish, or request changes.
+// All authenticated roles can view content, but only admins/editors can edit it.
 Route::middleware(['auth', 'verified', 'role:admin,editor,reviewer'])->group(function () {
-    Route::resource('events', EventController::class)->only(['index', 'show']);
-    Route::resource('graduates', GraduateController::class)->only(['index', 'show']);
+    Route::resource('events', EventController::class)->only(['index']);
+    Route::resource('graduates', GraduateController::class)->only(['index']);
     Route::resource('media', MediaController::class)->only(['index', 'show']);
+    Route::get('reviews/events/{event}', [ReviewController::class, 'event'])->name('reviews.events.show');
+    Route::get('reviews/graduates/{graduate}', [ReviewController::class, 'graduate'])->name('reviews.graduates.show');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
