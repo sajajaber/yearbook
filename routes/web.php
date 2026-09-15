@@ -11,6 +11,7 @@ use App\Http\Controllers\GraduateController;
 use App\Http\Controllers\MajorController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReviewFeedbackController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SettingsController;
@@ -25,16 +26,9 @@ Route::get('/', [PublicYearbookController::class, 'index'])->name('public.home')
 
 Route::prefix('yearbook')->name('public.')->group(function () {
     Route::get('/', [PublicYearbookController::class, 'archive'])->name('archive');
-
     Route::get('/hero-images', function () {
-        return HeroImage::orderedMedia()
-            ->map(fn ($media) => [
-                'id' => $media->id,
-                'url' => asset('storage/' . $media->path),
-            ])
-            ->values();
+        return HeroImage::orderedMedia()->map(fn ($media) => ['id' => $media->id, 'url' => asset('storage/' . $media->path)])->values();
     })->name('hero-images');
-
     Route::get('/events/{id}', [PublicYearbookController::class, 'eventDetail'])->name('event.detail');
     Route::get('/events', [PublicYearbookController::class, 'events'])->name('events');
     Route::get('/graduates', [PublicYearbookController::class, 'graduates'])->name('graduates');
@@ -42,11 +36,8 @@ Route::prefix('yearbook')->name('public.')->group(function () {
     Route::get('/graduates/{id}/resume', [PublicGraduateResumeController::class, 'show'])->name('graduate.resume');
     Route::get('/timeline', [PublicYearbookController::class, 'timeline'])->name('timeline');
     Route::get('/graduates/{id}/pdf', [YearbookPdfController::class, 'graduate'])->name('graduate.pdf');
-
-    // Keep named public sections before the academic-year catch-all route.
     Route::get('/graduations/{id}', [PublicYearbookController::class, 'graduationDetail'])->name('graduation.detail');
     Route::get('/graduations', [PublicYearbookController::class, 'graduations'])->name('graduations');
-
     Route::get('/{academicYear}/pdf', [YearbookPdfController::class, 'book'])->name('book.pdf');
     Route::get('/{academicYear}', [PublicYearbookController::class, 'book'])->name('book');
 });
@@ -55,8 +46,7 @@ Route::get('/search', [SearchController::class, 'index'])->name('search.index');
 Route::post('/search', [SearchController::class, 'search'])->name('search.perform');
 
 Route::get('/dashboard', [DashboardController::class, 'index'])
-    ->middleware(['auth', 'verified', 'role:admin,editor,reviewer'])
-    ->name('dashboard');
+    ->middleware(['auth', 'verified', 'role:admin,editor,reviewer'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -67,8 +57,10 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
     Route::get('settings', [SettingsController::class, 'index'])->name('settings.index');
     Route::post('settings/hero-images', [SettingsController::class, 'updateHeroImages'])->name('settings.hero-images.update');
+    Route::resource('users', UserController::class);
 });
 
+// Only admins and editors can create or edit content.
 Route::middleware(['auth', 'verified', 'role:admin,editor'])->group(function () {
     Route::resource('academic-years', AcademicYearController::class);
     Route::resource('majors', MajorController::class);
@@ -77,33 +69,32 @@ Route::middleware(['auth', 'verified', 'role:admin,editor'])->group(function () 
     Route::resource('event-categories', EventCategoryController::class);
     Route::resource('graduations', GraduationController::class);
     Route::resource('media', MediaController::class)->except(['show']);
-    Route::resource('events', EventController::class)->except(['index', 'show', 'edit']);
-    Route::resource('graduates', GraduateController::class)->except(['index', 'show', 'edit']);
+    Route::resource('events', EventController::class)->except(['index', 'show']);
+    Route::resource('graduates', GraduateController::class)->except(['index', 'show']);
 });
 
+// Reviewers are read-only. They can review, approve, publish, or request changes.
 Route::middleware(['auth', 'verified', 'role:admin,editor,reviewer'])->group(function () {
-    Route::resource('events', EventController::class)->only(['index', 'show', 'edit']);
-    Route::resource('graduates', GraduateController::class)->only(['index', 'show', 'edit']);
+    Route::resource('events', EventController::class)->only(['index', 'show']);
+    Route::resource('graduates', GraduateController::class)->only(['index', 'show']);
     Route::resource('media', MediaController::class)->only(['index', 'show']);
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('events/{event}/submit', [EventController::class, 'submitForReview'])->middleware('role:admin,editor')->name('events.submit');
     Route::post('events/{event}/approve', [EventController::class, 'approve'])->middleware('role:admin,reviewer')->name('events.approve');
-    Route::post('events/{event}/reject', [EventController::class, 'reject'])->middleware('role:admin,reviewer')->name('events.reject');
+    Route::post('events/{event}/request-changes', [EventController::class, 'requestChanges'])->middleware('role:admin,reviewer')->name('events.request-changes');
     Route::post('events/{event}/publish', [EventController::class, 'publish'])->middleware('role:admin,reviewer')->name('events.publish');
 
     Route::post('graduates/{graduate}/submit', [GraduateController::class, 'submitForReview'])->middleware('role:admin,editor')->name('graduates.submit');
     Route::post('graduates/{graduate}/approve', [GraduateController::class, 'approve'])->middleware('role:admin,reviewer')->name('graduates.approve');
-    Route::post('graduates/{graduate}/reject', [GraduateController::class, 'reject'])->middleware('role:admin,reviewer')->name('graduates.reject');
+    Route::post('graduates/{graduate}/request-changes', [GraduateController::class, 'requestChanges'])->middleware('role:admin,reviewer')->name('graduates.request-changes');
     Route::post('graduates/{graduate}/publish', [GraduateController::class, 'publish'])->middleware('role:admin,reviewer')->name('graduates.publish');
+
+    Route::patch('review-feedback/{feedback}/resolve', [ReviewFeedbackController::class, 'resolve'])->middleware('role:admin,reviewer')->name('review-feedback.resolve');
 });
 
-Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
-    Route::resource('users', UserController::class);
-});
-
-Route::middleware(['auth', 'verified', 'role:admin,editor', 'throttle:6,1'])->group(function () {
+Route::middleware(['auth', 'verified', 'role:admin,editor'])->group(function () {
     Route::post('events/{event}/generate-summary', [EventController::class, 'generateSummary'])->name('events.generate-summary');
     Route::post('graduates/{graduate}/generate-biography', [GraduateController::class, 'generateBiography'])->name('graduates.generate-biography');
 });
@@ -114,7 +105,6 @@ Route::middleware(['auth', 'verified', 'role:admin,reviewer'])->group(function (
 });
 
 Route::post('graduations/{graduation}/unarchive', [GraduationController::class, 'unarchive'])
-    ->middleware(['auth', 'verified', 'role:admin,editor'])
-    ->name('graduations.unarchive');
+    ->middleware(['auth', 'verified', 'role:admin,editor'])->name('graduations.unarchive');
 
 require __DIR__ . '/auth.php';
