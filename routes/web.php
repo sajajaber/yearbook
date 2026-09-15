@@ -9,6 +9,7 @@ use App\Http\Controllers\EventCategoryController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\GraduationController;
 use App\Http\Controllers\GraduateController;
+use App\Http\Controllers\GraduateImportController;
 use App\Http\Controllers\MajorController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\NotificationController;
@@ -73,9 +74,11 @@ Route::middleware(['auth', 'verified', 'role:admin,editor'])->group(function () 
     Route::resource('media', MediaController::class)->except(['show']);
     Route::resource('events', EventController::class)->except(['index', 'show']);
     Route::resource('graduates', GraduateController::class)->except(['index', 'show']);
+    Route::get('graduates/import', [GraduateImportController::class, 'create'])->name('graduates.import');
+    Route::post('graduates/import/preview', [GraduateImportController::class, 'preview'])->name('graduates.import.preview');
+    Route::post('graduates/import', [GraduateImportController::class, 'store'])->name('graduates.import.store');
 });
 
-// All authenticated roles can view content. Reviewers get dedicated read-only review pages.
 Route::middleware(['auth', 'verified', 'role:admin,editor,reviewer'])->group(function () {
     Route::resource('events', EventController::class)->only(['index']);
     Route::resource('graduates', GraduateController::class)->only(['index']);
