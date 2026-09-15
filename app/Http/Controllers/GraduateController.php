@@ -127,7 +127,7 @@ class GraduateController extends Controller
     public function publish(string $id)
     {
         $graduate = Graduate::findOrFail($id);
-        if (! $graduate->publish()) return redirect()->route('graduates.index')->with('error', 'A graduate cannot be published without granted consent.');
+        if (! $graduate->publish()) return redirect()->route('graduates.index')->with('error', 'The graduate could not be published.');
         AuditLog::record('published', $graduate);
         return redirect()->route('graduates.index');
     }
