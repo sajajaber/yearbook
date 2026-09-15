@@ -10,6 +10,7 @@ use App\Models\School;
 use App\Models\Major;
 use App\Contracts\PublishableInterface;
 use App\Models\AiGeneration;
+use App\Models\ReviewFeedback;
 use App\Models\Concerns\HasPublishingWorkflow;
 
 class Graduate extends Model implements PublishableInterface
@@ -46,6 +47,11 @@ class Graduate extends Model implements PublishableInterface
   public function aiGenerations()
   {
     return $this->hasMany(AiGeneration::class, 'source_record_id')->where('source_record_type', 'graduate');
+  }
+
+  public function reviewFeedback()
+  {
+    return $this->morphMany(ReviewFeedback::class, 'reviewable');
   }
 
   public function canBePublished(): bool { return static::consentAllowsPublishing($this->consent_status); }
