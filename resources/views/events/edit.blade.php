@@ -23,11 +23,7 @@
                         <label class="form-field form-field-wide"><span>Event title</span><input type="text" name="title" value="{{ old('title', $event->title) }}" required>@error('title')<small>{{ $message }}</small>@enderror</label>
                         <label class="form-field"><span>Academic year</span><select name="academic_year_id" required>@foreach ($academicYears as $academicYear)<option value="{{ $academicYear->id }}" @selected(old('academic_year_id', $event->academic_year_id) == $academicYear->id)>{{ $academicYear->title }}</option>@endforeach</select></label>
                         <label class="form-field"><span>Category</span><select name="category_id" required>@foreach ($categories as $category)<option value="{{ $category->id }}" @selected(old('category_id', $event->category_id) == $category->id)>{{ $category->name }}</option>@endforeach</select></label>
-                        <label class="form-field"><span>Event date</span><input
-                                type="date"
-                                name="event_date"
-                                value="{{ old('event_date', optional($event->event_date)->format('Y-m-d') ?? $event->event_date) }}"
-                                required></label>
+                        <label class="form-field"><span>Event date</span><input type="date" name="event_date" value="{{ old('event_date', optional($event->event_date)->format('Y-m-d') ?? $event->event_date) }}" required></label>
                         <label class="form-field"><span>Location</span><input type="text" name="location" value="{{ old('location', $event->location) }}" placeholder="Where will it happen?"></label>
                         <div class="form-field form-field-wide"><span>Description</span><x-rich-text-editor name="description" :value="old('description', $event->description)" rows="6" placeholder="Add the context readers will need." />@error('description')<small>{{ $message }}</small>@enderror</div>
                     </div>
@@ -52,12 +48,12 @@
                         <h2>Set visibility.</h2>
                     </div>@if ($isAdmin)<label class="form-field"><span>Status</span><select name="status">
                             <option value="draft" @selected(old('status', $event->status) === 'draft')>Draft</option>
-                            <option value="reviewed" @selected(old('status', $event->status) === 'reviewed')>Reviewed</option>
+                            <option value="reviewed" @selected(old('status', $event->status) === 'reviewed')>Submitted for review</option>
                             <option value="approved" @selected(old('status', $event->status) === 'approved')>Approved</option>
                             <option value="published" @selected(old('status', $event->status) === 'published')>Published</option>
                             <option value="archived" @selected(old('status', $event->status) === 'archived')>Archived</option>
                         </select></label>@else<label class="form-field"><span>Status</span><select disabled>
-                            <option>{{ ucfirst($event->status) }}</option>
+                            <option>{{ $event->status === 'reviewed' ? 'Submitted for review' : ($event->status === 'rejected' ? 'Changes requested' : ucfirst($event->status)) }}</option>
                         </select><small>Only an administrator can change publishing status.</small></label>@endif<label class="choice-item event-featured"><input type="checkbox" name="featured" value="1" @checked(old('featured', $event->featured))><span>Feature this event</span></label>
                 </section>
                 <div class="form-actions"><a href="{{ route('events.index') }}" class="button button-muted">Cancel</a><button type="submit" class="button button-navy">Update event <span aria-hidden="true">→</span></button></div>
