@@ -12,6 +12,14 @@ class StoreGraduateRequest extends FormRequest
         if ($this->user()?->role?->role_name === 'editor') {
             $this->merge(['consent_status' => 'pending', 'publish_status' => 'draft']);
         }
+
+        $links = collect($this->input('approved_links', []))
+            ->map(fn ($link) => trim((string) $link))
+            ->filter()
+            ->values()
+            ->all();
+
+        $this->merge(['approved_links' => $links]);
     }
 
     public function authorize(): bool { return true; }
@@ -31,6 +39,10 @@ class StoreGraduateRequest extends FormRequest
             ],
             'profile_text' => 'nullable|string',
             'future_plans' => 'nullable|string',
+            'professional_interests' => 'nullable|string|max:2000',
+            'certifications_training' => 'nullable|string|max:5000',
+            'approved_links' => 'nullable|array|max:10',
+            'approved_links.*' => 'nullable|url|max:500',
             'quote' => 'nullable|string|max:255',
             'portrait' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
             'resume' => 'nullable|file|mimes:pdf|max:10240',
