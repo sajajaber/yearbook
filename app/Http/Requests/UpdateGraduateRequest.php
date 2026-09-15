@@ -40,6 +40,8 @@ class UpdateGraduateRequest extends FormRequest
             'consent_status' => ['required', 'in:pending,granted,declined'],
             'publish_status' => ['required', 'in:draft,reviewed,approved,published,archived,rejected', new ConsentGrantedForPublish($this->input('consent_status'))],
             'degree_level' => 'required|in:undergraduate,graduate',
+            'gpa' => 'nullable|numeric|min:0|max:4',
+            'gpa_scale' => 'nullable|numeric|gt:0|max:10',
         ];
     }
 }
