@@ -30,6 +30,7 @@
                     <dl class="review-details">
                         <div><dt>Student reference</dt><dd>{{ $graduate->student_reference ?: '—' }}</dd></div>
                         <div><dt>Degree level</dt><dd>{{ ucfirst($graduate->degree_level) }}</dd></div>
+                        <div><dt>GPA</dt><dd>{{ $graduate->gpa !== null ? number_format((float) $graduate->gpa, 2) . ' / ' . number_format((float) ($graduate->gpa_scale ?: 4), 2) : '—' }}</dd></div>
                         <div><dt>Campus</dt><dd>{{ $graduate->campus?->name ?? '—' }}</dd></div>
                         <div><dt>Consent</dt><dd>{{ ucfirst($graduate->consent_status ?: 'pending') }}</dd></div>
                     </dl>
