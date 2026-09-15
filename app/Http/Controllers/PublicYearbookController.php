@@ -564,26 +564,9 @@ class PublicYearbookController extends Controller
             default => $query->orderBy('name'),
         };
 
-        /*
-         * Keep the existing pagination for full graduate profiles.
-         */
         $graduates = $query
             ->get();
 
-        /*
-         * ---------------------------------------------------------
-         * NAME-ONLY GRADUATES
-         * ---------------------------------------------------------
-         *
-         * Pending and declined graduates are loaded separately
-         * because they must NOT consume the pagination slots of
-         * full public profiles.
-         *
-         * They are then grouped by school in the Blade view.
-         *
-         * Only the fields necessary for the name-only display
-         * are loaded.
-         */
         $namedOnlyQuery = Graduate::where(
             'publish_status',
             'published'
