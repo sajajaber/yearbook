@@ -10,6 +10,7 @@ use App\Http\Controllers\GraduationController;
 use App\Http\Controllers\GraduateController;
 use App\Http\Controllers\MajorController;
 use App\Http\Controllers\MediaController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ReviewFeedbackController;
@@ -46,8 +47,7 @@ Route::prefix('yearbook')->name('public.')->group(function () {
 Route::get('/search', [SearchController::class, 'index'])->name('search.index');
 Route::post('/search', [SearchController::class, 'search'])->name('search.perform');
 
-Route::get('/dashboard', [DashboardController::class, 'index'])
-    ->middleware(['auth', 'verified', 'role:admin,editor,reviewer'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified', 'role:admin,editor,reviewer'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -73,7 +73,7 @@ Route::middleware(['auth', 'verified', 'role:admin,editor'])->group(function () 
     Route::resource('graduates', GraduateController::class)->except(['index', 'show']);
 });
 
-// All authenticated roles can view content, but only admins/editors can edit it.
+// All authenticated roles can view content. Reviewers get dedicated read-only review pages.
 Route::middleware(['auth', 'verified', 'role:admin,editor,reviewer'])->group(function () {
     Route::resource('events', EventController::class)->only(['index']);
     Route::resource('graduates', GraduateController::class)->only(['index']);
@@ -87,13 +87,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('events/{event}/approve', [EventController::class, 'approve'])->middleware('role:admin,reviewer')->name('events.approve');
     Route::post('events/{event}/request-changes', [EventController::class, 'requestChanges'])->middleware('role:admin,reviewer')->name('events.request-changes');
     Route::post('events/{event}/publish', [EventController::class, 'publish'])->middleware('role:admin,reviewer')->name('events.publish');
-
     Route::post('graduates/{graduate}/submit', [GraduateController::class, 'submitForReview'])->middleware('role:admin,editor')->name('graduates.submit');
     Route::post('graduates/{graduate}/approve', [GraduateController::class, 'approve'])->middleware('role:admin,reviewer')->name('graduates.approve');
     Route::post('graduates/{graduate}/request-changes', [GraduateController::class, 'requestChanges'])->middleware('role:admin,reviewer')->name('graduates.request-changes');
     Route::post('graduates/{graduate}/publish', [GraduateController::class, 'publish'])->middleware('role:admin,reviewer')->name('graduates.publish');
-
     Route::patch('review-feedback/{feedback}/resolve', [ReviewFeedbackController::class, 'resolve'])->middleware('role:admin,reviewer')->name('review-feedback.resolve');
+    Route::get('notifications/{notification}/read', [NotificationController::class, 'redirect'])->name('notifications.read');
 });
 
 Route::middleware(['auth', 'verified', 'role:admin,editor'])->group(function () {
@@ -106,7 +105,6 @@ Route::middleware(['auth', 'verified', 'role:admin,reviewer'])->group(function (
     Route::post('ai-generations/{aiGeneration}/review', [AiGenerationController::class, 'review'])->name('ai-generations.review');
 });
 
-Route::post('graduations/{graduation}/unarchive', [GraduationController::class, 'unarchive'])
-    ->middleware(['auth', 'verified', 'role:admin,editor'])->name('graduations.unarchive');
+Route::post('graduations/{graduation}/unarchive', [GraduationController::class, 'unarchive'])->middleware(['auth', 'verified', 'role:admin,editor'])->name('graduations.unarchive');
 
 require __DIR__ . '/auth.php';
