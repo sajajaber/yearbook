@@ -15,13 +15,22 @@ class UpdateGraduateRequest extends FormRequest
             $this->merge(['consent_status' => $graduate?->consent_status, 'publish_status' => $graduate?->publish_status]);
         }
 
+        $lists = collect(['achievements', 'activities', 'projects', 'internships'])
+            ->mapWithKeys(function ($field) {
+                $value = $this->input($field);
+                if (is_string($value)) {
+                    $value = preg_split('/\r\n|\r|\n/', $value);
+                }
+                return [$field => collect($value ?? [])->map(fn ($item) => trim((string) $item))->filter()->values()->all()];
+            })->all();
+
         $links = collect($this->input('approved_links', []))
             ->map(fn ($link) => trim((string) $link))
             ->filter()
             ->values()
             ->all();
 
-        $this->merge(['approved_links' => $links]);
+        $this->merge([...$lists, 'approved_links' => $links]);
     }
 
     public function authorize(): bool { return true; }
@@ -40,6 +49,14 @@ class UpdateGraduateRequest extends FormRequest
                 Rule::exists('graduations', 'id')->where(fn ($query) => $query->where('academic_year_id', $this->input('academic_year_id'))),
             ],
             'profile_text' => 'nullable|string',
+            'achievements' => 'nullable|array',
+            'achievements.*' => 'string|max:1000',
+            'activities' => 'nullable|array',
+            'activities.*' => 'string|max:1000',
+            'projects' => 'nullable|array',
+            'projects.*' => 'string|max:1000',
+            'internships' => 'nullable|array',
+            'internships.*' => 'string|max:1000',
             'future_plans' => 'nullable|string',
             'professional_interests' => 'nullable|string|max:2000',
             'certifications_training' => 'nullable|string|max:5000',
