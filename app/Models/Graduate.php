@@ -27,14 +27,14 @@ class Graduate extends Model implements PublishableInterface
     'academic_year_id', 'graduation_id', 'profile_text', 'achievements',
     'activities', 'projects', 'internships', 'future_plans', 'quote',
     'consent_status', 'publish_status', 'portrait_media_id', 'resume_media_id', 'degree_level',
-    'gpa', 'gpa_scale',
+    'gpa',
   ];
 
   protected function casts(): array
   {
     return [
       'achievements' => 'array', 'activities' => 'array', 'projects' => 'array', 'internships' => 'array',
-      'gpa' => 'decimal:2', 'gpa_scale' => 'decimal:2',
+      'gpa' => 'decimal:2',
     ];
   }
 
