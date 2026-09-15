@@ -39,7 +39,7 @@ function baseGraduate(array $overrides = []): Graduate
     $campus = Campus::create(['name' => 'Beirut', 'code' => 'BEY', 'status' => 'active']);
     $year = baseAcademicYear();
     $graduation = Graduation::create(['academic_year_id' => $year->id, 'ceremony_date' => '2026-06-20', 'venue' => 'Main Hall', 'description' => 'Ceremony', 'status' => 'active']);
-    return Graduate::create(array_merge(['student_reference' => 'STU-0001', 'name' => 'Jane Graduate', 'school_id' => $school->id, 'major_id' => $major->id, 'campus_id' => $campus->id, 'graduation_id' => $graduation->id, 'profile_text' => 'A student.', 'consent_status' => 'pending', 'publish_status' => 'draft'], $overrides));
+    return Graduate::create(array_merge(['student_reference' => 'STU-0001', 'name' => 'Jane Graduate', 'school_id' => $school->id, 'major_id' => $major->id, 'campus_id' => $campus->id, 'graduation_id' => $graduation->id, 'academic_year_id' => $year->id, 'profile_text' => 'A student.', 'consent_status' => 'pending', 'publish_status' => 'draft'], $overrides));
 }
 
 test('editor can submit a draft event for review and reviewers are notified', function () {
@@ -100,11 +100,11 @@ test('reviewer can publish a graduate without granted consent for name-only visi
 test('validation allows published status for pending or declined consent', function () {
     $admin = userWithRole('admin');
     $pending = baseGraduate(['consent_status' => 'pending', 'publish_status' => 'approved']);
-    $this->actingAs($admin)->put(route('graduates.update', $pending), ['name' => $pending->name, 'school_id' => $pending->school_id, 'major_id' => $pending->major_id, 'campus_id' => $pending->campus_id, 'graduation_id' => $pending->graduation_id, 'consent_status' => 'pending', 'publish_status' => 'published', 'degree_level' => 'undergraduate'])->assertRedirect(route('graduates.index'));
+    $this->actingAs($admin)->put(route('graduates.update', $pending), ['name' => $pending->name, 'school_id' => $pending->school_id, 'major_id' => $pending->major_id, 'campus_id' => $pending->campus_id, 'graduation_id' => $pending->graduation_id, 'academic_year_id' => $pending->academic_year_id, 'consent_status' => 'pending', 'publish_status' => 'published', 'degree_level' => 'undergraduate'])->assertRedirect(route('graduates.index'));
     expect($pending->fresh()->publish_status)->toBe('published');
 
     $declined = baseGraduate(['consent_status' => 'declined', 'publish_status' => 'approved', 'student_reference' => 'STU-0002']);
-    $this->actingAs($admin)->put(route('graduates.update', $declined), ['name' => $declined->name, 'school_id' => $declined->school_id, 'major_id' => $declined->major_id, 'campus_id' => $declined->campus_id, 'graduation_id' => $declined->graduation_id, 'consent_status' => 'declined', 'publish_status' => 'published', 'degree_level' => 'undergraduate'])->assertRedirect(route('graduates.index'));
+    $this->actingAs($admin)->put(route('graduates.update', $declined), ['name' => $declined->name, 'school_id' => $declined->school_id, 'major_id' => $declined->major_id, 'campus_id' => $declined->campus_id, 'graduation_id' => $declined->graduation_id, 'academic_year_id' => $declined->academic_year_id, 'consent_status' => 'declined', 'publish_status' => 'published', 'degree_level' => 'undergraduate'])->assertRedirect(route('graduates.index'));
     expect($declined->fresh()->publish_status)->toBe('published');
 });
 
