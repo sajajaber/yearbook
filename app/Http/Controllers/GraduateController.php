@@ -12,6 +12,9 @@ use App\Models\Major;
 use App\Models\AuditLog;
 use App\Models\AiGeneration;
 use App\Models\Media;
+use App\Models\ReviewFeedback;
+use App\Models\User;
+use App\Notifications\ReviewWorkflowNotification;
 use App\Services\GraduateAiService;
 use App\Services\ImageProcessor;
 use App\Http\Requests\StoreGraduateRequest;
@@ -27,7 +30,7 @@ class GraduateController extends Controller
     {
         $isReviewer = auth()->user()->role?->role_name === 'reviewer';
 
-        $query = Graduate::with(['school', 'major', 'campus', 'graduation', 'aiGenerations', 'portraitMedia', 'resumeMedia'])
+        $query = Graduate::with(['school', 'major', 'campus', 'graduation', 'aiGenerations', 'portraitMedia', 'resumeMedia', 'reviewFeedback' => fn ($query) => $query->open()->latest()])
             ->when($isReviewer, fn($query) => $query->where('publish_status', '!=', 'draft'))
             ->orderBy('name');
 
@@ -94,6 +97,10 @@ class GraduateController extends Controller
         if ($request->has('media_ids')) {
             $this->syncMediaWithOrder($graduate, $request->input('media_ids', []));
         }
+        ReviewFeedback::where('reviewable_type', Graduate::class)
+            ->where('reviewable_id', $graduate->id)
+            ->open()
+            ->update(['status' => 'resolved']);
         AuditLog::record('updated', $graduate);
         return redirect()->route('graduates.index');
     }
@@ -125,6 +132,19 @@ class GraduateController extends Controller
     {
         $graduate = Graduate::findOrFail($id);
         if (! $graduate->submitForReview()) return redirect()->route('graduates.index')->with('error', 'The graduate could not be submitted for review.');
+
+        ReviewFeedback::where('reviewable_type', Graduate::class)
+            ->where('reviewable_id', $graduate->id)
+            ->open()
+            ->update(['status' => 'resolved']);
+
+        $this->notifyRole('reviewer', new ReviewWorkflowNotification(
+            'submitted_for_review',
+            'Graduate submitted for review',
+            $graduate->name . ' is ready for review.',
+            route('graduates.show', $graduate)
+        ));
+
         AuditLog::record('submitted_for_review', $graduate);
         return redirect()->route('graduates.index')->with('success', 'Graduate submitted for review.');
     }
@@ -133,16 +153,42 @@ class GraduateController extends Controller
     {
         $graduate = Graduate::findOrFail($id);
         if (! $graduate->approve()) return redirect()->route('graduates.index')->with('error', 'The graduate could not be approved.');
+
+        $this->notifyRole('editor', new ReviewWorkflowNotification(
+            'approved',
+            'Graduate approved',
+            $graduate->name . ' has been approved by the reviewer.',
+            route('graduates.show', $graduate)
+        ));
+
         AuditLog::record('approved', $graduate);
         return redirect()->route('graduates.index')->with('success', 'Graduate approved.');
     }
 
-    public function reject(string $id)
+    public function requestChanges(Request $request, string $id)
     {
+        $request->validate(['message' => ['required', 'string', 'max:5000']]);
+
         $graduate = Graduate::findOrFail($id);
-        if (! $graduate->reject()) return redirect()->route('graduates.index')->with('error', 'The graduate could not be rejected.');
-        AuditLog::record('rejected', $graduate);
-        return redirect()->route('graduates.index')->with('success', 'Graduate returned to draft.');
+        if (! $graduate->reject()) return redirect()->route('graduates.index')->with('error', 'Changes could not be requested.');
+
+        ReviewFeedback::create([
+            'reviewable_type' => Graduate::class,
+            'reviewable_id' => $graduate->id,
+            'reviewer_id' => auth()->id(),
+            'message' => $request->string('message')->toString(),
+            'status' => 'open',
+        ]);
+
+        $this->notifyRole('editor', new ReviewWorkflowNotification(
+            'changes_requested',
+            'Changes requested on graduate profile',
+            $graduate->name . ' needs changes before it can be approved.',
+            route('graduates.show', $graduate)
+        ));
+
+        AuditLog::record('changes_requested', $graduate);
+        return redirect()->route('graduates.index')->with('success', 'Changes requested. The editor has been notified.');
     }
 
     public function publish(string $id)
@@ -168,6 +214,13 @@ class GraduateController extends Controller
         ]);
         AuditLog::record('ai_generation_created', $graduate);
         return redirect()->route('graduates.edit', $graduate)->with('success', 'AI biography generated — pending review.');
+    }
+
+    private function notifyRole(string $roleName, ReviewWorkflowNotification $notification): void
+    {
+        User::whereHas('role', fn ($query) => $query->where('role_name', $roleName))
+            ->get()
+            ->each(fn (User $user) => $user->notify($notification));
     }
 
     private function savePortrait(Graduate $graduate, Request $request): void
