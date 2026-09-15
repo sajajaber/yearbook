@@ -72,6 +72,24 @@
                         @error('credit')<small>{{ $message }}</small>@enderror
                     </div>
 
+                    <div class="media-edit-field">
+                        <label for="tags">Tags</label>
+                        <input type="text" id="tags" name="tags[]" value="" maxlength="50" placeholder="Add a tag, then use + for another">
+                        <div id="tag-list" style="display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;">
+                            @foreach (($mediaItem->tags ?? []) as $tag)
+                                <span class="media-edit-tag" data-existing-tag>
+                                    {{ $tag }}
+                                    <button type="button" data-remove-tag style="margin-left:5px;border:0;background:transparent;color:inherit;cursor:pointer;font-weight:800;" aria-label="Remove tag {{ $tag }}">×</button>
+                                    <input type="hidden" name="tags[]" value="{{ $tag }}">
+                                </span>
+                            @endforeach
+                        </div>
+                        <button type="button" id="add-tag" class="button button-muted" style="margin-top:10px;padding:7px 11px;">+ Add tag</button>
+                        <p style="margin:7px 0 0;color:#64748b;font-size:.76rem;line-height:1.5;">Use short searchable terms such as <strong>graduation</strong>, <strong>research</strong>, <strong>campus</strong>, or <strong>2026</strong>.</p>
+                        @error('tags')<small>{{ $message }}</small>@enderror
+                        @error('tags.*')<small>{{ $message }}</small>@enderror
+                    </div>
+
                     <div class="media-edit-assignment">
                         <span class="media-edit-assignment-title">Assign this media to events</span>
                         <select name="event_ids[]" multiple aria-label="Events assigned to {{ $mediaItem->file_name }}">
@@ -105,4 +123,43 @@
             </section>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const list = document.getElementById('tag-list');
+            const input = document.getElementById('tags');
+            const add = document.getElementById('add-tag');
+
+            function addTag() {
+                const value = input.value.trim();
+                if (!value) return;
+
+                const values = Array.from(list.querySelectorAll('input[name="tags[]"]')).map(el => el.value.toLowerCase());
+                if (values.includes(value.toLowerCase())) {
+                    input.value = '';
+                    return;
+                }
+
+                const wrapper = document.createElement('span');
+                wrapper.className = 'media-edit-tag';
+                wrapper.innerHTML = `${document.createTextNode(value).textContent} <button type="button" data-remove-tag style="margin-left:5px;border:0;background:transparent;color:inherit;cursor:pointer;font-weight:800;" aria-label="Remove tag">×</button><input type="hidden" name="tags[]">`;
+                wrapper.querySelector('input').value = value;
+                list.appendChild(wrapper);
+                input.value = '';
+            }
+
+            add.addEventListener('click', addTag);
+            input.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    addTag();
+                }
+            });
+
+            list.addEventListener('click', function (event) {
+                const remove = event.target.closest('[data-remove-tag]');
+                if (remove) remove.closest('.media-edit-tag').remove();
+            });
+        });
+    </script>
 </x-app-layout>
