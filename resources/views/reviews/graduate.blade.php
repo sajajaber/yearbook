@@ -16,7 +16,7 @@
                 @endif
                 <div class="review-status-card">
                     <span class="review-status-label">Current status</span>
-                    <strong class="review-status">{{ ucfirst($graduate->publish_status) }}</strong>
+                    <strong class="review-status">{{ $graduate->publish_status === 'reviewed' ? 'Submitted for review' : ($graduate->publish_status === 'rejected' ? 'Changes requested' : ucfirst($graduate->publish_status)) }}</strong>
                     <p>{{ $graduate->school?->name ?? 'No school' }}<br>{{ $graduate->major?->name ?? 'No major' }}</p>
                 </div>
             </aside>
