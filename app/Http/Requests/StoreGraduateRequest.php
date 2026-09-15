@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use App\Rules\ConsentGrantedForPublish;
 use Illuminate\Validation\Rule;
 
 class StoreGraduateRequest extends FormRequest
@@ -36,7 +35,7 @@ class StoreGraduateRequest extends FormRequest
             'portrait' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
             'resume' => 'nullable|file|mimes:pdf|max:10240',
             'consent_status' => ['required', 'in:pending,granted,declined'],
-            'publish_status' => ['required', 'in:draft,reviewed,approved,published,archived,rejected', new ConsentGrantedForPublish($this->input('consent_status'))],
+            'publish_status' => ['required', 'in:draft,reviewed,approved,published,archived,rejected'],
             'degree_level' => 'required|in:undergraduate,graduate',
             'gpa' => 'nullable|numeric|min:0|max:4',
         ];
