@@ -16,6 +16,11 @@ class AuditLog extends Model
         'ip_address',
     ];
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     /* a static method belongs to the class itself, not on a specific object
        "a self-contained action you trigger directly on the class" */
     public static function record(string $action, $model): void
