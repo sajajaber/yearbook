@@ -1,24 +1,15 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
     public function up(): void
     {
-        if (! Schema::hasColumn('graduates', 'academic_year_id')) {
-            return;
-        }
-
-        DB::table('graduates')
-            ->join('graduations', 'graduates.graduation_id', '=', 'graduations.id')
-            ->whereNull('graduates.academic_year_id')
-            ->update([
-                'graduates.academic_year_id' => DB::raw('graduations.academic_year_id'),
-            ]);
+        // The academic year is already backfilled by the preceding
+        // 2026_09_13_100000_add_academic_year_to_graduates_table migration.
+        // This migration is intentionally a no-op to avoid a redundant
+        // cross-table UPDATE that is not portable to SQLite.
     }
 
     public function down(): void
