@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AcademicYearController;
 use App\Http\Controllers\AiGenerationController;
+use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\CampusController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EventCategoryController;
@@ -59,6 +60,7 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
     Route::get('settings', [SettingsController::class, 'index'])->name('settings.index');
     Route::post('settings/hero-images', [SettingsController::class, 'updateHeroImages'])->name('settings.hero-images.update');
     Route::resource('users', UserController::class);
+    Route::get('audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');
 });
 
 Route::middleware(['auth', 'verified', 'role:admin,editor'])->group(function () {
