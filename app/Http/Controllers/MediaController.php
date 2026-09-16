@@ -8,6 +8,7 @@ use App\Models\Event;
 use App\Models\AuditLog;
 use App\Services\MediaTypeResolver;
 use App\Services\ImageProcessor;
+use App\Services\GeminiVisionService;
 use App\Http\Requests\StoreMediaRequest;
 use Illuminate\Support\Facades\Storage;
 
@@ -165,6 +166,76 @@ class MediaController extends Controller
         AuditLog::record('updated', $mediaItem);
 
         return redirect()->route('media.index')->with('success', 'Media updated.');
+    }
+
+    public function generateCaption(string $id, GeminiVisionService $vision)
+    {
+        $mediaItem = Media::findOrFail($id);
+
+        if ($mediaItem->type !== 'image') {
+            return response()->json(['message' => 'AI captions are available for images only.'], 422);
+        }
+
+        try {
+            $image = Storage::disk('public')->get($mediaItem->path);
+            $mimeType = Storage::disk('public')->mimeType($mediaItem->path) ?: 'image/jpeg';
+
+            $caption = $vision->analyzeImage(
+                base64_encode($image),
+                $mimeType,
+                'Create one concise, factual caption for this yearbook image. Describe only visible, reasonably certain details. Do not identify people by name, invent locations, dates, achievements, or other facts. Return only the caption, with no quotation marks or explanation. Keep it under 255 characters.'
+            );
+
+            return response()->json(['caption' => trim($caption)]);
+        } catch (\Throwable $e) {
+            report($e);
+            return response()->json(['message' => $e->getMessage() ?: 'AI caption generation failed.'], 500);
+        }
+    }
+
+    public function generateTags(string $id, GeminiVisionService $vision)
+    {
+        $mediaItem = Media::findOrFail($id);
+
+        if ($mediaItem->type !== 'image') {
+            return response()->json(['message' => 'AI tags are available for images only.'], 422);
+        }
+
+        try {
+            $image = Storage::disk('public')->get($mediaItem->path);
+            $mimeType = Storage::disk('public')->mimeType($mediaItem->path) ?: 'image/jpeg';
+
+            $result = $vision->analyzeImage(
+                base64_encode($image),
+                $mimeType,
+                'Suggest 5 to 10 short searchable tags for this yearbook image. Use concrete visual subjects, activities, settings, and themes only. Do not invent names, dates, departments, or facts that cannot be determined from the image. Return ONLY a JSON array of strings, with no markdown or explanation.'
+            );
+
+            $json = trim($result);
+            $json = preg_replace('/^```(?:json)?\s*|\s*```$/i', '', $json);
+            $decoded = json_decode($json, true);
+
+            if (! is_array($decoded)) {
+                throw new \RuntimeException('AI returned tags in an invalid format.');
+            }
+
+            $existing = collect($mediaItem->tags ?? []);
+            $tags = collect($decoded)
+                ->filter(fn($tag) => is_string($tag))
+                ->map(fn($tag) => trim($tag))
+                ->filter()
+                ->map(fn($tag) => preg_replace('/\s+/', ' ', $tag))
+                ->unique(fn($tag) => mb_strtolower($tag))
+                ->reject(fn($tag) => $existing->contains(fn($old) => mb_strtolower($old) === mb_strtolower($tag)))
+                ->take(max(0, 30 - $existing->count()))
+                ->values()
+                ->all();
+
+            return response()->json(['tags' => $tags]);
+        } catch (\Throwable $e) {
+            report($e);
+            return response()->json(['message' => $e->getMessage() ?: 'AI tag generation failed.'], 500);
+        }
     }
 
     public function destroy(string $id, ImageProcessor $imageProcessor)
