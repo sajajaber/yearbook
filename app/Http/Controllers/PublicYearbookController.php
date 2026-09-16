@@ -259,17 +259,10 @@ class PublicYearbookController extends Controller
 
         $activeAcademicYear = AcademicYear::where('status', 'active')->latest()->first();
 
-        /*
-         * /yearbook/graduates          -> active academic year
-         * /yearbook/graduates?year=2   -> selected academic year
-         * /yearbook/graduates?year=    -> ALL academic years
-         *
-         * The presence of the year parameter is intentional here.
-         * An empty value means the user explicitly selected
-         * "All academic years" and must not fall back to the active year.
-         */
-        $year = $request->has('year')
-            ? $request->input('year')
+        // No year parameter = active year. A present, empty year = all years.
+        $queryParams = $request->query();
+        $year = array_key_exists('year', $queryParams)
+            ? $queryParams['year']
             : $activeAcademicYear?->id;
 
         $query = Graduate::where('publish_status', 'published')
@@ -303,11 +296,7 @@ class PublicYearbookController extends Controller
             $query->where('degree_level', $degree);
         }
 
-        /*
-         * IMPORTANT:
-         * Only apply the academic-year constraint when a real year
-         * was selected. An empty year means "All academic years".
-         */
+        // An empty year means ALL academic years, so no year constraint is applied.
         if ($year !== null && $year !== '') {
             $query->where(function ($q) use ($year) {
                 $q->where('academic_year_id', $year)
@@ -415,69 +404,31 @@ class PublicYearbookController extends Controller
                     ->orWhere('description', 'like', "%{$query}%")
                     ->orWhere('location', 'like', "%{$query}%");
             })
-            ->with(['media', 'category'])
-            ->limit(12)
+            ->with(['media', 'category', 'academicYear'])
             ->get();
 
-        $graduatesVisible = Graduate::where('publish_status', 'published')
+        $graduates = Graduate::where('publish_status', 'published')
             ->where('consent_status', 'granted')
             ->where(function ($q) use ($query) {
                 $q->where('name', 'like', "%{$query}%")
                     ->orWhere('profile_text', 'like', "%{$query}%")
+                    ->orWhere('achievements', 'like', "%{$query}%")
+                    ->orWhere('activities', 'like', "%{$query}%")
+                    ->orWhere('projects', 'like', "%{$query}%")
+                    ->orWhere('future_plans', 'like', "%{$query}%")
                     ->orWhere('quote', 'like', "%{$query}%");
             })
-            ->with(['media', 'major', 'school'])
-            ->limit(12)
+            ->with(['school', 'major', 'campus', 'media', 'academicYear', 'graduation.academicYear'])
             ->get();
 
-        $graduatesNamedOnly = Graduate::where('publish_status', 'published')
-            ->where('consent_status', '!=', 'granted')
-            ->where('name', 'like', "%{$query}%")
-            ->orderBy('name')
-            ->limit(20)
-            ->pluck('name');
+        $semanticMatches = collect();
 
-        $graduations = Graduation::where(function ($q) use ($query) {
-                $q->where('venue', 'like', "%{$query}%")
-                    ->orWhere('description', 'like', "%{$query}%");
-            })
-            ->with('media')
-            ->limit(12)
-            ->get();
-
-        if ($events->count() + $graduatesVisible->count() < 3) {
-            try {
-                $semanticMatches = $semanticSearch->search($query, 10);
-
-                $extraEventIds = $semanticMatches->where('type', 'event')
-                    ->pluck('id')->diff($events->pluck('id'));
-                $extraGraduateIds = $semanticMatches->where('type', 'graduate')
-                    ->pluck('id')->diff($graduatesVisible->pluck('id'));
-
-                if ($extraEventIds->isNotEmpty()) {
-                    $events = $events->concat(
-                        Event::whereIn('id', $extraEventIds)
-                            ->with(['media', 'category'])
-                            ->get()
-                    );
-                }
-
-                if ($extraGraduateIds->isNotEmpty()) {
-                    $graduatesVisible = $graduatesVisible->concat(
-                        Graduate::whereIn('id', $extraGraduateIds)
-                            ->where('publish_status', 'published')
-                            ->where('consent_status', 'granted')
-                            ->with(['media', 'major', 'school'])
-                            ->get()
-                    );
-                }
-            } catch (\Throwable $e) {
-                // Keyword results remain available if semantic search is unavailable.
-            }
+        try {
+            $semanticMatches = collect($semanticSearch->search($query));
+        } catch (\Throwable $e) {
+            report($e);
         }
 
-        return view('public.yearbook.search-results', compact(
-            'query', 'events', 'graduatesVisible', 'graduatesNamedOnly', 'graduations'
-        ));
+        return view('public.yearbook.search-results', compact('query', 'events', 'graduates', 'semanticMatches'));
     }
 }
