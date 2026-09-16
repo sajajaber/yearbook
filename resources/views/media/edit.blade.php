@@ -28,6 +28,13 @@
             .media-edit-tag { padding:5px 9px; border-radius:999px; background:#eaf2fb; color:#002a5c; font-size:.7rem; font-weight:700; }
             .media-edit-actions { display:flex; gap:10px; margin-top:24px; }
             .media-edit-actions > * { flex:1; }
+            .media-ai-box { margin:-4px 0 20px; padding:14px; border:1px solid #d8e3ef; border-radius:14px; background:linear-gradient(135deg,#f7fbff,#fff); }
+            .media-ai-box p { margin:0 0 10px; color:#64748b; font-size:.76rem; line-height:1.5; }
+            .media-ai-buttons { display:flex; gap:8px; flex-wrap:wrap; }
+            .media-ai-button { border:1px solid #b9cbe0; background:#fff; color:#002a5c; border-radius:9px; padding:8px 11px; font-weight:800; cursor:pointer; }
+            .media-ai-button:hover { border-color:#ffb034; background:#fffaf0; }
+            .media-ai-button:disabled { opacity:.6; cursor:wait; }
+            .media-ai-status { margin-top:9px; font-size:.75rem; color:#64748b; min-height:18px; }
             @media (max-width: 780px) { .media-edit-grid { grid-template-columns:1fr; } }
             @media (max-width: 520px) { .media-edit-actions { flex-direction:column; } }
         </style>
@@ -53,6 +60,17 @@
                 <form action="{{ route('media.update', $mediaItem->id) }}" method="POST">
                     @csrf
                     @method('PUT')
+
+                    @if ($mediaItem->type === 'image')
+                        <div class="media-ai-box" aria-label="AI media assistance">
+                            <p><strong style="color:#002a5c;">AI assistance</strong> — generate a suggested caption or searchable tags from the image. Results are inserted into this form for you to review before saving.</p>
+                            <div class="media-ai-buttons">
+                                <button type="button" class="media-ai-button" id="generate-caption">✨ Generate caption</button>
+                                <button type="button" class="media-ai-button" id="generate-tags">🏷 Generate tags</button>
+                            </div>
+                            <div id="media-ai-status" class="media-ai-status" role="status" aria-live="polite"></div>
+                        </div>
+                    @endif
 
                     <div class="media-edit-field">
                         <label for="caption">Caption</label>
@@ -129,37 +147,57 @@
             const list = document.getElementById('tag-list');
             const input = document.getElementById('tags');
             const add = document.getElementById('add-tag');
+            const csrf = document.querySelector('input[name="_token"]')?.value;
+            const aiStatus = document.getElementById('media-ai-status');
 
-            function addTag() {
-                const value = input.value.trim();
+            function addTag(value = input.value.trim()) {
                 if (!value) return;
-
                 const values = Array.from(list.querySelectorAll('input[name="tags[]"]')).map(el => el.value.toLowerCase());
-                if (values.includes(value.toLowerCase())) {
-                    input.value = '';
-                    return;
-                }
+                if (values.includes(value.toLowerCase())) { input.value = ''; return; }
+                if (values.length >= 30) { aiStatus && (aiStatus.textContent = 'You can add a maximum of 30 tags.'); return; }
 
                 const wrapper = document.createElement('span');
                 wrapper.className = 'media-edit-tag';
-                wrapper.innerHTML = `${document.createTextNode(value).textContent} <button type="button" data-remove-tag style="margin-left:5px;border:0;background:transparent;color:inherit;cursor:pointer;font-weight:800;" aria-label="Remove tag">×</button><input type="hidden" name="tags[]">`;
-                wrapper.querySelector('input').value = value;
-                list.appendChild(wrapper);
-                input.value = '';
+                const text = document.createElement('span');
+                text.textContent = value;
+                const remove = document.createElement('button');
+                remove.type = 'button'; remove.dataset.removeTag = ''; remove.style.cssText = 'margin-left:5px;border:0;background:transparent;color:inherit;cursor:pointer;font-weight:800;'; remove.setAttribute('aria-label', `Remove tag ${value}`); remove.textContent = '×';
+                const hidden = document.createElement('input');
+                hidden.type = 'hidden'; hidden.name = 'tags[]'; hidden.value = value;
+                wrapper.append(text, remove, hidden); list.appendChild(wrapper); input.value = '';
             }
 
-            add.addEventListener('click', addTag);
-            input.addEventListener('keydown', function (event) {
-                if (event.key === 'Enter') {
-                    event.preventDefault();
-                    addTag();
-                }
-            });
+            add.addEventListener('click', () => addTag());
+            input.addEventListener('keydown', function (event) { if (event.key === 'Enter') { event.preventDefault(); addTag(); } });
+            list.addEventListener('click', function (event) { const remove = event.target.closest('[data-remove-tag]'); if (remove) remove.closest('.media-edit-tag').remove(); });
 
-            list.addEventListener('click', function (event) {
-                const remove = event.target.closest('[data-remove-tag]');
-                if (remove) remove.closest('.media-edit-tag').remove();
-            });
+            async function runAi(url, action) {
+                const button = document.getElementById(action === 'caption' ? 'generate-caption' : 'generate-tags');
+                if (!button) return;
+                button.disabled = true;
+                aiStatus.textContent = action === 'caption' ? 'Analyzing image and generating caption…' : 'Analyzing image and generating tags…';
+                try {
+                    const response = await fetch(url, { method: 'POST', headers: { 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json' } });
+                    const data = await response.json().catch(() => ({}));
+                    if (!response.ok) throw new Error(data.message || 'AI request failed.');
+
+                    if (action === 'caption') {
+                        document.getElementById('caption').value = data.caption || '';
+                        aiStatus.textContent = 'Caption generated. Review it, then save the media.';
+                    } else {
+                        const generated = Array.isArray(data.tags) ? data.tags : [];
+                        generated.forEach(tag => addTag(String(tag)));
+                        aiStatus.textContent = generated.length ? `${generated.length} suggested tag${generated.length === 1 ? '' : 's'} added. Review them, then save.` : 'No new tags were suggested.';
+                    }
+                } catch (error) {
+                    aiStatus.textContent = error.message || 'AI request failed. Please try again.';
+                } finally {
+                    button.disabled = false;
+                }
+            }
+
+            document.getElementById('generate-caption')?.addEventListener('click', () => runAi('{{ route('media.generate-caption', $mediaItem->id) }}', 'caption'));
+            document.getElementById('generate-tags')?.addEventListener('click', () => runAi('{{ route('media.generate-tags', $mediaItem->id) }}', 'tags'));
         });
     </script>
 </x-app-layout>
