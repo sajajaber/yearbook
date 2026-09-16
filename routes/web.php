@@ -59,7 +59,6 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
     Route::get('audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');
 });
 Route::middleware(['auth', 'verified', 'role:admin,editor'])->group(function () {
-<<<<<<< HEAD
     Route::resource('academic-years', AcademicYearController::class);
     Route::resource('majors', MajorController::class);
     Route::resource('campuses', CampusController::class);
@@ -69,43 +68,21 @@ Route::middleware(['auth', 'verified', 'role:admin,editor'])->group(function () 
     Route::resource('media', MediaController::class)->except(['show']);
     Route::resource('events', EventController::class)->except(['index', 'show']);
     Route::resource('graduates', GraduateController::class)->except(['index', 'show']);
-    Route::get('graduates/import', [GraduateImportController::class, 'create'])->name('graduates.import');
-    Route::get('graduates/import/template', [GraduateImportController::class, 'template'])->name('graduates.import.template');
-    Route::post('graduates/import/preview', [GraduateImportController::class, 'preview'])->name('graduates.import.preview');
-    Route::post('graduates/import', [GraduateImportController::class, 'store'])->name('graduates.import.store');
-});
-Route::middleware(['auth', 'verified', 'role:admin,editor,reviewer'])->group(function () {
-    Route::resource('events', EventController::class)->only(['index']);
-    Route::resource('graduates', GraduateController::class)->only(['index']);
-    Route::resource('media', MediaController::class)->only(['index', 'show']);
-    Route::get('reviews/events/{event}', [ReviewController::class, 'event'])->name('reviews.events.show');
-    Route::get('reviews/graduates/{graduate}', [ReviewController::class, 'graduate'])->name('reviews.graduates.show');
-});
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::post('events/{event}/submit', [EventController::class, 'submitForReview'])->middleware('role:admin,editor')->name('events.submit');
-    Route::post('events/{event}/approve', [EventController::class, 'approve'])->middleware('role:admin,reviewer')->name('events.approve');
-    Route::post('events/{event}/request-changes', [EventController::class, 'requestChanges'])->middleware('role:admin,reviewer')->name('events.request-changes');
-    Route::post('events/{event}/publish', [EventController::class, 'publish'])->middleware('role:admin,reviewer')->name('events.publish');
-    Route::post('graduates/{graduate}/submit', [GraduateController::class, 'submitForReview'])->middleware('role:admin,editor')->name('graduates.submit');
-    Route::post('graduates/{graduate}/approve', [GraduateController::class, 'approve'])->middleware('role:admin,reviewer')->name('graduates.approve');
-    Route::post('graduates/{graduate}/request-changes', [GraduateController::class, 'requestChanges'])->middleware('role:admin,reviewer')->name('graduates.request-changes');
-    Route::post('graduates/{graduate}/publish', [GraduateController::class, 'publish'])->middleware('role:admin,reviewer')->name('graduates.publish');
-    Route::patch('review-feedback/{feedback}/resolve', [ReviewFeedbackController::class, 'resolve'])->middleware('role:admin,reviewer')->name('review-feedback.resolve');
-    Route::get('notifications/{notification}/read', [NotificationController::class, 'redirect'])->name('notifications.read');
-});
-Route::middleware(['auth', 'verified', 'role:admin,editor'])->group(function () {
-    Route::post('events/{event}/generate-summary', [EventController::class, 'generateSummary'])->name('events.generate-summary');
-    Route::post('graduates/{graduate}/generate-biography', [GraduateController::class, 'generateBiography'])->name('graduates.generate-biography');
-});
-Route::middleware(['auth', 'verified', 'role:admin,reviewer'])->group(function () {
-    Route::get('ai-generations', [AiGenerationController::class, 'index'])->name('ai-generations.index');
-    Route::post('ai-generations/{aiGeneration}/review', [AiGenerationController::class, 'review'])->name('ai-generations.review');
-=======
-    Route::resource('academic-years', AcademicYearController::class); Route::resource('majors', MajorController::class); Route::resource('campuses', CampusController::class); Route::resource('schools', SchoolController::class); Route::resource('event-categories', EventCategoryController::class); Route::resource('graduations', GraduationController::class); Route::resource('media', MediaController::class)->except(['show']); Route::resource('events', EventController::class)->except(['index', 'show']); Route::resource('graduates', GraduateController::class)->except(['index', 'show']);
-    Route::get('graduates/import', [GraduateImportController::class, 'create'])->name('graduates.import'); Route::get('graduates/import/template', [GraduateImportController::class, 'template'])->name('graduates.import.template'); Route::post('graduates/import/preview', [GraduateImportController::class, 'preview'])->name('graduates.import.preview'); Route::post('graduates/import', [GraduateImportController::class, 'store'])->name('graduates.import.store');
-    Route::post('media/{media}/generate-caption', [MediaController::class, 'generateCaption'])->name('media.generate-caption');
-    Route::post('media/{media}/generate-tags', [MediaController::class, 'generateTags'])->name('media.generate-tags');
->>>>>>> 915f975e5d0be2c9d6bcf73cfedd3a09938ca11a
+
+    Route::get('graduates/import', [GraduateImportController::class, 'create'])
+        ->name('graduates.import');
+    Route::get('graduates/import/template', [GraduateImportController::class, 'template'])
+        ->name('graduates.import.template');
+    Route::post('graduates/import/preview', [GraduateImportController::class, 'preview'])
+        ->name('graduates.import.preview');
+    Route::post('graduates/import', [GraduateImportController::class, 'store'])
+        ->name('graduates.import.store');
+
+    Route::post('media/{media}/generate-caption', [MediaController::class, 'generateCaption'])
+        ->name('media.generate-caption');
+
+    Route::post('media/{media}/generate-tags', [MediaController::class, 'generateTags'])
+        ->name('media.generate-tags');
 });
 Route::post('graduations/{graduation}/unarchive', [GraduationController::class, 'unarchive'])->middleware(['auth', 'verified', 'role:admin,editor'])->name('graduations.unarchive');
 require __DIR__ . '/auth.php';
