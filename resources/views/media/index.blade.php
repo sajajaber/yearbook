@@ -351,6 +351,7 @@
             <option value="latest" @selected($sortBy==='latest' )>Newest</option>
             <option value="oldest" @selected($sortBy==='oldest' )>Oldest</option>
             <option value="name" @selected($sortBy==='name' )>Name</option>
+            <option value="name-desc" {{ $sortBy === 'name-desc' ? 'selected' : '' }}>Name Z–A</option>
           </select>
         </form>
       </div>

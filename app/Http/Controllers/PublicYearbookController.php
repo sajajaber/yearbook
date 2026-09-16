@@ -411,6 +411,10 @@ class PublicYearbookController extends Controller
 
             'alphabetical' => $query->orderBy('title'),
 
+            'featured' => $query
+                ->orderByDesc('featured')
+                ->orderByDesc('event_date'),
+
             default => $query->orderByDesc('event_date'),
         };
 
@@ -558,10 +562,9 @@ class PublicYearbookController extends Controller
         $baseFilters($query);
 
         match ($sort) {
+            'name_desc' => $query->orderByDesc('name'),
             'latest' => $query->orderByDesc('created_at'),
-
             'oldest' => $query->orderBy('created_at'),
-
             default => $query->orderBy('name'),
         };
 

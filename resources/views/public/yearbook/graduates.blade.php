@@ -898,6 +898,26 @@ $namedGraduates = $namedOnly->where('degree_level', 'graduate')->count();
                         </select>
                     </div>
 
+                    <div class="graduates-filter-field">
+                        <select name="sort" class="...">
+                            <option value="name" {{ $sort === 'name' ? 'selected' : '' }}>
+                                Name A–Z
+                            </option>
+
+                            <option value="name_desc" {{ $sort === 'name_desc' ? 'selected' : '' }}>
+                                Name Z–A
+                            </option>
+
+                            <option value="latest" {{ $sort === 'latest' ? 'selected' : '' }}>
+                                Newest first
+                            </option>
+
+                            <option value="oldest" {{ $sort === 'oldest' ? 'selected' : '' }}>
+                                Oldest first
+                            </option>
+                        </select>
+                    </div>
+
                     <button class="graduates-filter-button" type="submit">Filter</button>
                 </form>
             </div>
