@@ -22,7 +22,14 @@ function userWithRole(string $roleName): User
 
 function baseAcademicYear(): AcademicYear
 {
-    return AcademicYear::create(['title' => '2025-2026', 'start_date' => '2025-09-01', 'end_date' => '2026-06-30', 'status' => 'active']);
+    $number = AcademicYear::count() + 1;
+
+    return AcademicYear::create([
+        'title' => '2025-2026' . ($number > 1 ? '-' . $number : ''),
+        'start_date' => '2025-09-01',
+        'end_date' => '2026-06-30',
+        'status' => 'active',
+    ]);
 }
 
 function baseEvent(array $overrides = []): Event
@@ -34,9 +41,22 @@ function baseEvent(array $overrides = []): Event
 
 function baseGraduate(array $overrides = []): Graduate
 {
-    $school = School::create(['name' => 'School of Arts', 'code' => 'ART', 'status' => 'active']);
-    $major = Major::create(['school_id' => $school->id, 'name' => 'Computer Science', 'code' => 'CSCI']);
-    $campus = Campus::create(['name' => 'Beirut', 'code' => 'BEY', 'status' => 'active']);
+    $number = School::count() + 1;
+    $school = School::create([
+        'name' => 'School of Arts ' . $number,
+        'code' => 'ART' . $number,
+        'status' => 'active',
+    ]);
+    $major = Major::create([
+        'school_id' => $school->id,
+        'name' => 'Computer Science ' . $number,
+        'code' => 'CSCI' . $number,
+    ]);
+    $campus = Campus::create([
+        'name' => 'Beirut ' . $number,
+        'code' => 'BEY' . $number,
+        'status' => 'active',
+    ]);
     $year = baseAcademicYear();
     $graduation = Graduation::create(['academic_year_id' => $year->id, 'ceremony_date' => '2026-06-20', 'venue' => 'Main Hall', 'description' => 'Ceremony', 'status' => 'active']);
     return Graduate::create(array_merge(['student_reference' => 'STU-0001', 'name' => 'Jane Graduate', 'school_id' => $school->id, 'major_id' => $major->id, 'campus_id' => $campus->id, 'graduation_id' => $graduation->id, 'academic_year_id' => $year->id, 'profile_text' => 'A student.', 'consent_status' => 'pending', 'publish_status' => 'draft'], $overrides));
