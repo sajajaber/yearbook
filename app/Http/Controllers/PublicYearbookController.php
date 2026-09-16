@@ -26,9 +26,10 @@ class PublicYearbookController extends Controller
 
         $featuredEvents = Event::where('status', 'published')
             ->where('featured', true)
+            ->where('academic_year_id', $currentYear?->id)
             ->latest('event_date')
             ->limit(6)
-            ->with(['media', 'category'])
+            ->with(['media', 'category', 'academicYear'])
             ->get();
 
         $recentEvents = Event::where('status', 'published')
