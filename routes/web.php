@@ -67,6 +67,8 @@ Route::middleware(['auth', 'verified', 'role:admin,editor'])->group(function () 
     Route::resource('graduations', GraduationController::class);
     Route::resource('media', MediaController::class)->except(['show']);
     Route::post('media/ai-suggestions', [MediaController::class, 'aiSuggestions'])->name('media.ai-suggestions');
+    Route::post('media/{media}/generate-caption', [MediaController::class, 'generateCaption'])->name('media.generate-caption');
+    Route::post('media/{media}/generate-tags', [MediaController::class, 'generateTags'])->name('media.generate-tags');
     Route::resource('events', EventController::class)->except(['index', 'show']);
     Route::resource('graduates', GraduateController::class)->except(['index', 'show']);
     Route::get('graduates/import', [GraduateImportController::class, 'create'])->name('graduates.import');
@@ -100,8 +102,6 @@ Route::middleware(['auth', 'verified', 'role:admin,editor'])->group(function () 
 Route::middleware(['auth', 'verified', 'role:admin,reviewer'])->group(function () {
     Route::get('ai-generations', [AiGenerationController::class, 'index'])->name('ai-generations.index');
     Route::post('ai-generations/{aiGeneration}/review', [AiGenerationController::class, 'review'])->name('ai-generations.review');
-    Route::post('media/{media}/generate-caption', [MediaController::class, 'generateCaption'])->name('media.generate-caption');
-    Route::post('media/{media}/generate-tags', [MediaController::class, 'generateTags'])->name('media.generate-tags');
 });
 Route::post('graduations/{graduation}/unarchive', [GraduationController::class, 'unarchive'])->middleware(['auth', 'verified', 'role:admin,editor'])->name('graduations.unarchive');
 require __DIR__ . '/auth.php';
