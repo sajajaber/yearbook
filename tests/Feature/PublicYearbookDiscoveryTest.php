@@ -175,7 +175,11 @@ test('graduates default to the active academic year and can explicitly show all 
 });
 
 test('media library supports name sorting in both directions', function () {
+    Storage::fake('public');
     $editor = discoveryEditor();
+
+    Storage::disk('public')->put('media/zulu.jpg', 'zulu test image');
+    Storage::disk('public')->put('media/alpha.jpg', 'alpha test image');
 
     Media::create([
         'file_name' => 'Zulu Media.jpg',
@@ -205,12 +209,14 @@ test('published granted graduates can access their resume while ineligible gradu
     Storage::fake('public');
     $year = discoveryAcademicYear('Resume Access ' . uniqid());
     $graduate = discoveryGraduate($year, 'Resume Graduate', 'DISC-RES-' . uniqid());
+    $editor = discoveryEditor();
 
     $media = Media::create([
         'file_name' => 'resume.pdf',
         'path' => 'resumes/resume-' . uniqid() . '.pdf',
         'type' => 'document',
         'tags' => [],
+        'uploaded_by' => $editor->id,
     ]);
 
     $graduate->update(['resume_media_id' => $media->id]);
