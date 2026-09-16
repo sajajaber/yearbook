@@ -27,7 +27,8 @@ class MediaController extends Controller
                 fn($query) => $query->where(function ($query) use ($search) {
                     $query->where('file_name', 'like', "%{$search}%")
                         ->orWhere('caption', 'like', "%{$search}%")
-                        ->orWhere('alt_text', 'like', "%{$search}%");
+                        ->orWhere('alt_text', 'like', "%{$search}%")
+                        ->orWhereJsonContains('tags', $search);
                 })
             )
             ->when($tag !== '', fn($query) => $query->whereJsonContains('tags', $tag))
@@ -61,7 +62,6 @@ class MediaController extends Controller
     {
         $validated = $request->validated();
         $uploadedFile = $request->file('file');
-
         $type = $request->resolvedType() ?? $resolver->resolveType($uploadedFile);
 
         if (! $type) {
