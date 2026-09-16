@@ -44,7 +44,7 @@ class YearbookPdfController extends Controller
 
     /**
      * Export the full yearbook (cover, table of contents, published
-     * events, and every published + consented graduate profile) for
+     * events, and every published + consented graduate profile) for 
      * the given academic year, or the current active year if omitted.
      *
      * Gated to admin/editor via the route middleware (see routes/web.php)
