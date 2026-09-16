@@ -42,10 +42,10 @@ function discoveryEvent(AcademicYear $year, string $title, string $date, bool $f
     ]);
 }
 
-function discoveryGraduate(AcademicYear $year, string $name, string $reference): Graduate
+function discoveryGraduate(string|AcademicYear $year, string $name, string $reference, ?School $school = null): Graduate
 {
     $number = Graduate::count() + School::count() + 1;
-    $school = School::create([
+    $school ??= School::create([
         'name' => 'Discovery School ' . $number,
         'code' => 'DS' . $number,
         'status' => 'active',
@@ -138,8 +138,14 @@ test('events can be sorted with featured events first', function () {
 
 test('graduates can be sorted alphabetically in both directions', function () {
     $year = discoveryAcademicYear('Graduates Sort ' . uniqid());
-    discoveryGraduate($year, 'Alpha Graduate', 'DISC-A-' . uniqid());
-    discoveryGraduate($year, 'Zulu Graduate', 'DISC-Z-' . uniqid());
+    $school = School::create([
+        'name' => 'Discovery Sort School ' . uniqid(),
+        'code' => 'DSS' . uniqid(),
+        'status' => 'active',
+    ]);
+
+    discoveryGraduate($year, 'Alpha Graduate', 'DISC-A-' . uniqid(), $school);
+    discoveryGraduate($year, 'Zulu Graduate', 'DISC-Z-' . uniqid(), $school);
 
     $this->get(route('public.graduates', ['sort' => 'name', 'year' => $year->id]))
         ->assertOk()
@@ -168,19 +174,21 @@ test('graduates default to the active academic year and can explicitly show all 
         ->assertSee('Archived Graduate');
 });
 
-test('media library supports all four sort directions', function () {
+test('media library supports name sorting in both directions', function () {
     $editor = discoveryEditor();
 
     Media::create([
         'file_name' => 'Zulu Media.jpg',
         'path' => 'media/zulu.jpg',
         'type' => 'image',
+        'tags' => [],
         'uploaded_by' => $editor->id,
     ]);
     Media::create([
         'file_name' => 'Alpha Media.jpg',
         'path' => 'media/alpha.jpg',
         'type' => 'image',
+        'tags' => [],
         'uploaded_by' => $editor->id,
     ]);
 
@@ -202,6 +210,7 @@ test('published granted graduates can access their resume while ineligible gradu
         'file_name' => 'resume.pdf',
         'path' => 'resumes/resume-' . uniqid() . '.pdf',
         'type' => 'document',
+        'tags' => [],
     ]);
 
     $graduate->update(['resume_media_id' => $media->id]);
