@@ -50,62 +50,112 @@ ul.achievements li { margin-bottom:5px; color:#333; }
 <span class="badge">{{ $graduate->major->name ?? 'Major' }}</span>
 <span class="badge">{{ $graduate->school->name ?? 'School' }}</span>
 <span class="badge">{{ $graduate->campus->name ?? 'Campus' }}</span>
-@if($graduate->graduation)<span class="badge">Class of {{ \Carbon\Carbon::parse($graduate->graduation->ceremony_date)->format('Y') }}</span>@endif
+@if($graduate->graduation)
+<span class="badge">Class of {{ \Carbon\Carbon::parse($graduate->graduation->ceremony_date)->format('Y') }}</span>
+@endif
 </td>
 </tr></table>
 </div>
 
-<div class="section"><h2 class="section-heading">Identification</h2><table class="facts-table">
-@if($graduate->student_reference)<tr><td class="facts-label">Student Reference</td><td>{{ $graduate->student_reference }}</td></tr>@endif
+<div class="section">
+<h2 class="section-heading">Identification</h2>
+<table class="facts-table">
+@if($graduate->student_reference)
+<tr><td class="facts-label">Student Reference</td><td>{{ $graduate->student_reference }}</td></tr>
+@endif
 <tr><td class="facts-label">Degree Level</td><td>{{ ucfirst($graduate->degree_level ?? 'Graduate') }}</td></tr>
-@if($graduate->graduation)<tr><td class="facts-label">Graduation Year</td><td>{{ \Carbon\Carbon::parse($graduate->graduation->ceremony_date)->format('Y') }}</td></tr>@endif
+@if($graduate->graduation)
+<tr><td class="facts-label">Graduation Year</td><td>{{ \Carbon\Carbon::parse($graduate->graduation->ceremony_date)->format('Y') }}</td></tr>
+@endif
 <tr><td class="facts-label">School</td><td>{{ $graduate->school->name ?? 'N/A' }}</td></tr>
 <tr><td class="facts-label">Major</td><td>{{ $graduate->major->name ?? 'N/A' }}</td></tr>
 <tr><td class="facts-label">Campus</td><td>{{ $graduate->campus->name ?? 'N/A' }}</td></tr>
-</table></div>
+</table>
+</div>
 
 @if($graduate->profile_text)
 <div class="section"><h2 class="section-heading">Profile</h2><p>{{ $graduate->profile_text }}</p></div>
 @endif
-@if($graduate->quote)<div class="quote">&ldquo;{{ $graduate->quote }}&rdquo;</div>@endif
+
+@if($graduate->quote)
+<div class="quote">&ldquo;{{ $graduate->quote }}&rdquo;</div>
+@endif
 
 @if($graduate->gpa !== null || $graduate->achievements || $graduate->projects)
-<div class="section"><h2 class="section-heading">Academic Highlights</h2>
+<div class="section">
+<h2 class="section-heading">Academic Highlights</h2>
 @if($graduate->gpa !== null)<p><strong>GPA:</strong> {{ number_format((float) $graduate->gpa, 2) }} / 4.00</p>@endif
-@if($graduate->achievements)<ul class="achievements">@foreach((is_array($graduate->achievements) ? $graduate->achievements : array_filter(explode("\n", $graduate->achievements))) as $item)<li>{{ trim($item) }}</li>@endforeach</ul>@endif
-@if($graduate->projects)<p><strong>Projects / Research:</strong></p><ul class="achievements">@foreach((is_array($graduate->projects) ? $graduate->projects : array_filter(explode("\n", $graduate->projects))) as $item)<li>{{ trim($item) }}</li>@endforeach</ul>@endif
+@if($graduate->achievements)
+<ul class="achievements">
+@foreach((is_array($graduate->achievements) ? $graduate->achievements : array_filter(explode("\n", $graduate->achievements))) as $item)
+<li>{{ trim($item) }}</li>
+@endforeach
+</ul>
+@endif
+@if($graduate->projects)
+<p><strong>Projects / Research:</strong></p>
+<ul class="achievements">
+@foreach((is_array($graduate->projects) ? $graduate->projects : array_filter(explode("\n", $graduate->projects))) as $item)
+<li>{{ trim($item) }}</li>
+@endforeach
+</ul>
+@endif
 </div>
 @endif
 
-@if($graduate->activities || $graduate->events->count())
-<div class="section"><h2 class="section-heading">University Engagement</h2>
-@if($graduate->activities)<ul class="achievements">@foreach((is_array($graduate->activities) ? $graduate->activities : array_filter(explode("\n", $graduate->activities))) as $item)<li>{{ trim($item) }}</li>@endforeach</ul>@endif
-@if($graduate->events->count())<p><strong>Yearbook Events:</strong> {{ $graduate->events->pluck('title')->filter()->implode(', ') }}</p>@endif
+@if($graduate->activities)
+<div class="section">
+<h2 class="section-heading">University Engagement</h2>
+<ul class="achievements">
+@foreach((is_array($graduate->activities) ? $graduate->activities : array_filter(explode("\n", $graduate->activities))) as $item)
+<li>{{ trim($item) }}</li>
+@endforeach
+</ul>
 </div>
 @endif
 
 @if($graduate->internships || $graduate->certifications_training)
-<div class="section"><h2 class="section-heading">Professional Exposure</h2>
-@if($graduate->internships)<p><strong>Internships / Work Experience</strong></p><ul class="achievements">@foreach((is_array($graduate->internships) ? $graduate->internships : array_filter(explode("\n", $graduate->internships))) as $item)<li>{{ trim($item) }}</li>@endforeach</ul>@endif
-@if($graduate->certifications_training)<p><strong>Certifications &amp; Training</strong></p><p>{{ $graduate->certifications_training }}</p>@endif
+<div class="section">
+<h2 class="section-heading">Professional Exposure</h2>
+@if($graduate->internships)
+<p><strong>Internships / Work Experience</strong></p>
+<ul class="achievements">
+@foreach((is_array($graduate->internships) ? $graduate->internships : array_filter(explode("\n", $graduate->internships))) as $item)
+<li>{{ trim($item) }}</li>
+@endforeach
+</ul>
+@endif
+@if($graduate->certifications_training)
+<p><strong>Certifications &amp; Training</strong></p>
+<p>{{ $graduate->certifications_training }}</p>
+@endif
 </div>
 @endif
 
 @if($graduate->professional_interests || $graduate->future_plans)
-<div class="section"><h2 class="section-heading">Personal &amp; Professional Elements</h2>
+<div class="section">
+<h2 class="section-heading">Personal &amp; Professional Elements</h2>
 @if($graduate->professional_interests)<p><strong>Professional Interests:</strong> {{ $graduate->professional_interests }}</p>@endif
 @if($graduate->future_plans)<p><strong>Future Plans:</strong> {{ $graduate->future_plans }}</p>@endif
 </div>
 @endif
 
-@if($graduate->approved_links && count($graduate->approved_links))
-<div class="section"><h2 class="section-heading">Approved Links</h2><table class="links-table">
-@foreach($graduate->approved_links as $link)<tr><td><a href="{{ $link }}">{{ $link }}</a></td></tr>@endforeach
-</table></div>
+@if($graduate->approved_links && is_array($graduate->approved_links) && count($graduate->approved_links) > 0)
+<div class="section">
+<h2 class="section-heading">Approved Links</h2>
+<table class="links-table">
+@foreach($graduate->approved_links as $link)
+<tr><td><a href="{{ $link }}">{{ $link }}</a></td></tr>
+@endforeach
+</table>
+</div>
 @endif
 
 @if($graduate->resumeMedia)
-<div class="section"><h2 class="section-heading">Resume / CV</h2><p>The graduate has an approved resume/CV available from the digital profile.</p></div>
+<div class="section">
+<h2 class="section-heading">Resume / CV</h2>
+<p>The graduate has an approved resume/CV available from the digital profile.</p>
+</div>
 @endif
 
 <div class="footer-note">Generated from the University Annual Yearbook on {{ now()->format('F j, Y') }}</div>
