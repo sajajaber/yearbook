@@ -12,7 +12,7 @@
     @php
     $eventStatuses = $eventsByStatus->keyBy('status');
     $publishStatuses = $graduatesByPublishStatus->keyBy('publish_status');
-    $statusLabels = ['draft' => 'Draft', 'reviewed' => 'Submitted for review', 'approved' => 'Approved', 'published' => 'Published'];
+    $statusLabels = ['draft' => 'Draft', 'reviewed' => 'For review', 'approved' => 'Approved', 'published' => 'Published'];
     @endphp
 
     <div class="dashboard-wrap">
@@ -78,7 +78,7 @@
                 <h2>Event pipeline</h2>
                 <div class="mini-stats">
                     <div><strong>{{ $eventStatuses->get('draft')?->total ?? 0 }}</strong><span>Draft</span></div>
-                    <div><strong>{{ $eventStatuses->get('reviewed')?->total ?? 0 }}</strong><span>Submitted for review</span></div>
+                    <div><strong>{{ $eventStatuses->get('reviewed')?->total ?? 0 }}</strong><span>For review</span></div>
                     <div><strong>{{ $eventStatuses->get('published')?->total ?? 0 }}</strong><span>Live</span></div>
                 </div>@if (in_array(Auth::user()->role?->role_name, ['admin', 'editor']))<a href="{{ route('events.create') }}" class="button button-outline">Add an event <span aria-hidden="true">→</span></a>@endif
             </div>
