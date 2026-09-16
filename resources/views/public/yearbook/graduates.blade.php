@@ -153,18 +153,39 @@
     }
 
     @keyframes graduatesReveal {
-        from { opacity: 0; transform: translateY(26px); }
-        to { opacity: 1; transform: translateY(0); }
+        from {
+            opacity: 0;
+            transform: translateY(26px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     @keyframes graduatesTitleIn {
-        from { opacity: 0; transform: translateY(48px); }
-        to { opacity: 1; transform: translateY(0); }
+        from {
+            opacity: 0;
+            transform: translateY(48px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     @keyframes graduatesFloat {
-        0%, 100% { transform: translate3d(0, 0, 0); }
-        50% { transform: translate3d(-16px, 18px, 0); }
+
+        0%,
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+
+        50% {
+            transform: translate3d(-16px, 18px, 0);
+        }
     }
 
     /* =========================================================
@@ -194,8 +215,9 @@
 
     .graduates-filter-form {
         display: grid;
-        grid-template-columns: minmax(210px, 1.6fr) repeat(4, minmax(125px, 1fr)) auto;
-        gap: 7px;
+        grid-template-columns:
+            minmax(200px, 1.6fr) repeat(5, minmax(105px, 1fr)) 64px;
+        gap: 6px;
         align-items: center;
     }
 
@@ -228,21 +250,24 @@
 
     .graduates-filter-button {
         box-sizing: border-box;
-        width: 76px;
-        min-width: 76px;
+        width: 64px;
+        min-width: 64px;
         height: 50px;
-        padding: 0 10px;
+        padding: 0 6px;
         border: 0;
         border-radius: 11px;
         background: var(--g-ink);
         color: #fff;
         cursor: pointer;
-        font-size: .62rem;
+        font-size: .58rem;
         font-weight: 900;
-        letter-spacing: .5px;
+        letter-spacing: .4px;
         text-transform: uppercase;
         white-space: nowrap;
-        transition: transform .35s var(--g-ease), box-shadow .35s ease, background .25s ease;
+        transition:
+            transform .35s var(--g-ease),
+            box-shadow .35s ease,
+            background .25s ease;
     }
 
     .graduates-filter-button:hover {
@@ -304,7 +329,9 @@
     /* =========================================================
        SCHOOL-FIRST DIRECTORY
        ========================================================= */
-    .school-directory { margin-bottom: 60px; }
+    .school-directory {
+        margin-bottom: 60px;
+    }
 
     .school-directory-heading {
         display: flex;
@@ -377,7 +404,9 @@
         white-space: nowrap;
     }
 
-    .school-degree-section { margin-top: 26px; }
+    .school-degree-section {
+        margin-top: 26px;
+    }
 
     .school-degree-label {
         display: flex;
@@ -442,7 +471,9 @@
         box-shadow: 0 20px 40px rgba(15, 23, 42, .085);
     }
 
-    .graduate-link:focus-visible { outline: 0; }
+    .graduate-link:focus-visible {
+        outline: 0;
+    }
 
     .graduate-link:focus-visible .graduate-card {
         box-shadow: 0 0 0 3px rgba(215, 173, 89, .22), 0 20px 40px rgba(15, 23, 42, .085);
@@ -472,7 +503,9 @@
     }
 
     .graduate-link:hover .graduate-portrait img,
-    .graduate-link:focus-visible .graduate-portrait img { transform: scale(1.04); }
+    .graduate-link:focus-visible .graduate-portrait img {
+        transform: scale(1.04);
+    }
 
     .graduate-placeholder {
         display: flex;
@@ -500,10 +533,19 @@
         backdrop-filter: blur(8px);
     }
 
-    .graduate-degree-badge { top: 12px; left: 12px; }
-    .graduate-year-badge { right: 12px; bottom: 12px; }
+    .graduate-degree-badge {
+        top: 12px;
+        left: 12px;
+    }
 
-    .graduate-card-body { padding: 19px 19px 17px; }
+    .graduate-year-badge {
+        right: 12px;
+        bottom: 12px;
+    }
+
+    .graduate-card-body {
+        padding: 19px 19px 17px;
+    }
 
     .graduate-name {
         margin: 0;
@@ -575,8 +617,16 @@
         background: rgba(255, 255, 255, .75);
     }
 
-    .graduates-empty h3 { margin: 0 0 8px; color: var(--g-ink); }
-    .graduates-empty p { margin: 0 0 20px; color: var(--g-muted); font-size: .84rem; }
+    .graduates-empty h3 {
+        margin: 0 0 8px;
+        color: var(--g-ink);
+    }
+
+    .graduates-empty p {
+        margin: 0 0 20px;
+        color: var(--g-muted);
+        font-size: .84rem;
+    }
 
     .graduates-reset {
         color: var(--g-ink);
@@ -591,18 +641,27 @@
         margin: 50px 0 10px;
     }
 
-    .graduates-pagination nav { width: 100%; }
+    .graduates-pagination nav {
+        width: 100%;
+    }
 
     /* =========================================================
        RESPONSIVE
        ========================================================= */
-    @media (max-width:1100px) {
+    @media (max-width: 1100px) {
         .graduates-filter-form {
-            grid-template-columns: minmax(180px, 1.5fr) repeat(4, minmax(100px, 1fr)) 76px;
+            grid-template-columns:
+                minmax(165px, 1.5fr) repeat(5, minmax(85px, 1fr)) 64px;
+            gap: 5px;
         }
 
-        .graduates-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-        .graduates-overview { grid-template-columns: 1.5fr repeat(3, 1fr); }
+        .graduates-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .graduates-overview {
+            grid-template-columns: 1.5fr repeat(3, 1fr);
+        }
     }
 
     @media (max-width:850px) {
@@ -611,39 +670,98 @@
             padding: 72px 6vw 70px;
         }
 
-        .graduates-hero-bottom { display: block; }
-        .graduates-hero-stat { margin-top: 28px; }
-        .graduates-overview { grid-template-columns: 1fr 1fr; }
-        .directory-intro { grid-column: 1 / -1; }
-        .graduates-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .graduates-hero-bottom {
+            display: block;
+        }
+
+        .graduates-hero-stat {
+            margin-top: 28px;
+        }
+
+        .graduates-overview {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .directory-intro {
+            grid-column: 1 / -1;
+        }
+
+        .graduates-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
 
         .graduates-filter-form {
             grid-template-columns: repeat(2, minmax(0, 1fr));
         }
 
-        .graduates-filter-button { width: 100%; }
+        .graduates-filter-button {
+            width: 100%;
+        }
     }
 
     @media (max-width:650px) {
-        .graduates-page>main.container { padding: 0 20px 65px; }
-        .graduates-hero { padding: 60px 24px 62px; }
-        .graduates-hero h1 { letter-spacing: -3px; }
-        .graduates-overview { grid-template-columns: 1fr 1fr; }
-        .school-directory-heading { align-items: flex-start; flex-direction: column; }
-        .graduates-grid { grid-template-columns: 1fr 1fr; gap: 13px; }
-        .graduate-portrait { height: 245px; }
+        .graduates-page>main.container {
+            padding: 0 20px 65px;
+        }
+
+        .graduates-hero {
+            padding: 60px 24px 62px;
+        }
+
+        .graduates-hero h1 {
+            letter-spacing: -3px;
+        }
+
+        .graduates-overview {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .school-directory-heading {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .graduates-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 13px;
+        }
+
+        .graduate-portrait {
+            height: 245px;
+        }
     }
 
     @media (max-width:480px) {
-        .graduates-page>main.container { padding: 0 16px 55px; }
+        .graduates-page>main.container {
+            padding: 0 16px 55px;
+        }
+
         .graduates-filter-form,
         .graduates-overview,
-        .graduates-grid { grid-template-columns: 1fr; }
-        .directory-intro { grid-column: auto; }
-        .graduates-hero-stat { gap: 22px; }
-        .hero-stat strong { font-size: 29px; }
-        .graduate-portrait { height: 300px; }
-        .school-block-heading { align-items: flex-start; flex-wrap: wrap; }
+        .graduates-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .directory-intro {
+            grid-column: auto;
+        }
+
+        .graduates-hero-stat {
+            gap: 22px;
+        }
+
+        .hero-stat strong {
+            font-size: 29px;
+        }
+
+        .graduate-portrait {
+            height: 300px;
+        }
+
+        .school-block-heading {
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -655,7 +773,9 @@
         .graduate-link:hover .graduate-card,
         .graduate-link:focus-visible .graduate-card,
         .graduate-link:hover .graduate-portrait img,
-        .graduate-link:focus-visible .graduate-portrait img { transform: none; }
+        .graduate-link:focus-visible .graduate-portrait img {
+            transform: none;
+        }
     }
 </style>
 @endsection
@@ -663,18 +783,18 @@
 @section('content')
 @php
 $visibleGrouped = $graduates
-    ->groupBy(fn($graduate) => $graduate->school?->name ?? 'Unassigned')
-    ->sortKeys();
+->groupBy(fn($graduate) => $graduate->school?->name ?? 'Unassigned')
+->sortKeys();
 
 $namedGrouped = $namedOnly
-    ->groupBy(fn($graduate) => $graduate->school?->name ?? 'Unassigned')
-    ->sortKeys();
+->groupBy(fn($graduate) => $graduate->school?->name ?? 'Unassigned')
+->sortKeys();
 
 $schoolNames = $visibleGrouped->keys()
-    ->merge($namedGrouped->keys())
-    ->unique()
-    ->sort()
-    ->values();
+->merge($namedGrouped->keys())
+->unique()
+->sort()
+->values();
 
 $directoryTotal = $graduates->count() + $namedOnly->count();
 $schoolCount = $schoolNames->count();
@@ -712,9 +832,9 @@ $namedGraduates = $namedOnly->where('degree_level', 'graduate')->count();
                         <select name="year" aria-label="Academic year">
                             <option value="">All academic years</option>
                             @foreach($years as $academicYear)
-                                <option value="{{ $academicYear->id }}" @selected((string) $year == (string) $academicYear->id)>
-                                    {{ $academicYear->title }}{{ $academicYear->status === 'active' ? ' · Current' : '' }}
-                                </option>
+                            <option value="{{ $academicYear->id }}" @selected((string) $year==(string) $academicYear->id)>
+                                {{ $academicYear->title }}{{ $academicYear->status === 'active' ? ' · Current' : '' }}
+                            </option>
                             @endforeach
                         </select>
                     </div>
@@ -722,8 +842,8 @@ $namedGraduates = $namedOnly->where('degree_level', 'graduate')->count();
                     <div class="graduates-filter-field">
                         <select name="degree" aria-label="Degree level">
                             <option value="">All degrees</option>
-                            <option value="undergraduate" @selected($degree === 'undergraduate')>Undergraduate</option>
-                            <option value="graduate" @selected($degree === 'graduate')>Graduate</option>
+                            <option value="undergraduate" @selected($degree==='undergraduate' )>Undergraduate</option>
+                            <option value="graduate" @selected($degree==='graduate' )>Graduate</option>
                         </select>
                     </div>
 
@@ -731,7 +851,7 @@ $namedGraduates = $namedOnly->where('degree_level', 'graduate')->count();
                         <select name="school" aria-label="School">
                             <option value="">All schools</option>
                             @foreach($schools as $item)
-                                <option value="{{ $item->id }}" @selected((string) $school === (string) $item->id)>{{ $item->name }}</option>
+                            <option value="{{ $item->id }}" @selected((string) $school===(string) $item->id)>{{ $item->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -740,17 +860,17 @@ $namedGraduates = $namedOnly->where('degree_level', 'graduate')->count();
                         <select name="campus" aria-label="Campus">
                             <option value="">All campuses</option>
                             @foreach($campuses as $item)
-                                <option value="{{ $item->id }}" @selected((string) $campus === (string) $item->id)>{{ $item->name }}</option>
+                            <option value="{{ $item->id }}" @selected((string) $campus===(string) $item->id)>{{ $item->name }}</option>
                             @endforeach
                         </select>
                     </div>
 
                     <div class="graduates-filter-field">
                         <select name="sort" aria-label="Sort graduates">
-                            <option value="name" @selected($sort === 'name')>Name A–Z</option>
-                            <option value="name_desc" @selected($sort === 'name_desc')>Name Z–A</option>
-                            <option value="latest" @selected($sort === 'latest')>Newest first</option>
-                            <option value="oldest" @selected($sort === 'oldest')>Oldest first</option>
+                            <option value="name" @selected($sort==='name' )>Name A–Z</option>
+                            <option value="name_desc" @selected($sort==='name_desc' )>Name Z–A</option>
+                            <option value="latest" @selected($sort==='latest' )>Newest first</option>
+                            <option value="oldest" @selected($sort==='oldest' )>Oldest first</option>
                         </select>
                     </div>
 
@@ -795,97 +915,97 @@ $namedGraduates = $namedOnly->where('degree_level', 'graduate')->count();
             </div>
 
             @foreach($schoolNames as $schoolName)
-                @php
-                    $schoolVisible = $visibleGrouped->get($schoolName, collect());
-                    $schoolNamed = $namedGrouped->get($schoolName, collect());
-                    $schoolTotal = $schoolVisible->count() + $schoolNamed->count();
-                    $degreeGroups = collect(['undergraduate', 'graduate'])->mapWithKeys(function ($level) use ($schoolVisible, $schoolNamed) {
-                        return [$level => [
-                            'visible' => $schoolVisible->where('degree_level', $level)->values(),
-                            'named' => $schoolNamed->where('degree_level', $level)->values(),
-                        ]];
-                    });
-                @endphp
+            @php
+            $schoolVisible = $visibleGrouped->get($schoolName, collect());
+            $schoolNamed = $namedGrouped->get($schoolName, collect());
+            $schoolTotal = $schoolVisible->count() + $schoolNamed->count();
+            $degreeGroups = collect(['undergraduate', 'graduate'])->mapWithKeys(function ($level) use ($schoolVisible, $schoolNamed) {
+            return [$level => [
+            'visible' => $schoolVisible->where('degree_level', $level)->values(),
+            'named' => $schoolNamed->where('degree_level', $level)->values(),
+            ]];
+            });
+            @endphp
 
-                <section class="school-block">
-                    <div class="school-block-heading">
-                        <h3>{{ $schoolName }}</h3>
-                        <span class="school-total">{{ $schoolTotal }} {{ Str::plural('graduate', $schoolTotal) }}</span>
+            <section class="school-block">
+                <div class="school-block-heading">
+                    <h3>{{ $schoolName }}</h3>
+                    <span class="school-total">{{ $schoolTotal }} {{ Str::plural('graduate', $schoolTotal) }}</span>
+                </div>
+
+                @foreach($degreeGroups as $degreeLevel => $group)
+                @if($group['visible']->isNotEmpty() || $group['named']->isNotEmpty())
+                @php $degreeTotal = $group['visible']->count() + $group['named']->count(); @endphp
+                <div class="school-degree-section">
+                    <div class="school-degree-label">
+                        <strong>{{ $degreeLevel === 'graduate' ? 'Graduate' : 'Undergraduate' }}</strong>
+                        <span>{{ $degreeTotal }} {{ Str::plural('entry', $degreeTotal) }}</span>
                     </div>
 
-                    @foreach($degreeGroups as $degreeLevel => $group)
-                        @if($group['visible']->isNotEmpty() || $group['named']->isNotEmpty())
-                            @php $degreeTotal = $group['visible']->count() + $group['named']->count(); @endphp
-                            <div class="school-degree-section">
-                                <div class="school-degree-label">
-                                    <strong>{{ $degreeLevel === 'graduate' ? 'Graduate' : 'Undergraduate' }}</strong>
-                                    <span>{{ $degreeTotal }} {{ Str::plural('entry', $degreeTotal) }}</span>
+                    @if($group['visible']->isNotEmpty())
+                    <div class="graduates-grid">
+                        @foreach($group['visible'] as $graduate)
+                        @php
+                        $portrait = $graduate->portraitMedia ?? $graduate->media->firstWhere('type', 'image');
+                        $graduateYear = $graduate->academicYear?->title ?? $graduate->graduation?->academicYear?->title;
+                        @endphp
+
+                        <a class="graduate-link" href="{{ route('public.graduate.detail', $graduate->id) }}">
+                            <article class="graduate-card">
+                                <div class="graduate-portrait">
+                                    @if($portrait)
+                                    <img src="{{ $portrait->thumbnailUrl() }}" alt="{{ $graduate->name }}" loading="lazy">
+                                    @else
+                                    <span class="graduate-placeholder">{{ mb_strtoupper(mb_substr($graduate->name, 0, 1)) }}</span>
+                                    @endif
+
+                                    <span class="graduate-badge graduate-degree-badge">{{ $degreeLevel === 'graduate' ? 'Graduate' : 'Undergraduate' }}</span>
+                                    @if($graduateYear)
+                                    <span class="graduate-badge graduate-year-badge">{{ $graduateYear }}</span>
+                                    @endif
                                 </div>
 
-                                @if($group['visible']->isNotEmpty())
-                                    <div class="graduates-grid">
-                                        @foreach($group['visible'] as $graduate)
-                                            @php
-                                                $portrait = $graduate->portraitMedia ?? $graduate->media->firstWhere('type', 'image');
-                                                $graduateYear = $graduate->academicYear?->title ?? $graduate->graduation?->academicYear?->title;
-                                            @endphp
-
-                                            <a class="graduate-link" href="{{ route('public.graduate.detail', $graduate->id) }}">
-                                                <article class="graduate-card">
-                                                    <div class="graduate-portrait">
-                                                        @if($portrait)
-                                                            <img src="{{ $portrait->thumbnailUrl() }}" alt="{{ $graduate->name }}" loading="lazy">
-                                                        @else
-                                                            <span class="graduate-placeholder">{{ mb_strtoupper(mb_substr($graduate->name, 0, 1)) }}</span>
-                                                        @endif
-
-                                                        <span class="graduate-badge graduate-degree-badge">{{ $degreeLevel === 'graduate' ? 'Graduate' : 'Undergraduate' }}</span>
-                                                        @if($graduateYear)
-                                                            <span class="graduate-badge graduate-year-badge">{{ $graduateYear }}</span>
-                                                        @endif
-                                                    </div>
-
-                                                    <div class="graduate-card-body">
-                                                        <h4 class="graduate-name">{{ $graduate->name }}</h4>
-                                                        @if($graduate->major)
-                                                            <p class="graduate-major">{{ $graduate->major->name }}</p>
-                                                        @endif
-                                                        <div class="graduate-card-footer">
-                                                            <span class="graduate-view">View profile →</span>
-                                                        </div>
-                                                    </div>
-                                                </article>
-                                            </a>
-                                        @endforeach
+                                <div class="graduate-card-body">
+                                    <h4 class="graduate-name">{{ $graduate->name }}</h4>
+                                    @if($graduate->major)
+                                    <p class="graduate-major">{{ $graduate->major->name }}</p>
+                                    @endif
+                                    <div class="graduate-card-footer">
+                                        <span class="graduate-view">View profile →</span>
                                     </div>
-                                @endif
+                                </div>
+                            </article>
+                        </a>
+                        @endforeach
+                    </div>
+                    @endif
 
-                                @if($group['named']->isNotEmpty())
-                                    <div class="name-only-wrap">
-                                        <p class="name-only-note">Additional graduates listed by name only.</p>
-                                        <div class="graduate-name-only-list" aria-label="Graduates listed by name only">
-                                            @foreach($group['named'] as $graduate)
-                                                <span class="graduate-name-only">{{ $graduate->name }}</span>
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                @endif
-                            </div>
-                        @endif
-                    @endforeach
-                </section>
+                    @if($group['named']->isNotEmpty())
+                    <div class="name-only-wrap">
+                        <p class="name-only-note">Additional graduates listed by name only.</p>
+                        <div class="graduate-name-only-list" aria-label="Graduates listed by name only">
+                            @foreach($group['named'] as $graduate)
+                            <span class="graduate-name-only">{{ $graduate->name }}</span>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
+                </div>
+                @endif
+                @endforeach
+            </section>
             @endforeach
         </section>
         @else
-            <section class="graduates-empty">
-                <h3>No graduates found</h3>
-                <p>Try changing your search or filter selections.</p>
-                <a class="graduates-reset" href="{{ route('public.graduates') }}">Reset filters</a>
-            </section>
+        <section class="graduates-empty">
+            <h3>No graduates found</h3>
+            <p>Try changing your search or filter selections.</p>
+            <a class="graduates-reset" href="{{ route('public.graduates') }}">Reset filters</a>
+        </section>
         @endif
 
         @if(method_exists($graduates, 'links'))
-            <div class="graduates-pagination">{{ $graduates->links() }}</div>
+        <div class="graduates-pagination">{{ $graduates->links() }}</div>
         @endif
     </main>
 </div>
