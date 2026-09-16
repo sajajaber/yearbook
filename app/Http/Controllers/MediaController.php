@@ -177,6 +177,63 @@ class MediaController extends Controller
         return [base64_encode($image), $mimeType];
     }
 
+    /**
+     * Analyze a newly selected image before it has been saved to the media library.
+     * This is intentionally stateless: no Media record is created and nothing is saved.
+     */
+    public function aiSuggestions(Request $request, GeminiVisionService $vision)
+    {
+        $validated = $request->validate([
+            'file' => ['required', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:10240'],
+        ]);
+
+        $file = $validated['file'];
+
+        try {
+            $contents = file_get_contents($file->getRealPath());
+            $mimeType = $file->getMimeType() ?: 'image/jpeg';
+
+            $result = $vision->analyzeImage(
+                base64_encode($contents),
+                $mimeType,
+                'Analyze this image for a university digital yearbook. Return ONLY valid JSON in exactly this shape: {"caption":"...","tags":["..."]}. The caption must be concise, factual, and under 255 characters. Tags must be 5 to 10 short searchable keywords. Describe only visible, reasonably certain details. Do not identify people by name and do not invent names, dates, locations, departments, achievements, or other facts that cannot be determined from the image. No markdown and no explanation outside the JSON.'
+            );
+
+            $json = trim($result);
+            $json = preg_replace('/^```(?:json)?\s*|\s*```$/i', '', $json);
+            $decoded = json_decode($json, true);
+
+            if (! is_array($decoded)) {
+                throw new \RuntimeException('AI returned suggestions in an invalid format.');
+            }
+
+            $caption = trim((string) ($decoded['caption'] ?? ''));
+            $tags = collect($decoded['tags'] ?? [])
+                ->filter(fn($tag) => is_string($tag))
+                ->map(fn($tag) => preg_replace('/\s+/', ' ', trim($tag)))
+                ->filter()
+                ->unique(fn($tag) => mb_strtolower($tag))
+                ->take(30)
+                ->values()
+                ->all();
+
+            if (mb_strlen($caption) > 255) {
+                $caption = mb_substr($caption, 0, 255);
+            }
+
+            return response()->json([
+                'caption' => $caption,
+                'tags' => $tags,
+            ]);
+        } catch (\Throwable $e) {
+            report($e);
+
+            return response()->json([
+                'message' => $e->getMessage() ?: 'AI suggestions could not be generated. You can still enter the caption and tags manually.',
+            ], 500);
+        }
+    }
+
     public function generateCaption(string $id, GeminiVisionService $vision)
     {
         $mediaItem = Media::findOrFail($id);
