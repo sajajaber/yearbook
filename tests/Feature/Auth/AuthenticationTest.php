@@ -3,7 +3,7 @@
 use App\Models\User;
 
 test('login screen can be rendered', function () {
-    $response = $this->get('/login');
+    $response = $this->get('/admin/login');
 
     $response->assertStatus(200);
 });
@@ -11,7 +11,7 @@ test('login screen can be rendered', function () {
 test('users can authenticate using the login screen', function () {
     $user = User::factory()->create();
 
-    $response = $this->post('/login', [
+    $response = $this->post('/admin/login', [
         'email' => $user->email,
         'password' => 'password',
     ]);

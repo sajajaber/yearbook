@@ -35,5 +35,5 @@ test('rulesFor image includes the correct mimes and size limit', function () {
     $rules = $resolver->rulesFor('image');
 
     expect($rules)->toContain('mimes:jpg,jpeg,png,webp')
-        ->and($rules)->toContain('max:5120');
+        ->and($rules)->toContain('max:10240');
 });

@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Contracts\AiProviderInterface;
 use App\Exceptions\AiServiceTimeoutException;
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
 
@@ -24,11 +25,15 @@ class GeminiAiService implements AiProviderInterface
     public function generate(string $prompt): string
     {
         if ($this->apiKey === '') {
-            throw new RuntimeException('Gemini AI is not configured. Set GEMINI_API_KEY in the environment.');
+            throw new RuntimeException(
+                'Gemini AI is not configured. Set GEMINI_API_KEY in the environment.'
+            );
         }
 
         if (trim($prompt) === '') {
-            throw new RuntimeException('Gemini AI received an empty prompt.');
+            throw new RuntimeException(
+                'Gemini AI received an empty prompt.'
+            );
         }
 
         $url = "https://generativelanguage.googleapis.com/v1beta/models/{$this->model}:generateContent";
@@ -41,8 +46,8 @@ class GeminiAiService implements AiProviderInterface
                 ->retry(
                     2,
                     1000,
-                    fn ($exception, $request) =>
-                        $exception instanceof ConnectionException
+                    fn($exception, $request) =>
+                    $exception instanceof ConnectionException
                         || ($exception->response?->status() >= 500)
                         || $exception->response?->status() === 429
                 )
@@ -64,6 +69,18 @@ class GeminiAiService implements AiProviderInterface
                 'The AI service did not respond in time. Please try again.',
                 previous: $e
             );
+        } catch (RequestException $e) {
+            $status = $e->response?->status();
+
+            if (in_array($status, [401, 403], true)) {
+                throw new RuntimeException(
+                    'Gemini AI authentication failed. Check the configured API key and its permissions.'
+                );
+            }
+
+            throw new RuntimeException(
+                'Gemini AI could not complete the request. Please try again.'
+            );
         }
 
         if ($response->failed()) {
@@ -73,7 +90,7 @@ class GeminiAiService implements AiProviderInterface
 
             report(new RuntimeException(
                 "Gemini API request failed ({$status}) for model {$this->model}: "
-                . ($apiMessage ?: $response->body())
+                    . ($apiMessage ?: $response->body())
             ));
 
             $message = match ($status) {
@@ -93,8 +110,8 @@ class GeminiAiService implements AiProviderInterface
 
             throw new RuntimeException(
                 'Gemini returned no usable content'
-                . ($finishReason ? " (finish reason: {$finishReason})" : '')
-                . '. Please try again.'
+                    . ($finishReason ? " (finish reason: {$finishReason})" : '')
+                    . '. Please try again.'
             );
         }
 
