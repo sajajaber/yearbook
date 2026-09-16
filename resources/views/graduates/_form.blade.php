@@ -54,7 +54,7 @@
                         <h2>Give the profile a voice.</h2>
                     </div>
                     <div class="form-grid">
-                        <label class="form-field"><span>Approved biography / profile text</span><textarea name="profile_text" rows="6">{{ old('profile_text', $graduate->profile_text ?? '') }}</textarea><small>This may be entered by an authorized editor or produced as an AI-assisted draft for editorial review.</small></label>
+                        <label class="form-field"><span>Approved biography / profile text</span><textarea name="profile_text" rows="6">{{ old('profile_text', $graduate->profile_text ?? '') }}</textarea></label>
                         <label class="form-field"><span>Future plans</span><textarea name="future_plans" rows="4">{{ old('future_plans', $graduate->future_plans ?? '') }}</textarea></label>
                         <label class="form-field"><span>Quote</span><input type="text" name="quote" value="{{ old('quote', $graduate->quote ?? '') }}" maxlength="255"></label>
                     </div>
@@ -87,7 +87,7 @@
                     <div class="form-grid">
                         <label class="form-field"><span>Internships & selected work experience</span><textarea name="internships" rows="5">{{ old('internships', is_array($graduate->internships ?? null) ? implode("\n", $graduate->internships) : ($graduate->internships ?? '')) }}</textarea><small>Use one experience per line.</small></label>
                         <label class="form-field"><span>Certifications & training</span><textarea name="certifications_training" rows="5">{{ old('certifications_training', $graduate->certifications_training ?? '') }}</textarea><small>Include certification/training name, provider and year where appropriate.</small></label>
-                        <label class="form-field"><span>Professional interests</span><textarea name="professional_interests" rows="4">{{ old('professional_interests', $graduate->professional_interests ?? '') }}</textarea><small>Optional areas of professional interest.</small></label>
+                        <label class="form-field"><span>Professional interests</span><textarea name="professional_interests" rows="4">{{ old('professional_interests', $graduate->professional_interests ?? '') }}</textarea></label>
                     </div>
                 </section>
 
@@ -96,7 +96,6 @@
                         <p class="eyebrow">Approved links</p>
                         <h2>Let the profile travel further.</h2>
                     </div>
-                    <p class="upload-note">Only add links approved for public publication. These are shown only on a published profile with granted consent.</p>
                     <div class="form-grid">
                         @for ($i = 0; $i < 3; $i++)
                             <label class="form-field"><span>{{ ['Portfolio / website', 'LinkedIn / professional profile', 'GitHub / other approved link'][$i] }}</span><input type="url" name="approved_links[]" value="{{ old('approved_links.' . $i, $approvedLinks[$i] ?? '') }}" placeholder="https://"></label>
