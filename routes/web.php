@@ -66,6 +66,7 @@ Route::middleware(['auth', 'verified', 'role:admin,editor'])->group(function () 
     Route::resource('event-categories', EventCategoryController::class);
     Route::resource('graduations', GraduationController::class);
     Route::resource('media', MediaController::class)->except(['show']);
+    Route::post('media/ai-suggestions', [MediaController::class, 'aiSuggestions'])->name('media.ai-suggestions');
     Route::resource('events', EventController::class)->except(['index', 'show']);
     Route::resource('graduates', GraduateController::class)->except(['index', 'show']);
     Route::get('graduates/import', [GraduateImportController::class, 'create'])->name('graduates.import');
@@ -99,8 +100,6 @@ Route::middleware(['auth', 'verified', 'role:admin,editor'])->group(function () 
 Route::middleware(['auth', 'verified', 'role:admin,reviewer'])->group(function () {
     Route::get('ai-generations', [AiGenerationController::class, 'index'])->name('ai-generations.index');
     Route::post('ai-generations/{aiGeneration}/review', [AiGenerationController::class, 'review'])->name('ai-generations.review');
-    Route::resource('academic-years', AcademicYearController::class); Route::resource('majors', MajorController::class); Route::resource('campuses', CampusController::class); Route::resource('schools', SchoolController::class); Route::resource('event-categories', EventCategoryController::class); Route::resource('graduations', GraduationController::class); Route::resource('media', MediaController::class)->except(['show']); Route::resource('events', EventController::class)->except(['index', 'show']); Route::resource('graduates', GraduateController::class)->except(['index', 'show']);
-    Route::get('graduates/import', [GraduateImportController::class, 'create'])->name('graduates.import'); Route::get('graduates/import/template', [GraduateImportController::class, 'template'])->name('graduates.import.template'); Route::post('graduates/import/preview', [GraduateImportController::class, 'preview'])->name('graduates.import.preview'); Route::post('graduates/import', [GraduateImportController::class, 'store'])->name('graduates.import.store');
     Route::post('media/{media}/generate-caption', [MediaController::class, 'generateCaption'])->name('media.generate-caption');
     Route::post('media/{media}/generate-tags', [MediaController::class, 'generateTags'])->name('media.generate-tags');
 });
