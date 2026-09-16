@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Contracts\Validation\ValidationRule;
+use App\Models\Event;
 use Illuminate\Foundation\Http\FormRequest;
 use App\Support\RichText;
 
@@ -12,6 +12,11 @@ class UpdateEventRequest extends FormRequest
     {
         if ($this->user()?->role?->role_name === 'editor') {
             $event = $this->route('event');
+
+            if (! $event instanceof Event) {
+                $event = Event::find($event);
+            }
+
             $this->merge(['status' => $event?->status]);
         }
 
