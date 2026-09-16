@@ -36,6 +36,7 @@ class MediaController extends Controller
             ->when($sortBy === 'oldest', fn($query) => $query->oldest())
             ->when($sortBy === 'name', fn($query) => $query->orderBy('file_name'))
             ->when($sortBy === 'latest', fn($query) => $query->latest())
+            ->when($sortBy === 'name-desc', fn($query) => $query->orderByDesc('file_name'))
             ->paginate(12)
             ->withQueryString();
 

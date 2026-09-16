@@ -346,12 +346,16 @@
           <a href="{{ route('media.index', array_merge(request()->query(), ['filter' => 'graduate-portraits', 'page' => 1])) }}" class="filter-button {{ $filter === 'graduate-portraits' ? 'is-selected' : '' }}" aria-current="{{ $filter === 'graduate-portraits' ? 'page' : 'false' }}">Graduate profile photos</a>
         </div>
         <form method="GET" action="{{ route('media.index') }}" class="media-sort-form">
-          <input type="hidden" name="filter" value="{{ $filter }}"><input type="hidden" name="search" value="{{ $search }}">
-          <select name="sort" onchange="this.form.submit()" aria-label="Sort media">
-            <option value="latest" @selected($sortBy==='latest' )>Newest</option>
-            <option value="oldest" @selected($sortBy==='oldest' )>Oldest</option>
-            <option value="name" @selected($sortBy==='name' )>Name</option>
-            <option value="name-desc" {{ $sortBy === 'name-desc' ? 'selected' : '' }}>Name Z–A</option>
+          <input type="hidden" name="filter" value="{{ $filter }}">
+          <input type="hidden" name="search" value="{{ $search }}">
+
+          <label for="media-sort" class="sr-only">Sort media</label>
+
+          <select id="media-sort" name="sort" onchange="this.form.submit()" aria-label="Sort media">
+            <option value="latest" @selected($sortBy==='latest' )>Newest uploaded</option>
+            <option value="oldest" @selected($sortBy==='oldest' )>Oldest uploaded</option>
+            <option value="name" @selected($sortBy==='name' )>Name A–Z</option>
+            <option value="name-desc" @selected($sortBy==='name-desc' )>Name Z–A</option>
           </select>
         </form>
       </div>

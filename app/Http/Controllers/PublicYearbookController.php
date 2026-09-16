@@ -217,20 +217,7 @@ class PublicYearbookController extends Controller
         );
     }
 
-    /**
-     * Group public graduates by school while respecting consent.
-     *
-     * Every published graduate is included in the school grouping.
-     *
-     * granted:
-     *     Full public profile/card.
-     *
-     * pending / declined:
-     *     Name only.
-     *
-     * This allows non-consenting graduates to remain visible
-     * under their school without exposing any profile information.
-     */
+
     private function groupBySchoolWithConsent(Collection $graduates): Collection
     {
         return $graduates
@@ -324,13 +311,6 @@ class PublicYearbookController extends Controller
             'media',
         ])->findOrFail($id);
 
-        /*
-         * Graduation pages only show graduates who have
-         * granted public consent.
-         *
-         * Non-consenting graduates can still appear in the
-         * graduate directory as name-only entries.
-         */
         $graduates = $graduation->graduates()
             ->where('publish_status', 'published')
             ->where('consent_status', 'granted')
@@ -464,151 +444,180 @@ class PublicYearbookController extends Controller
             'active'
         )->latest()->first();
 
+        /*
+     * Academic-year behavior:
+     *
+     * /graduates
+     *     -> current active academic year
+     *
+     * /graduates?year=2
+     *     -> academic year 2
+     *
+     * /graduates?year=
+     *     -> all academic years
+     */
         $year = $request->has('year')
             ? $request->input('year')
             : $activeAcademicYear?->id;
 
         /*
-         * These filters are deliberately shared by BOTH:
-         *
-         * - consented graduates
-         * - pending/declined graduates
-         *
-         * This ensures a name-only graduate still appears
-         * under the correct school when filters are used.
-         */
-        $baseFilters = function ($query) use (
-            $search,
-            $school,
-            $major,
-            $campus,
-            $degree,
-            $year
-        ) {
-            if ($search) {
-                $query->where(
-                    'name',
-                    'like',
-                    "%{$search}%"
-                );
-            }
-
-            if ($school) {
-                $query->where('school_id', $school);
-            }
-
-            if ($major) {
-                $query->where('major_id', $major);
-            }
-
-            if ($campus) {
-                $query->where('campus_id', $campus);
-            }
-
-            if (in_array(
-                $degree,
-                ['undergraduate', 'graduate'],
-                true
-            )) {
-                $query->where(
-                    'degree_level',
-                    $degree
-                );
-            }
-
-            if ($year) {
-                $query->where(function ($q) use ($year) {
-                    $q->where(
-                        'academic_year_id',
-                        $year
-                    )
-                        ->orWhereHas(
-                            'graduation',
-                            fn($graduation) => $graduation->where(
-                                'academic_year_id',
-                                $year
-                            )
-                        );
-                });
-            }
-        };
-
-        /*
-         * ---------------------------------------------------------
-         * FULL PUBLIC PROFILES
-         * ---------------------------------------------------------
-         *
-         * Only graduates with granted consent are allowed into
-         * the paginated public profile collection.
-         */
+     * ---------------------------------------------------------
+     * BASE QUERY
+     * ---------------------------------------------------------
+     *
+     * Both consented and non-consented graduates come from
+     * exactly the same filtered dataset.
+     */
         $query = Graduate::where(
             'publish_status',
             'published'
-        )
-            ->where(
-                'consent_status',
-                'granted'
-            )
-            ->with([
-                'media',
-                'portraitMedia',
-                'school',
-                'major',
-                'campus',
-                'academicYear',
-                'graduation.academicYear',
-            ]);
+        )->with([
+            'media',
+            'portraitMedia',
+            'school',
+            'major',
+            'campus',
+            'academicYear',
+            'graduation.academicYear',
+        ]);
 
-        $baseFilters($query);
+        /*
+     * Search
+     */
+        if ($search) {
+            $query->where(
+                'name',
+                'like',
+                "%{$search}%"
+            );
+        }
 
+        /*
+     * School
+     */
+        if ($school) {
+            $query->where(
+                'school_id',
+                $school
+            );
+        }
+
+        /*
+     * Major
+     */
+        if ($major) {
+            $query->where(
+                'major_id',
+                $major
+            );
+        }
+
+        /*
+     * Campus
+     */
+        if ($campus) {
+            $query->where(
+                'campus_id',
+                $campus
+            );
+        }
+
+        /*
+     * Degree level
+     */
+        if (in_array(
+            $degree,
+            ['undergraduate', 'graduate'],
+            true
+        )) {
+            $query->where(
+                'degree_level',
+                $degree
+            );
+        }
+
+        /*
+     * ---------------------------------------------------------
+     * ACADEMIC YEAR
+     * ---------------------------------------------------------
+     *
+     * A graduate may be associated with an academic year in
+     * either of two ways:
+     *
+     * 1. graduates.academic_year_id
+     * 2. graduates.graduation_id ->
+     *    graduations.academic_year_id
+     *
+     * Therefore both relationships must be checked.
+     */
+        if ($year) {
+            $query->where(function ($q) use ($year) {
+                $q->where(
+                    'academic_year_id',
+                    $year
+                )->orWhereHas(
+                    'graduation',
+                    function ($graduationQuery) use ($year) {
+                        $graduationQuery->where(
+                            'academic_year_id',
+                            $year
+                        );
+                    }
+                );
+            });
+        }
+
+        /*
+     * ---------------------------------------------------------
+     * SORTING
+     * ---------------------------------------------------------
+     */
         match ($sort) {
             'name_desc' => $query->orderByDesc('name'),
+
             'latest' => $query->orderByDesc('created_at'),
+
             'oldest' => $query->orderBy('created_at'),
+
             default => $query->orderBy('name'),
         };
 
-        $graduates = $query
-            ->get();
-
-        $namedOnlyQuery = Graduate::where(
-            'publish_status',
-            'published'
-        )
-            ->where(
-                'consent_status',
-                '!=',
-                'granted'
-            )
-            ->select([
-                'id',
-                'name',
-                'school_id',
-                'degree_level',
-                'academic_year_id',
-                'graduation_id',
-                'consent_status',
-            ])
-            ->with([
-                'school:id,name',
-            ]);
-
-        $baseFilters($namedOnlyQuery);
+        /*
+     * ---------------------------------------------------------
+     * GET FILTERED GRADUATES
+     * ---------------------------------------------------------
+     *
+     * This is deliberately retrieved ONCE.
+     *
+     * After this point, the collection is split according to
+     * consent status.
+     */
+        $filteredGraduates = $query->get();
 
         /*
-         * Load the name-only collection without pagination.
-         * These names need to remain visible under their school
-         * even when the full-profile cards are paginated.
-         */
-        $namedOnly = $namedOnlyQuery
-            ->orderBy('name')
-            ->get();
+     * ---------------------------------------------------------
+     * FULL PUBLIC PROFILES
+     * ---------------------------------------------------------
+     */
+        $graduates = $filteredGraduates
+            ->where('consent_status', 'granted')
+            ->values();
 
         /*
-         * Group the name-only graduates by school so the Blade
-         * template can render them inside the corresponding
-         * school section.
-         */
+     * ---------------------------------------------------------
+     * NAME-ONLY ENTRIES
+     * ---------------------------------------------------------
+     *
+     * Pending and declined graduates can remain in the
+     * directory by name without exposing their profile.
+     */
+        $namedOnly = $filteredGraduates
+            ->where('consent_status', '!=', 'granted')
+            ->values();
+
+        /*
+     * Group name-only entries by school.
+     */
         $namedOnlyBySchool = $namedOnly
             ->groupBy(function ($graduate) {
                 return $graduate->school?->name ?? 'Unassigned';
@@ -620,6 +629,11 @@ class PublicYearbookController extends Controller
             })
             ->sortKeys();
 
+        /*
+     * ---------------------------------------------------------
+     * FILTER OPTIONS
+     * ---------------------------------------------------------
+     */
         $schools = School::orderBy('name')->get();
 
         $majors = Major::orderBy('name')->get();
