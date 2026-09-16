@@ -168,6 +168,15 @@ class MediaController extends Controller
         return redirect()->route('media.index')->with('success', 'Media updated.');
     }
 
+    private function imagePayload(Media $mediaItem): array
+    {
+        $path = $mediaItem->thumbnail_path ?: $mediaItem->path;
+        $image = Storage::disk('public')->get($path);
+        $mimeType = Storage::disk('public')->mimeType($path) ?: 'image/jpeg';
+
+        return [base64_encode($image), $mimeType];
+    }
+
     public function generateCaption(string $id, GeminiVisionService $vision)
     {
         $mediaItem = Media::findOrFail($id);
@@ -177,11 +186,10 @@ class MediaController extends Controller
         }
 
         try {
-            $image = Storage::disk('public')->get($mediaItem->path);
-            $mimeType = Storage::disk('public')->mimeType($mediaItem->path) ?: 'image/jpeg';
+            [$imageBase64, $mimeType] = $this->imagePayload($mediaItem);
 
             $caption = $vision->analyzeImage(
-                base64_encode($image),
+                $imageBase64,
                 $mimeType,
                 'Create one concise, factual caption for this yearbook image. Describe only visible, reasonably certain details. Do not identify people by name, invent locations, dates, achievements, or other facts. Return only the caption, with no quotation marks or explanation. Keep it under 255 characters.'
             );
@@ -202,11 +210,10 @@ class MediaController extends Controller
         }
 
         try {
-            $image = Storage::disk('public')->get($mediaItem->path);
-            $mimeType = Storage::disk('public')->mimeType($mediaItem->path) ?: 'image/jpeg';
+            [$imageBase64, $mimeType] = $this->imagePayload($mediaItem);
 
             $result = $vision->analyzeImage(
-                base64_encode($image),
+                $imageBase64,
                 $mimeType,
                 'Suggest 5 to 10 short searchable tags for this yearbook image. Use concrete visual subjects, activities, settings, and themes only. Do not invent names, dates, departments, or facts that cannot be determined from the image. Return ONLY a JSON array of strings, with no markdown or explanation.'
             );
