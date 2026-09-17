@@ -8,13 +8,28 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class PublicGraduateResumeController extends Controller
 {
-    public function show(string $id): StreamedResponse
+    public function show(string $studentReference)
     {
         $graduate = Graduate::with('resumeMedia')
-            ->whereKey($id)
+            ->where('student_reference', $studentReference)
             ->where('publish_status', 'published')
             ->where('consent_status', 'granted')
-            ->firstOrFail();
+            ->first();
+
+        if (! $graduate) {
+            $legacyGraduate = Graduate::whereKey($studentReference)
+                ->where('publish_status', 'published')
+                ->where('consent_status', 'granted')
+                ->first();
+
+            if ($legacyGraduate) {
+                return redirect()->route('public.graduate.resume', [
+                    'student_reference' => $legacyGraduate->student_reference,
+                ]);
+            }
+
+            abort(404);
+        }
 
         abort_unless($graduate->resumeMedia && $graduate->resumeMedia->type === 'document', 404);
 
