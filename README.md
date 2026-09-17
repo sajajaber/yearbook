@@ -379,7 +379,7 @@ The public yearbook is available through routes including:
 | `/yearbook` | Yearbook archive/home |
 | `/yearbook/graduates` | Graduate directory |
 | `/yearbook/graduates/{student_reference}` | Graduate profile |
-| `/yearbook/graduates/{id}/pdf` | Graduate PDF |
+| `/yearbook/graduates/{student_reference}/pdf` | Graduate PDF |
 | `/yearbook/events` | Event directory |
 | `/yearbook/events/{id}` | Event details |
 | `/yearbook/timeline` | Yearbook timeline |
@@ -533,41 +533,58 @@ The test environment uses SQLite for isolated automated testing.
 
 ## Project Structure
 
-Important project directories include:
+The project follows Laravel's standard directory organization. The main folders are:
 
 ```text
-app/
-├── Http/
-│   ├── Controllers/
-│   ├── Middleware/
-│   └── Requests/
-├── Models/
-├── Services/
-└── Providers/
-
-config/
-database/
-├── migrations/
-├── seeders/
-└── factories/
-
-resources/
-├── css/
-├── js/
-└── views/
-
-routes/
-├── web.php
-└── console.php
-
-storage/
-tests/
-├── Feature/
-└── Unit/
-
-docs/
-├── technical-guide.md
-└── user-admin-guide.md
+LIU Digital Yearbook
+│
+├── app/
+│   ├── Console/
+│   ├── Http/
+│   │   ├── Controllers/
+│   │   └── Middleware/
+│   ├── Imports/
+│   ├── Models/
+│   ├── Providers/
+│   └── Services/
+│
+├── bootstrap/
+│
+├── config/
+│
+├── database/
+│   ├── factories/
+│   ├── migrations/
+│   └── seeders/
+│
+├── public/
+│
+├── resources/
+│   ├── css/
+│   ├── js/
+│   └── views/
+│       ├── admin/
+│       ├── auth/
+│       ├── components/
+│       ├── events/
+│       ├── graduates/
+│       ├── layouts/
+│       └── public/
+│
+├── routes/
+│
+├── storage/
+│   ├── app/
+│   │   ├── private/
+│   │   └── public/
+│   ├── framework/
+│   └── logs/
+│
+├── tests/
+│   ├── Feature/
+│   └── Unit/
+│
+└── vendor/
 ```
 
 ---
