@@ -280,7 +280,7 @@ The active academic year is used by the public yearbook for current-year content
 | Alpine.js | Frontend interactions |
 | JavaScript | Client-side functionality |
 | Gemini AI | AI-powered content and media assistance |
-| DOMPDF | Graduate PDF generation |
+| DOMPDF | Graduate and Yearbook PDF generation |
 | Pest / PHPUnit | Automated testing |
 
 The application uses Laravel's native application architecture and a custom Blade-based administration interface.
@@ -407,8 +407,9 @@ Media can be associated with different yearbook entities, including events and g
 ## PDF Generation
 
 Published graduate profiles can be generated as PDF documents.
+Yearbooks can be generated as PDF documents.
 
-The PDF functionality provides a printable/shareable representation of the graduate's public yearbook profile.
+The PDF functionality provides a printable/shareable representation of the graduate's public profile and for the Yearbook.
 
 ---
 
