@@ -885,7 +885,7 @@
                     <p class="resume-eyebrow">Professional Profile</p>
                     <h2>Resume / CV</h2>
                     <p>A closer look at this graduate's academic and professional journey.</p>
-                </div><a href="{{ route('public.graduate.resume',['id'=>$graduate->id]) }}" class="resume-button" target="_blank" rel="noopener">View Resume <span aria-hidden="true">&rarr;</span></a>
+                </div><a href="{{ route('public.graduate.resume', ['student_reference' => $graduate->student_reference]) }}" class="resume-button" target="_blank" rel="noopener">View Resume <span aria-hidden="true">&rarr;</span></a>
             </div>@endif
             @if($graduate->media->count()>1)<div class="section-card scroll-reveal">
                 <h2>Photo Gallery</h2>
