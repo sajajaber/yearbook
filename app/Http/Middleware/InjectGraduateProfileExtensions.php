@@ -21,13 +21,25 @@ class InjectGraduateProfileExtensions
             return $response;
         }
 
+        $studentReference = $request->route('student_reference');
+
         $graduate = Graduate::with([
             'school',
             'major',
             'campus',
             'academicYear',
             'graduation.academicYear',
-        ])->find($request->route('id'));
+        ])->where('student_reference', $studentReference)->first();
+
+        if (! $graduate && $studentReference !== null) {
+            $graduate = Graduate::with([
+                'school',
+                'major',
+                'campus',
+                'academicYear',
+                'graduation.academicYear',
+            ])->find($studentReference);
+        }
 
         if (! $graduate) {
             return $response;
