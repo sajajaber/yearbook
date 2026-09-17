@@ -157,55 +157,6 @@ The LIU Digital Yearbook integrates AI across content generation, media manageme
 | **Media Caption Generation** | Generates descriptive captions for uploaded media to help administrators and editors complete media metadata. |
 | **Media Tag Generation** | Generates relevant tags for uploaded media to improve organization and discoverability within the media library. |
 
-### AI Content Generation
-
-AI can assist with generating content for:
-
-- Graduate biographies
-- Event summaries
-
-Generated content can be reviewed before being used as final published content.
-
-The system maintains AI-generation records and supports review states such as:
-
-- Pending review
-- Approved
-- Rejected
-- Edited
-
----
-
-### AI Caption Generation
-
-The media management interface provides AI-assisted caption generation.
-
-When working with an uploaded media item, users can request an AI-generated caption and then review or edit the result before saving it.
-
----
-
-### AI Tag Generation
-
-The media system also provides AI-assisted tag suggestions.
-
-These suggestions help classify and organize media content so that it can be more easily discovered and managed within the media library.
-
----
-
-### Semantic Search
-
-The public yearbook includes semantic search functionality.
-
-Instead of relying only on exact keyword matching, the search system uses the application's semantic search service to interpret user queries and identify relevant yearbook content.
-
-Semantic search can be used to discover relevant:
-
-- Graduates
-- Events
-- Yearbook content
-- Related information
-
-The search functionality is integrated into the public yearbook rather than being limited to the administration area.
-
 ---
 
 ## Role-Based Access Control
