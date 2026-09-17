@@ -205,6 +205,32 @@ test('media library supports name sorting in both directions', function () {
         ->assertSeeInOrder(['Zulu Media.jpg', 'Alpha Media.jpg']);
 });
 
+test('graduate profiles use the student reference in the public URL', function () {
+    $year = discoveryAcademicYear('Graduate Route ' . uniqid());
+    $graduate = discoveryGraduate($year, 'Route Graduate', 'STU-2026-25-' . uniqid());
+
+    $url = route('public.graduate.detail', [
+        'student_reference' => $graduate->student_reference,
+    ]);
+
+    expect($url)->toContain('/yearbook/graduates/' . $graduate->student_reference)
+        ->not->toContain('/yearbook/graduates/' . $graduate->id);
+
+    $this->get($url)
+        ->assertOk()
+        ->assertSee('Route Graduate');
+});
+
+test('legacy graduate numeric URLs redirect to the student reference URL', function () {
+    $year = discoveryAcademicYear('Graduate Legacy Route ' . uniqid());
+    $graduate = discoveryGraduate($year, 'Legacy Route Graduate', 'STU-LEGACY-' . uniqid());
+
+    $this->get(route('public.graduate.detail', ['student_reference' => $graduate->id]))
+        ->assertRedirect(route('public.graduate.detail', [
+            'student_reference' => $graduate->student_reference,
+        ]));
+});
+
 test('published granted graduates can access their resume while ineligible graduates cannot', function () {
     Storage::fake('public');
     $year = discoveryAcademicYear('Resume Access ' . uniqid());
@@ -222,11 +248,15 @@ test('published granted graduates can access their resume while ineligible gradu
     $graduate->update(['resume_media_id' => $media->id]);
     Storage::disk('public')->put($media->path, '%PDF-test%');
 
-    $this->get(route('public.graduate.resume', $graduate))
+    $this->get(route('public.graduate.resume', [
+        'student_reference' => $graduate->student_reference,
+    ]))
         ->assertOk()
         ->assertHeader('Content-Type', 'application/pdf');
 
     $graduate->update(['consent_status' => 'pending']);
 
-    $this->get(route('public.graduate.resume', $graduate))->assertNotFound();
+    $this->get(route('public.graduate.resume', [
+        'student_reference' => $graduate->student_reference,
+    ]))->assertNotFound();
 });
