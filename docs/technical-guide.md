@@ -2,68 +2,50 @@
 
 ## 1. Introduction
 
-This document provides the technical setup and maintenance instructions for the **LIU Digital Yearbook**.
+This guide documents the setup, configuration, development, testing, and deployment of the **LIU Digital Yearbook** Laravel application.
 
-The project is a Laravel-based digital yearbook platform for managing academic years, graduates, graduation ceremonies, events, media, users, roles, audit records, and AI-assisted content generation.
+The application provides a public digital yearbook and an authenticated administration system for graduates, events, graduations, media, academic years, users, review workflows, audit records, and AI-assisted features.
 
-This guide covers:
-
-- System requirements
-- Local development setup
-- Environment configuration
-- Database setup
-- Storage and media configuration
-- AI configuration
-- Running the application
-- Testing
-- Production/deployment guidance
-- Troubleshooting
-- Project structure
-- Database overview
-- Security considerations
-
-For administrator workflows and screenshots, see [`user-admin-guide.md`](./user-admin-guide.md).
+> **Source of truth:** When this guide conflicts with the repository, the current code in `composer.json`, `package.json`, `.env.example`, `phpunit.xml`, `routes/web.php`, configuration files, migrations, and application code takes precedence.
 
 ---
 
-## 2. Technology Stack
+## 2. Current Technology Stack
 
-| Technology | Purpose |
+| Technology | Current project usage |
 |---|---|
-| Laravel 13 | Backend application framework |
-| PHP 8.3+ | Server-side runtime |
-| MariaDB / MySQL | Production relational database |
-| SQLite | Default/example and automated test database |
-| Blade | Server-rendered views |
-| Filament | Administrative interface components |
-| Vite | Frontend asset bundling |
-| Tailwind CSS | UI styling |
+| Laravel | 13.x (`^13.8`) |
+| PHP | 8.3+ (`^8.3`) |
+| Blade | Server-rendered application UI |
+| Eloquent ORM | Database access and relationships |
+| MySQL / MariaDB | Supported relational database for the application |
+| SQLite | Default `.env.example` database and automated test database |
+| Vite | Frontend asset development/build |
+| Tailwind CSS | Styling |
 | Alpine.js | Client-side interactions |
-| Lenis | Smooth scrolling/interactions |
-| DomPDF | Graduate PDF generation |
+| Lenis | Frontend scrolling interactions |
+| Gemini API | AI-assisted generation and media-related assistance |
+| barryvdh/laravel-dompdf | PDF generation |
 | Pest / PHPUnit | Automated testing |
-| Gemini API | AI-assisted text and vision features |
-| Git / GitHub | Version control |
+| Laravel Breeze | Authentication scaffolding/dependency |
+| Laravel Pint | PHP code formatting |
 
-The repository currently requires PHP `^8.3` and Laravel `^13.8`. citeturn2file0
+The project does **not** use Filament. The administration interface is implemented with the application's Laravel controllers and Blade views.
 
 ---
 
 ## 3. System Requirements
 
-Before installing the project, make sure the development machine has:
+Install the following before setting up the project:
 
 - PHP 8.3 or newer
 - Composer
 - Node.js and npm
-- MariaDB or MySQL for the main application database
+- MySQL or MariaDB if using the relational development database
 - Git
-- A web browser
-- PHP extensions required by Laravel and the installed Composer packages
+- A modern web browser
 
-For Windows development, XAMPP can be used to provide Apache, PHP, and MariaDB/MySQL. The Laravel development server can also be used instead of Apache.
-
-Verify the main tools:
+Check the installed tools:
 
 ```bash
 php -v
@@ -73,113 +55,79 @@ npm -v
 git --version
 ```
 
-Verify the database server separately using the database client's version command if required.
+On Windows, if multiple PHP installations are installed, verify the active executable with:
+
+```bash
+where php
+```
+
+XAMPP can be used for local PHP and MySQL/MariaDB services, but the application itself can also be run with Laravel's development server.
 
 ---
 
-## 4. Clone the Repository
+## 4. Clone and Install
 
-Clone the project from GitHub:
+Clone the repository:
 
 ```bash
 git clone https://github.com/sajajaber/yearbook.git
 cd yearbook
 ```
 
-If the repository has already been cloned:
-
-```bash
-git pull
-```
-
-Check the current branch and working tree:
-
-```bash
-git status
-git branch
-```
-
----
-
-## 5. Install PHP Dependencies
-
-Install Composer dependencies:
+Install PHP dependencies:
 
 ```bash
 composer install
 ```
 
-The project's Composer configuration includes Laravel, DomPDF, Tinker, and the development/test packages used by the application. citeturn2file0
-
-If Composer reports a missing PHP extension, enable the required extension in the active `php.ini` and run the command again.
-
-Confirm which PHP executable is being used on Windows:
-
-```bash
-where php
-```
-
-This is especially important when multiple PHP installations, such as XAMPP PHP and a standalone PHP installation, exist on the same machine.
-
----
-
-## 6. Install Frontend Dependencies
-
-Install Node.js dependencies:
+Install frontend dependencies:
 
 ```bash
 npm install
 ```
 
-The project uses Vite for asset building and includes Tailwind CSS, Alpine.js, Autoprefixer, Laravel's Vite plugin, and Lenis. citeturn3file0
-
-For a production asset build:
-
-```bash
-npm run build
-```
-
-For frontend development with hot reloading:
-
-```bash
-npm run dev
-```
-
----
-
-## 7. Environment Configuration
-
-Create the local environment file:
+Create the environment file:
 
 ```bash
 cp .env.example .env
 ```
 
-On Windows PowerShell, if `cp` is unavailable:
+On Windows PowerShell:
 
 ```powershell
 Copy-Item .env.example .env
 ```
 
-Generate the Laravel application key:
+Generate the application key:
 
 ```bash
 php artisan key:generate
 ```
 
-The repository's example environment currently defaults to SQLite and defines the standard Laravel application, database, session, queue, cache, mail, storage, and Vite settings. citeturn4file0
+---
 
-### Recommended local application settings
+## 5. Environment Configuration
 
-For a MariaDB/MySQL development database, update the database section of `.env` to match the local database server:
+The repository's `.env.example` currently uses SQLite by default:
 
 ```dotenv
-APP_NAME="LIU Digital Yearbook"
-APP_ENV=local
-APP_KEY=
-APP_DEBUG=true
-APP_URL=http://127.0.0.1:8000
+DB_CONNECTION=sqlite
+```
 
+It also configures database-backed sessions, queues, and cache by default:
+
+```dotenv
+SESSION_DRIVER=database
+QUEUE_CONNECTION=database
+CACHE_STORE=database
+FILESYSTEM_DISK=local
+```
+
+### MySQL / MariaDB configuration
+
+For the project's common MySQL/MariaDB development setup, change the database section in `.env` to match the local database server:
+
+```dotenv
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
@@ -188,127 +136,82 @@ DB_USERNAME=yearbook_user
 DB_PASSWORD=your_database_password
 ```
 
-Do not commit the real `.env` file or API keys to Git.
+The application also has a dedicated `mariadb` connection available through Laravel's database configuration.
+
+Never commit `.env`, database passwords, or API keys.
 
 ---
 
-## 8. Database Setup
+## 6. Database Setup
 
-### 8.1 Create the Database
-
-Create the application database in MariaDB/MySQL, for example:
+Create the database if using MySQL/MariaDB:
 
 ```sql
 CREATE DATABASE yearbook_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
-Create or use an application database account with the required permissions, then configure the credentials in `.env`.
-
-### 8.2 Run Migrations
-
-Run:
+Then configure the credentials in `.env` and run:
 
 ```bash
 php artisan migrate
 ```
 
-For a fresh development database where all existing data can be discarded:
-
-```bash
-php artisan migrate:fresh
-```
-
-If the project seeders are required:
+The project includes seeders for the application's initial/reference data. To run all configured seeders:
 
 ```bash
 php artisan db:seed
 ```
 
-Or, when appropriate during development:
+For a disposable development database:
 
 ```bash
 php artisan migrate:fresh --seed
 ```
 
-**Warning:** `migrate:fresh` deletes existing database tables and their data. Do not use it against a production database.
+> **Warning:** `migrate:fresh` deletes the existing database tables and data. Never run it against a database containing data that must be preserved.
 
-### 8.3 Database Testing
+The main seeded data includes roles, schools, majors, users, campuses, academic years, event categories, graduations, graduates, events, and media.
 
-Automated tests are configured to use an in-memory SQLite database rather than the development MariaDB database. The PHPUnit configuration sets `DB_CONNECTION=sqlite` and `DB_DATABASE=:memory:` for tests. citeturn5file0
+### Automated test database
+
+Tests use an in-memory SQLite database. `phpunit.xml` sets:
+
+```text
+DB_CONNECTION=sqlite
+DB_DATABASE=:memory:
+```
+
+The test environment also uses synchronous queues, array cache/session storage, and an array mail driver.
 
 ---
 
-## 9. Database Structure
+## 7. Storage and Media
 
-The principal application entities include:
+Laravel's filesystem configuration defines:
 
-- `users`
-- `roles`
-- `academic_years`
-- `graduates`
-- `majors`
-- `schools`
-- `campuses`
-- `graduations`
-- `events`
-- `event_categories`
-- `media`
-- `hero_images`
-- `ai_generations`
-- `audit_logs`
+- `local` disk: `storage/app/private`
+- `public` disk: `storage/app/public`
+- `public/storage` symbolic link → `storage/app/public`
 
-Important relationships include:
-
-- Users belong to roles.
-- Graduates are associated with majors, campuses, schools, and graduation records.
-- Academic years organize yearbook content.
-- Events belong to event categories and can be associated with academic years, campuses, schools, and media.
-- Graduate profiles can be associated with media and graduation information.
-- AI generation records track generated content and its review state.
-- Audit logs record relevant administrative activity.
-
-The database ERD should be maintained alongside this guide when the schema changes.
-
----
-
-## 10. Storage and Media
-
-The application uses Laravel's filesystem abstraction.
-
-The configured public disk stores files under:
-
-```text
-storage/app/public
-```
-
-and exposes them through:
-
-```text
-public/storage
-```
-
-The filesystem configuration defines the public disk and the `public/storage` symbolic link. citeturn8file0
-
-Create the storage link after installation:
+Create the public storage link after installation:
 
 ```bash
 php artisan storage:link
 ```
 
+The application uses the public disk for media that must be displayed through the public yearbook.
+
 ### Media processing
 
-Uploaded media can be processed by the application's image-processing services. Image handling includes thumbnail generation and profile/gallery image optimization where applicable.
+The application contains media/image-processing functionality for uploaded content. Image handling can include thumbnail generation and profile/gallery image processing where supported.
 
-If images are uploaded successfully but are not visible publicly, check:
+If an uploaded image does not appear:
 
-1. The file exists under `storage/app/public`.
-2. The `public/storage` symbolic link exists.
-3. `FILESYSTEM_DISK` is configured correctly.
-4. `APP_URL` is correct.
-5. The web server has permission to read the storage directory.
-6. Cached Laravel configuration has been cleared.
-
-Clear configuration/cache when necessary:
+1. Confirm the file exists under `storage/app/public`.
+2. Confirm `public/storage` exists as the Laravel storage link.
+3. Confirm `FILESYSTEM_DISK` is correct.
+4. Confirm `APP_URL` is correct.
+5. Run:
 
 ```bash
 php artisan optimize:clear
@@ -316,11 +219,37 @@ php artisan optimize:clear
 
 ---
 
-## 11. AI Configuration
+## 8. Frontend Development
 
-The project includes Gemini-based AI services for text generation and vision-assisted functionality.
+The project uses Vite.
 
-The application reads Gemini configuration from environment variables through `config/services.php`:
+Start the Vite development server:
+
+```bash
+npm run dev
+```
+
+Build production frontend assets:
+
+```bash
+npm run build
+```
+
+The project also defines a Composer development command that starts the Laravel server, database queue listener, and Vite process together:
+
+```bash
+composer run dev
+```
+
+The Composer `dev` script uses `concurrently` to run these processes together.
+
+---
+
+## 9. AI Configuration
+
+The application integrates Gemini through the application's AI services.
+
+Configure the following environment variables in `.env`:
 
 ```dotenv
 GEMINI_API_KEY=your_api_key
@@ -328,224 +257,299 @@ GEMINI_MODEL=gemini-3.8-flash
 GEMINI_TIMEOUT=60
 ```
 
-The current service configuration uses the Gemini model and timeout from these environment variables. fileciteturn7file2
+These values are read from `config/services.php`.
 
-The text-generation and vision services both obtain their configuration from `services.gemini`. fileciteturn7file0 fileciteturn7file1
+AI functionality in the application includes:
 
-### AI content workflow
+- Semantic search
+- Graduate biography generation
+- Event summary generation
+- Media caption generation
+- Media tag generation/suggestions
 
-AI-generated content is not intended to bypass the application's review workflow. Generated biographies and event summaries are stored as AI-generation records and can be reviewed, edited, approved, or rejected.
-
-### AI troubleshooting
+AI-generated content is treated as assisted content rather than an automatic replacement for editorial review. AI generation records are stored in the application for review/status tracking.
 
 If AI requests fail:
 
-1. Confirm `GEMINI_API_KEY` exists in `.env`.
-2. Confirm the configured model is available to the API account.
-3. Confirm the machine has outbound HTTPS access.
-4. Check the configured timeout.
-5. Run:
+1. Check `GEMINI_API_KEY`.
+2. Check `GEMINI_MODEL`.
+3. Check `GEMINI_TIMEOUT`.
+4. Confirm outbound HTTPS access.
+5. Clear cached configuration:
 
 ```bash
 php artisan optimize:clear
 ```
 
-6. Review Laravel logs in `storage/logs`.
+6. Check Laravel logs in `storage/logs`.
 
-Never commit the Gemini API key to GitHub.
+Never commit the Gemini API key.
 
 ---
 
-## 12. Running the Application
+## 10. Running the Application
 
-### Option A — Laravel development server
+### Laravel server
 
-Start Laravel:
+Run:
 
 ```bash
 php artisan serve
 ```
 
-The application will normally be available at:
+The local application is normally available at:
 
 ```text
 http://127.0.0.1:8000
 ```
 
-In a second terminal, run the frontend development server if needed:
+### Full development environment
 
-```bash
-npm run dev
-```
-
-### Option B — Composer development command
-
-The project defines a Composer `dev` script that starts the Laravel server, queue listener, and Vite development process together. fileciteturn2file0
-
-Run:
+Alternatively:
 
 ```bash
 composer run dev
 ```
 
-This is the preferred development shortcut when the local environment supports the required concurrent processes.
+This starts the Laravel development server, queue listener, and Vite development server together.
 
 ---
 
-## 13. Queue Processing
+## 11. Queue Processing
 
-The project uses a database-backed queue configuration by default in the example environment.
+The default example environment uses the database queue connection.
 
-For local development, a queue worker can be started with:
+The development Composer script starts:
 
 ```bash
 php artisan queue:listen --tries=1 --timeout=0
 ```
 
-For a conventional queue worker:
+A conventional worker can also be started with:
 
 ```bash
 php artisan queue:work
 ```
 
-When queued functionality is introduced into a deployment, the queue worker should be managed by an appropriate process supervisor rather than relying on an interactive terminal.
+If the application is deployed with queued jobs, the worker should be kept running by the deployment/process-management system.
 
 ---
 
-## 14. Authentication and Authorization
+## 12. Authentication and Role-Based Access
 
-Administrative functionality is protected through Laravel authentication and role-based authorization.
+Authenticated administration is protected through Laravel authentication and the project's `role` middleware.
 
-The main roles are:
+The application uses three main roles:
 
-| Role | Responsibilities |
+| Role | Main responsibility |
 |---|---|
-| **Admin** | Full management and configuration access |
-| **Editor** | Create/edit content and submit drafts for review |
-| **Reviewer** | Review, approve/reject, and publish content according to permissions |
+| Admin | Full administration, configuration, content management, review, approval, and publication |
+| Editor | Create/edit content and submit content for review |
+| Reviewer | Review content, add review feedback, approve/reject, and publish where permitted |
 
-The role system uses the application's role records and permission logic rather than relying only on UI visibility.
+Authorization is enforced server-side through route middleware and controller logic. UI visibility alone is not considered an authorization mechanism.
 
-When modifying authorization:
-
-- Protect routes with authentication middleware.
-- Check the user's role/permission server-side.
-- Do not rely on hiding a button as an authorization mechanism.
-- Test unauthorized access through feature tests.
+The current route groups use combinations of `auth`, `verified`, and role middleware such as `role:admin`, `role:admin,editor`, and `role:admin,editor,reviewer`.
 
 ---
 
-## 15. Content Publication Workflow
+## 13. Content Publication Workflow
 
-The main content workflow is:
+The application's publishable content uses workflow states such as:
 
 ```text
 Draft
-  │
-  ▼
+  ↓
 Review
-  │
-  ├──────────────► Rejected
-  │
-  ▼
+  ├──→ Rejected / Changes Requested
+  ↓
 Approved
-  │
-  ▼
+  ↓
 Published
+  ↓
+Archived
 ```
 
-Typical statuses include draft, reviewed, approved, published, archived, and rejected, depending on the content type.
+The exact available states depend on the content type. Graduates and events support draft/review/approval/publication states, including rejected content.
 
-The workflow allows content to be prepared by an editor and then reviewed before public publication.
+Editors prepare and submit content. Reviewers and administrators handle review actions. Public pages only expose content that satisfies the application's publication and consent rules.
 
 ---
 
-## 16. Public Routes
+## 14. Public Routes
 
-The public yearbook is grouped under `/yearbook`.
+The current public yearbook routes are defined in `routes/web.php`.
 
-Typical routes include:
-
-| Page | Route |
+| Purpose | Route |
 |---|---|
-| Yearbook Archive | `/yearbook` |
-| Graduates | `/yearbook/graduates` |
-| Graduate Profile | `/yearbook/graduates/{id}` |
+| Home | `/` |
+| Yearbook archive | `/yearbook` |
+| Graduate directory | `/yearbook/graduates` |
+| Graduate profile | `/yearbook/graduates/{student_reference}` |
+| Graduate resume | `/yearbook/graduates/{student_reference}/resume` |
+| Graduate PDF | `/yearbook/graduates/{student_reference}/pdf` |
 | Events | `/yearbook/events` |
-| Event Details | `/yearbook/events/{id}` |
+| Event details | `/yearbook/events/{id}` |
+| Graduations | `/yearbook/graduations` |
+| Graduation details | `/yearbook/graduations/{id}` |
 | Timeline | `/yearbook/timeline` |
-| Graduate PDF | `/yearbook/graduates/{id}/pdf` |
+| Academic-year page | `/yearbook/{academicYear}` |
+| Academic-year PDF | `/yearbook/{academicYear}/pdf` |
+| Search page | `/search` |
 
-Always treat `routes/web.php` as the authoritative source when documenting or changing routes.
+### Graduate URL identifier
+
+The public graduate profile uses the graduate's **student reference**, not the database primary-key ID.
+
+Example:
+
+```text
+/yearbook/graduates/STU-2026-015
+```
+
+The same `student_reference` parameter is used for the public graduate resume and PDF routes.
+
+---
+
+## 15. Administrative Routes
+
+Authenticated administration is implemented through `routes/web.php` and includes management for:
+
+- Academic years
+- Majors
+- Campuses
+- Schools
+- Event categories
+- Graduations
+- Media
+- Events
+- Graduates
+- Graduate imports
+- Users
+- Audit logs
+- Reviews
+- Review feedback
+- Notifications
+- AI generations
+- Profile settings
+- Hero images/system settings
+
+Role middleware determines which administrative functions each role can access.
+
+---
+
+## 16. Database Overview
+
+The main database entities represented by the application include:
+
+- Users
+- Roles
+- Academic years
+- Graduates
+- Majors
+- Schools
+- Campuses
+- Graduations
+- Events
+- Event categories
+- Media
+- Hero images
+- AI generations
+- Audit logs
+- Review feedback
+- Notifications
+
+Important relationships include:
+
+- Users belong to roles.
+- Graduates reference academic/organizational entities such as majors, campuses, schools, and graduations.
+- Graduates have a unique student reference used by the public profile URL.
+- Events can be associated with academic years, categories, campuses, schools, and media.
+- Media can be associated with graduates and events.
+- AI generation records track generated content and review status.
+- Review feedback supports the editorial review process.
+- Notifications support administrative workflow communication.
+
+For the authoritative schema, use the migrations under `database/migrations` and the Eloquent relationships in `app/Models`.
 
 ---
 
 ## 17. PDF Generation
 
-Graduate profiles can be exported as PDF documents.
+The project uses `barryvdh/laravel-dompdf` for PDF generation.
 
-The project includes `barryvdh/laravel-dompdf` as a Composer dependency. fileciteturn2file0
+Public PDF functionality includes:
 
-When PDF output is modified, verify:
+- Graduate profile PDFs
+- Academic-year/yearbook PDFs
 
-- Graduate information renders correctly.
-- Profile images resolve correctly.
-- Long text wraps correctly.
-- The generated document remains readable when printed.
-- Public/private or consent-controlled information is not unintentionally included.
+When changing PDF output, verify that:
+
+- Graduate/profile information is correct.
+- Images resolve correctly.
+- Long content wraps correctly.
+- Consent/publication rules are respected.
+- The resulting document remains readable when printed or shared.
 
 ---
 
 ## 18. Testing
 
-Run the complete automated test suite:
+Run the complete test suite:
 
 ```bash
 php artisan test
 ```
 
-The project also exposes the Composer test script:
+The Composer test script is:
 
 ```bash
 composer run test
 ```
 
-The test configuration separates Unit and Feature tests and uses an in-memory SQLite database for test execution. fileciteturn5file0
+PHPUnit/Pest tests are organized into:
 
-### Recommended pre-commit checks
+```text
+tests/
+├── Feature/
+└── Unit/
+```
+
+The configured test environment uses in-memory SQLite and synchronous queues.
+
+### Recommended checks
 
 Before committing a significant change:
 
 ```bash
 php artisan test
-php artisan optimize:clear
 npm run build
 ```
 
-For code style where applicable:
+For PHP formatting:
 
 ```bash
 ./vendor/bin/pint
 ```
 
-On Windows, the executable can be invoked through the project's vendor directory according to the local shell environment.
-
 ---
 
-## 19. Production Build
+## 19. Production Deployment
 
-Before deployment:
+For a production deployment, install PHP dependencies without development packages:
 
 ```bash
 composer install --no-dev --optimize-autoloader
-npm ci
-npm run build
-php artisan migrate --force
-php artisan storage:link
-php artisan optimize
 ```
 
-Set production environment values in `.env`:
+Install/build frontend assets:
+
+```bash
+npm ci
+npm run build
+```
+
+Configure production environment values, including:
 
 ```dotenv
 APP_ENV=production
@@ -553,105 +557,117 @@ APP_DEBUG=false
 APP_URL=https://your-domain.example
 ```
 
-Use a production MariaDB/MySQL database and production-appropriate storage and mail configuration.
+Run database migrations:
 
-Do not expose:
-
-- `.env`
-- Database credentials
-- API keys
-- Application secrets
-- Private uploaded files
-
-### Web server
-
-The web server document root should point to Laravel's `public/` directory, not the project root.
-
-For example:
-
-```text
-/path/to/yearbook/public
+```bash
+php artisan migrate --force
 ```
 
-This prevents application source files and configuration files from being directly served by the web server.
+Create the public storage link:
+
+```bash
+php artisan storage:link
+```
+
+Optimize Laravel configuration:
+
+```bash
+php artisan optimize
+```
+
+The web server should point its document root to the project's `public/` directory rather than the project root.
+
+If the database queue is used in production, a queue worker must be kept running by the server/process manager.
 
 ---
 
 ## 20. Deployment Checklist
 
-Before declaring a deployment complete, verify:
-
 ### Application
 
 - [ ] Production `.env` configured
 - [ ] `APP_DEBUG=false`
-- [ ] Correct `APP_URL`
-- [ ] Application key configured
-- [ ] Composer dependencies installed
+- [ ] `APP_URL` configured
+- [ ] `APP_KEY` configured
+- [ ] Composer production dependencies installed
 - [ ] Frontend assets built
 
 ### Database
 
 - [ ] Production database created
-- [ ] Database credentials tested
+- [ ] Credentials tested
 - [ ] Migrations completed
-- [ ] Required seed/configuration data loaded
-- [ ] Database backups configured
+- [ ] Required seed/reference data loaded where applicable
+- [ ] Backups configured
 
 ### Storage
 
-- [ ] Storage directories exist
 - [ ] `php artisan storage:link` completed
-- [ ] Uploaded media is readable
-- [ ] File permissions are correct
+- [ ] Uploaded media is accessible where intended
+- [ ] Storage permissions are correct
 
 ### AI
 
 - [ ] Gemini API key configured securely
 - [ ] Gemini model configured
 - [ ] API connectivity tested
-- [ ] AI failures are logged
 
 ### Security
 
-- [ ] Debug mode disabled
-- [ ] HTTPS enabled
-- [ ] `.env` is not publicly accessible
-- [ ] Database credentials are not committed
-- [ ] API keys are not committed
-- [ ] Administrative routes require authorization
+- [ ] `APP_DEBUG=false`
+- [ ] HTTPS configured
+- [ ] `.env` protected
+- [ ] Database credentials not committed
+- [ ] Gemini API key not committed
+- [ ] Administrative routes protected by authentication/authorization
 
-### Verification
+### Functional verification
 
 - [ ] Public homepage loads
 - [ ] Graduate directory works
-- [ ] Graduate profiles work
-- [ ] Events work
-- [ ] Media gallery works
-- [ ] Admin login works
-- [ ] Content workflow works
-- [ ] PDF generation works
+- [ ] Graduate profile URLs use `student_reference`
+- [ ] Graduate resume/PDF routes work
+- [ ] Events and galleries work
+- [ ] Graduation pages work
+- [ ] Admin authentication works
+- [ ] Review/publication workflow works
+- [ ] Media uploads work
+- [ ] AI features work when configured
 - [ ] Automated tests pass
 
 ---
 
-## 21. Cache and Optimization Commands
+## 21. Useful Maintenance Commands
 
-Useful Laravel commands during development and deployment include:
-
-Clear cached configuration, routes, views, and other framework caches:
+Clear cached configuration, routes, views, and framework caches:
 
 ```bash
 php artisan optimize:clear
 ```
 
-Optimize the application for production:
+Optimize the application:
 
 ```bash
 php artisan optimize
 ```
 
-If a configuration change appears to have no effect, clear the configuration cache before troubleshooting further.
+Create/update the public storage link:
+
+```bash
+php artisan storage:link
+```
+
+Run migrations:
+
+```bash
+php artisan migrate
+```
+
+Run tests:
+
+```bash
+php artisan test
+```
 
 ---
 
@@ -665,49 +681,38 @@ Run:
 composer install
 ```
 
-### `php` uses the wrong installation
+### The wrong PHP installation is being used on Windows
 
-On Windows:
+Run:
 
 ```bash
 where php
+php --ini
 ```
 
-Move the desired PHP installation earlier in the system PATH or explicitly use the correct PHP executable.
+Make sure the intended PHP installation is first in the PATH and that its `php.ini` contains the required extensions.
 
-### OpenSSL errors in Composer
+### Composer/OpenSSL errors
 
-Check the PHP executable being used:
+Check:
 
 ```bash
 php --ini
 php -m | findstr openssl
 ```
 
-Make sure the OpenSSL extension is enabled in the active `php.ini` and that the PHP runtime dependencies match the installed PHP build.
+The OpenSSL extension must be available to the PHP executable used by Composer.
 
-### Database connection fails
+### Database connection errors
 
-Check:
-
-```dotenv
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=yearbook_db
-DB_USERNAME=yearbook_user
-DB_PASSWORD=...
-```
-
-Then clear cached configuration:
+Verify `.env`, confirm the database server is running, then run:
 
 ```bash
 php artisan optimize:clear
+php artisan migrate:status
 ```
 
-Confirm that MariaDB/MySQL is running.
-
-### Images do not appear
+### Images/media are not displayed
 
 Run:
 
@@ -716,17 +721,7 @@ php artisan storage:link
 php artisan optimize:clear
 ```
 
-Then verify that the expected file exists in `storage/app/public` and that the generated public URL points to the application's `/storage` path.
-
-### Laravel displays stale configuration
-
-Run:
-
-```bash
-php artisan optimize:clear
-```
-
-Then restart the Laravel server.
+Then verify the media file exists under `storage/app/public` and that the public storage link is valid.
 
 ### AI requests fail or time out
 
@@ -735,8 +730,8 @@ Check:
 - `GEMINI_API_KEY`
 - `GEMINI_MODEL`
 - `GEMINI_TIMEOUT`
-- Internet/HTTPS access
-- Laravel logs
+- Internet/HTTPS connectivity
+- Laravel logs in `storage/logs`
 
 Then run:
 
@@ -744,207 +739,141 @@ Then run:
 php artisan optimize:clear
 ```
 
-### Tests fail because of stale state
+### Tests fail unexpectedly
 
-Clear configuration and rerun:
+Clear cached configuration and rerun:
 
 ```bash
 php artisan optimize:clear
 php artisan test
 ```
 
-### Git reports unresolved merge/rebase conflicts
+### Git reports merge/rebase conflicts
 
-Check:
+Check the repository state:
 
 ```bash
 git status
 ```
 
-Resolve the files listed as unmerged, stage them:
+Resolve the reported files, stage the resolved files, and then continue the Git operation requested by Git, such as:
 
 ```bash
 git add <resolved-file>
-```
-
-Then continue the operation required by Git, such as:
-
-```bash
 git rebase --continue
 ```
 
-Do not discard local work without first checking the conflict carefully.
+Do not use a force push to solve an ordinary non-fast-forward update unless the repository history is intentionally being rewritten.
 
 ---
 
-## 23. Recommended Development Workflow
+## 23. Project Structure
 
-A typical feature workflow is:
-
-```text
-Create branch
-     │
-     ▼
-Implement change
-     │
-     ▼
-Update migrations/models/controllers/views
-     │
-     ▼
-Add or update tests
-     │
-     ▼
-Run test suite
-     │
-     ▼
-Build frontend assets
-     │
-     ▼
-Review UI and permissions
-     │
-     ▼
-Commit changes
-     │
-     ▼
-Push branch
-```
-
-Example:
-
-```bash
-git checkout -b feature/example-change
-
-# make changes
-
-php artisan test
-npm run build
-
-git status
-git add .
-git commit -m "Add example change"
-git push -u origin feature/example-change
-```
-
----
-
-## 24. Project Structure
-
-The main application directories are:
+The current project is organized into the following main folders:
 
 ```text
 yearbook/
 ├── app/
 │   ├── Contracts/
+│   ├── Exceptions/
 │   ├── Http/
+│   │   ├── Controllers/
+│   │   ├── Middleware/
+│   │   └── Requests/
 │   ├── Models/
-│   ├── Policies/
+│   ├── Notifications/
 │   ├── Providers/
-│   └── Services/
+│   ├── Services/
+│   ├── Support/
+│   └── View/
 │
+├── bootstrap/
 ├── config/
 ├── database/
 │   ├── factories/
 │   ├── migrations/
 │   └── seeders/
-│
 ├── public/
 ├── resources/
 │   ├── css/
 │   ├── js/
 │   └── views/
-│
 ├── routes/
 ├── storage/
+│   ├── app/
+│   │   ├── private/
+│   │   └── public/
+│   ├── framework/
+│   └── logs/
 ├── tests/
 │   ├── Feature/
 │   └── Unit/
-│
 ├── docs/
-│   ├── technical-guide.md
-│   └── user-admin-guide.md
-│
-├── .env.example
-├── composer.json
-├── package.json
-├── phpunit.xml
-└── README.md
+└── vendor/
 ```
 
-The exact structure may grow as features are added. New architectural components should follow Laravel conventions and be reflected in this guide when they materially affect setup or maintenance.
+This section intentionally shows folders rather than individual source files.
 
 ---
 
-## 25. Security Guidelines
+## 24. Security Guidelines
 
-### Environment variables
+### Environment secrets
 
-Keep secrets in `.env`:
+Keep credentials and secrets in `.env`, including:
 
 - Database passwords
-- API keys
+- Gemini API keys
 - Mail credentials
-- Cloud storage credentials
-- Application secrets
+- Cloud storage credentials if configured
 
 ### Authorization
 
-Always enforce authorization on the server side. A hidden button is not a security control.
+Authorization must be enforced server-side through middleware and application logic. Hiding an interface element is not sufficient protection.
 
 ### File uploads
 
-Validate uploaded files before storage and use the application's media-processing services rather than trusting client-provided filenames or MIME types.
+Uploaded files should pass the application's validation and media-processing flow. Do not trust client-provided filenames or metadata.
 
-### Public graduate information
+### Graduate privacy
 
-Graduate content should only become publicly available according to the configured consent and publication workflow.
+Graduate content is subject to publication and consent rules. Public graduate profiles require the appropriate publication and consent state enforced by the application.
 
-### Production errors
+### Production configuration
 
-Do not run production with:
+Do not expose debug information in production:
 
 ```dotenv
-APP_DEBUG=true
+APP_DEBUG=false
 ```
 
-Production errors should be logged without exposing application internals to visitors.
+The production web server should expose Laravel's `public/` directory, not the repository root.
 
 ---
 
-## 26. Documentation Maintenance
+## 25. Documentation Maintenance
 
-Update this technical guide whenever a change affects:
+Update this guide when changes affect:
 
-- Installation requirements
-- PHP or Laravel versions
-- Composer dependencies
-- Node dependencies
+- PHP/Laravel requirements
+- Composer or npm dependencies
 - Environment variables
-- Database setup
-- Storage configuration
+- Database configuration or migrations
+- Storage/media configuration
 - AI configuration
-- Deployment procedure
+- Routes
+- Authentication/authorization
 - Testing commands
-- Authentication/authorization architecture
-- Important troubleshooting procedures
+- Deployment procedure
+- Project structure
 
-For changes to administrative workflows, update [`user-admin-guide.md`](./user-admin-guide.md) instead.
+For high-level project information, update `README.md`.
 
-For high-level project information, update the root [`README.md`](../README.md).
-
----
-
-## 27. Related Documentation
-
-- [`README.md`](../README.md) — project overview and quick start
-- [`user-admin-guide.md`](./user-admin-guide.md) — administrator/editor/reviewer instructions and screenshots
-- Database migrations in [`database/migrations`](../database/migrations) — authoritative database schema
-- Application routes in [`routes`](../routes) — authoritative route definitions
-- Composer configuration in [`composer.json`](../composer.json) — PHP dependencies and project scripts
-- Frontend configuration in [`package.json`](../package.json) — JavaScript dependencies and Vite scripts
+For database relationships, keep the ERD/documentation synchronized with the migrations and Eloquent models.
 
 ---
 
-## 28. Repository
+## 26. Repository
 
 GitHub repository:
 
