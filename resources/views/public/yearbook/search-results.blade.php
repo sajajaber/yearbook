@@ -64,7 +64,7 @@
             <h2 class="section-title">Graduates ({{ $results['graduates']->count() }})</h2>
             <div class="grid grid-4">
                 @foreach($results['graduates'] as $graduate)
-                <a href="{{ route('public.graduate.detail', $graduate->id) }}" style="text-decoration: none; color: inherit;">
+                <a href="{{ route('public.graduate.detail', ['public_slug' => $graduate->public_slug]) }}" style="text-decoration: none; color: inherit;">
                     <div class="card" style="text-align: center;">
                         @php
                         $portrait = $graduate->media->first();

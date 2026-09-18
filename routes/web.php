@@ -36,17 +36,17 @@ Route::prefix('yearbook')->name('public.')->group(function () {
     Route::get('/events/{id}', [PublicYearbookController::class, 'eventDetail'])->name('event.detail');
     Route::get('/events', [PublicYearbookController::class, 'events'])->name('events');
     Route::get('/graduates', [PublicYearbookController::class, 'graduates'])->name('graduates');
-    Route::get('/graduates/{student_reference}', [PublicGraduateController::class, 'show'])->name('graduate.detail');
-    Route::get('/graduates/{student_reference}/resume', [PublicGraduateResumeController::class, 'show'])->name('graduate.resume');
+    Route::get('/graduates/{public_slug}', [PublicGraduateController::class, 'show'])->name('graduate.detail');
+    Route::get('/graduates/{public_slug}/resume', [PublicGraduateResumeController::class, 'show'])->name('graduate.resume');
     Route::get('/timeline', [PublicYearbookController::class, 'timeline'])->name('timeline');
-    Route::get('/graduates/{student_reference}/pdf', [YearbookPdfController::class, 'graduate'])->name('graduate.pdf');
+    Route::get('/graduates/{public_slug}/pdf', [YearbookPdfController::class, 'graduate'])->name('graduate.pdf');
     Route::get('/graduations/{id}', [PublicYearbookController::class, 'graduationDetail'])->name('graduation.detail');
     Route::get('/graduations', [PublicYearbookController::class, 'graduations'])->name('graduations');
     Route::get('/{academicYear}/pdf', [YearbookPdfController::class, 'book'])->name('book.pdf');
     Route::get('/{academicYear}', [PublicYearbookController::class, 'book'])->name('book');
 });
 Route::get('/search', [SearchController::class, 'index'])->name('search.index');
-Route::post('/search', [SearchController::class, 'search'])->name('search.perform');
+Route::post('/search', [SearchController::class, 'search'])->middleware('throttle:20,1')->name('search.perform');
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified', 'role:admin,editor,reviewer'])->name('dashboard');
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -66,9 +66,9 @@ Route::middleware(['auth', 'verified', 'role:admin,editor'])->group(function () 
     Route::resource('event-categories', EventCategoryController::class);
     Route::resource('graduations', GraduationController::class);
     Route::resource('media', MediaController::class)->except(['show']);
-    Route::post('media/ai-suggestions', [MediaController::class, 'aiSuggestions'])->name('media.ai-suggestions');
-    Route::post('media/{media}/generate-caption', [MediaController::class, 'generateCaption'])->name('media.generate-caption');
-    Route::post('media/{media}/generate-tags', [MediaController::class, 'generateTags'])->name('media.generate-tags');
+    Route::post('media/ai-suggestions', [MediaController::class, 'aiSuggestions'])->middleware('throttle:10,1')->name('media.ai-suggestions');
+    Route::post('media/{media}/generate-caption', [MediaController::class, 'generateCaption'])->middleware('throttle:10,1')->name('media.generate-caption');
+    Route::post('media/{media}/generate-tags', [MediaController::class, 'generateTags'])->middleware('throttle:10,1')->name('media.generate-tags');
     Route::resource('events', EventController::class)->except(['index', 'show']);
     Route::resource('graduates', GraduateController::class)->except(['index', 'show']);
     Route::get('graduates/import', [GraduateImportController::class, 'create'])->name('graduates.import');
@@ -96,12 +96,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('notifications/{notification}/read', [NotificationController::class, 'redirect'])->name('notifications.read');
 });
 Route::middleware(['auth', 'verified', 'role:admin,editor'])->group(function () {
-    Route::post('events/{event}/generate-summary', [EventController::class, 'generateSummary'])->name('events.generate-summary');
-    Route::post('graduates/{graduate}/generate-biography', [GraduateController::class, 'generateBiography'])->name('graduates.generate-biography');
+    Route::post('events/{event}/generate-summary', [EventController::class, 'generateSummary'])->middleware('throttle:10,1')->name('events.generate-summary');
+    Route::post('graduates/{graduate}/generate-biography', [GraduateController::class, 'generateBiography'])->middleware('throttle:10,1')->name('graduates.generate-biography');
 });
 Route::middleware(['auth', 'verified', 'role:admin,reviewer'])->group(function () {
     Route::get('ai-generations', [AiGenerationController::class, 'index'])->name('ai-generations.index');
-    Route::post('ai-generations/{aiGeneration}/review', [AiGenerationController::class, 'review'])->name('ai-generations.review');
+    Route::post('ai-generations/{aiGeneration}/review', [AiGenerationController::class, 'review'])->middleware('throttle:30,1')->name('ai-generations.review');
 });
 Route::post('graduations/{graduation}/unarchive', [GraduationController::class, 'unarchive'])->middleware(['auth', 'verified', 'role:admin,editor'])->name('graduations.unarchive');
 require __DIR__ . '/auth.php';

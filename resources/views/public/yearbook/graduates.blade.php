@@ -950,7 +950,7 @@ $namedGraduates = $namedOnly->where('degree_level', 'graduate')->count();
                         $graduateYear = $graduate->academicYear?->title ?? $graduate->graduation?->academicYear?->title;
                         @endphp
 
-                        <a class="graduate-link" href="{{ route('public.graduate.detail', $graduate->id) }}">
+                        <a class="graduate-link" href="{{ route('public.graduate.detail', ['public_slug' => $graduate->public_slug]) }}">
                             <article class="graduate-card">
                                 <div class="graduate-portrait">
                                     @if($portrait)

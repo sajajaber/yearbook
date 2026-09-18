@@ -2102,7 +2102,7 @@
                             @if($event->description)
 
                             <p class="yb-event-description">
-                                {{ Str::limit($event->description, 180) }}
+                                {{ Str::limit(strip_tags(\App\Support\RichText::sanitize($event->description)), 180) }}
                             </p>
 
                             @endif
@@ -2255,11 +2255,11 @@
                     <div class="yb-graduation-info">
 
                         <span class="yb-graduation-date">
-                            {{ \Carbon\Carbon::parse($graduation->created_at)->format('F Y') }}
+                            {{ \Carbon\Carbon::parse($graduation->ceremony_date)->format('F Y') }}
                         </span>
 
                         <h3 class="yb-graduation-title">
-                            {{ $graduation->name ?? 'Graduation Ceremony' }}
+                            Graduation Ceremony
                         </h3>
 
                     </div>

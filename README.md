@@ -378,8 +378,8 @@ The public yearbook is available through routes including:
 |---|---|
 | `/yearbook` | Yearbook archive/home |
 | `/yearbook/graduates` | Graduate directory |
-| `/yearbook/graduates/{student_reference}` | Graduate profile |
-| `/yearbook/graduates/{student_reference}/pdf` | Graduate PDF |
+| `/yearbook/graduates/{public_slug}` | Graduate profile |
+| `/yearbook/graduates/{public_slug}/pdf` | Graduate PDF |
 | `/yearbook/events` | Event directory |
 | `/yearbook/events/{id}` | Event details |
 | `/yearbook/timeline` | Yearbook timeline |

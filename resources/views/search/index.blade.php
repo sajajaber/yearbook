@@ -666,7 +666,7 @@
 
                 @foreach ($results as $result)
 
-                <div class="search-result">
+                <a href="{{ $result['url'] ?? '#' }}" class="search-result" @if(empty($result['url'])) aria-disabled="true" @endif>
 
                     {{-- Result type --}}
 
@@ -713,7 +713,7 @@
                         →
                     </div>
 
-                </div>
+                </a>
 
                 @endforeach
 

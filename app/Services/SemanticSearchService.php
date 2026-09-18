@@ -34,19 +34,27 @@ class SemanticSearchService
                 'type' => 'event',
                 'id' => $e->id,
                 'title' => $e->title,
-                'excerpt' => Str::limit(strip_tags((string) $e->description), 200)
+                'excerpt' => Str::limit(strip_tags((string) $e->description), 200),
+                'url' => route('public.event.detail', ['id' => $e->id]),
             ]);
 
         $graduates = Graduate::where('publish_status', 'published')->where('consent_status', 'granted')
-            ->get(['id', 'name', 'profile_text', 'quote'])
+            ->get(['id', 'name', 'public_slug', 'student_reference', 'profile_text', 'quote'])
+            ->filter(fn($g) => filled($g->public_slug))
             ->map(fn($g) => [
                 'type' => 'graduate',
                 'id' => $g->id,
                 'title' => $g->name,
-                'excerpt' => Str::limit(strip_tags((string) ($g->profile_text ?: $g->quote)), 200)
+                'excerpt' => Str::limit(strip_tags((string) ($g->profile_text ?: $g->quote)), 200),
+                'url' => route('public.graduate.detail', ['public_slug' => $g->public_slug]),
             ]);
 
-        return $events->concat($graduates)->take(200)->values();
+        $candidateLimit = max(50, (int) config('yearbook.semantic_search_candidate_limit', 500));
+
+        return $events->concat($graduates)
+            ->sortByDesc(fn($item) => $item['type'] === 'graduate' ? 1 : 0)
+            ->take($candidateLimit)
+            ->values();
     }
 
     private function buildPrompt(string $query, Collection $candidates, int $limit): string

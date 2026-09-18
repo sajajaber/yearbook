@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 use App\Models\Graduation;
 use App\Models\AcademicYear;
 use App\Models\Campus;
@@ -16,6 +17,13 @@ use App\Models\Concerns\HasPublishingWorkflow;
 class Graduate extends Model implements PublishableInterface
 {
   use HasPublishingWorkflow;
+
+  protected static function booted(): void
+  {
+    static::creating(function (self $graduate) {
+      $graduate->public_slug ??= (string) Str::uuid();
+    });
+  }
 
   protected function statusColumn(): string
   {
@@ -59,12 +67,17 @@ class Graduate extends Model implements PublishableInterface
   }
 
   /**
-   * Consent controls the level of public detail, not whether the
-   * directory entry itself may be published. Pending/declined
-   * graduates can therefore be published as name-only entries.
+   * A graduate may only enter the public yearbook after consent is granted.
    */
-  public function canBePublished(): bool { return true; }
-  protected function guardPublish(): bool { return true; }
+  public function canBePublished(): bool
+  {
+    return self::consentAllowsPublishing($this->consent_status);
+  }
+
+  protected function guardPublish(): bool
+  {
+    return $this->canBePublished();
+  }
   public static function consentAllowsPublishing(?string $consentStatus): bool { return $consentStatus === 'granted'; }
 
   public function media()

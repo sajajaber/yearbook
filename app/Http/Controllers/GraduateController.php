@@ -21,6 +21,7 @@ use App\Http\Requests\StoreGraduateRequest;
 use App\Http\Requests\UpdateGraduateRequest;
 use App\Http\Controllers\Concerns\SyncsOrderedMedia;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 
 class GraduateController extends Controller
 {
@@ -68,7 +69,20 @@ class GraduateController extends Controller
     public function update(UpdateGraduateRequest $request, string $id)
     {
         $graduate = Graduate::findOrFail($id);
-        $graduate->update($request->validated());
+        $validated = $request->validated();
+
+        if (auth()->user()->role?->role_name === 'editor' && $graduate->publish_status === 'published') {
+            $validated['publish_status'] = 'draft';
+        }
+
+        if (($validated['publish_status'] ?? $graduate->publish_status) === 'published'
+            && ($validated['consent_status'] ?? $graduate->consent_status) !== 'granted') {
+            throw ValidationException::withMessages([
+                'consent_status' => 'Granted consent is required before a graduate profile can be published.',
+            ]);
+        }
+
+        $graduate->update($validated);
         $this->savePortrait($graduate, $request);
         $this->saveResume($graduate, $request);
         if ($request->has('media_ids')) $this->syncMediaWithOrder($graduate, $request->input('media_ids', []));

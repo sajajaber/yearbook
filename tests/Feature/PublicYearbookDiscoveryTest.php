@@ -205,15 +205,16 @@ test('media library supports name sorting in both directions', function () {
         ->assertSeeInOrder(['Zulu Media.jpg', 'Alpha Media.jpg']);
 });
 
-test('graduate profiles use the student reference in the public URL', function () {
+test('graduate profiles use an opaque slug in the public URL', function () {
     $year = discoveryAcademicYear('Graduate Route ' . uniqid());
     $graduate = discoveryGraduate($year, 'Route Graduate', 'STU-2026-25-' . uniqid());
 
     $url = route('public.graduate.detail', [
-        'student_reference' => $graduate->student_reference,
+        'public_slug' => $graduate->public_slug,
     ]);
 
-    expect($url)->toContain('/yearbook/graduates/' . $graduate->student_reference)
+    expect($url)->toContain('/yearbook/graduates/' . $graduate->public_slug)
+        ->not->toContain($graduate->student_reference)
         ->not->toContain('/yearbook/graduates/' . $graduate->id);
 
     $this->get($url)
@@ -221,13 +222,13 @@ test('graduate profiles use the student reference in the public URL', function (
         ->assertSee('Route Graduate');
 });
 
-test('legacy graduate numeric URLs redirect to the student reference URL', function () {
+test('legacy graduate numeric URLs redirect to the opaque public slug', function () {
     $year = discoveryAcademicYear('Graduate Legacy Route ' . uniqid());
     $graduate = discoveryGraduate($year, 'Legacy Route Graduate', 'STU-LEGACY-' . uniqid());
 
-    $this->get(route('public.graduate.detail', ['student_reference' => $graduate->id]))
+    $this->get(route('public.graduate.detail', ['public_slug' => $graduate->id]))
         ->assertRedirect(route('public.graduate.detail', [
-            'student_reference' => $graduate->student_reference,
+            'public_slug' => $graduate->public_slug,
         ]));
 });
 
@@ -249,7 +250,7 @@ test('published granted graduates can access their resume while ineligible gradu
     Storage::disk('public')->put($media->path, '%PDF-test%');
 
     $this->get(route('public.graduate.resume', [
-        'student_reference' => $graduate->student_reference,
+        'public_slug' => $graduate->public_slug,
     ]))
         ->assertOk()
         ->assertHeader('Content-Type', 'application/pdf');

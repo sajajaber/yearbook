@@ -1166,7 +1166,7 @@ $galleryMedia = $graduation->media;
                 @endphp
 
                 <a
-                    href="{{ route('public.graduate.detail', $graduate->id) }}"
+                    href="{{ route('public.graduate.detail', ['public_slug' => $graduate->public_slug]) }}"
                     class="graduate-link"
                     style="animation-delay: {{ min($index * 80, 560) }}ms;">
 

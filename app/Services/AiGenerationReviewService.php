@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\AiGeneration;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class AiGenerationReviewService
 {
@@ -18,11 +19,19 @@ class AiGenerationReviewService
     ): void {
         DB::transaction(function () use ($generation, $data, $reviewerId) {
 
+            if ($generation->status !== 'pending_review') {
+                throw ValidationException::withMessages([
+                    'generation' => 'Only AI generations that are currently pending review can be reviewed.',
+                ]);
+            }
+
             if ($data['action'] === 'reject') {
                 $generation->update([
                     'status' => 'rejected',
                     'reviewer_id' => $reviewerId,
                 ]);
+
+                \App\Models\AuditLog::record('ai_generation_rejected', $generation);
 
                 return;
             }
@@ -42,6 +51,8 @@ class AiGenerationReviewService
                 $generation,
                 $reviewedText
             );
+
+            \App\Models\AuditLog::record('ai_generation_reviewed', $generation);
         });
     }
 }

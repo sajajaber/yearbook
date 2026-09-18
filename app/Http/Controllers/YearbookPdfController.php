@@ -26,23 +26,30 @@ class YearbookPdfController extends Controller
      * Export a single, published graduate's profile as a PDF.
      * Public — mirrors the visibility of the profile page itself.
      */
-    public function graduate(string $studentReference)
+    public function graduate(string $publicSlug)
     {
         $graduate = Graduate::where('publish_status', 'published')
             ->where('consent_status', 'granted')
             ->with(['media', 'school', 'major', 'campus', 'graduation'])
-            ->where('student_reference', $studentReference)
+            ->where('public_slug', $publicSlug)
             ->first();
 
         if (! $graduate) {
             $legacyGraduate = Graduate::where('publish_status', 'published')
                 ->where('consent_status', 'granted')
-                ->whereKey($studentReference)
+                ->where('student_reference', $publicSlug)
                 ->first();
+
+            if (! $legacyGraduate && ctype_digit($publicSlug)) {
+                $legacyGraduate = Graduate::where('publish_status', 'published')
+                    ->where('consent_status', 'granted')
+                    ->whereKey($publicSlug)
+                    ->first();
+            }
 
             if ($legacyGraduate) {
                 return redirect()->route('public.graduate.pdf', [
-                    'student_reference' => $legacyGraduate->student_reference,
+                    'public_slug' => $legacyGraduate->public_slug,
                 ]);
             }
 
@@ -70,7 +77,9 @@ class YearbookPdfController extends Controller
     public function book(?string $academicYearId = null)
     {
         $academicYear = $academicYearId
-            ? AcademicYear::findOrFail($academicYearId)
+            ? AcademicYear::where('id', $academicYearId)
+                ->where('status', '!=', 'draft')
+                ->firstOrFail()
             : AcademicYear::where('status', 'active')->latest()->firstOrFail();
 
         $events = Event::where('status', 'published')

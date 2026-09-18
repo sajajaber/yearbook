@@ -1041,7 +1041,7 @@
                         @if($event->description)
 
                         <p class="event-desc">
-                            {{ Str::limit($event->description, 160) }}
+                            {{ Str::limit(strip_tags(\App\Support\RichText::sanitize($event->description)), 160) }}
                         </p>
 
                         @endif
