@@ -2102,7 +2102,7 @@
                             @if($event->description)
 
                             <p class="yb-event-description">
-                                {{ Str::limit($event->description, 180) }}
+                                {{ Str::limit(strip_tags(\App\Support\RichText::sanitize($event->description)), 180) }}
                             </p>
 
                             @endif
