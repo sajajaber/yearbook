@@ -84,6 +84,7 @@ class SemanticSearchService
         $candidateLimit = max(50, (int) config('yearbook.semantic_search_candidate_limit', 500));
 
         return $events->concat($graduates)
+            ->sortByDesc(fn($item) => $item['type'] === 'graduate' ? 1 : 0)
             ->take($candidateLimit)
             ->values();
     }
