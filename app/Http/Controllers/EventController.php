@@ -25,6 +25,13 @@ class EventController extends Controller
 
     public function index(Request $request)
     {
+        $sortBy = $request->input('sort', 'latest');
+        $allowedSorts = ['latest', 'oldest', 'title', 'title_desc'];
+
+        if (! in_array($sortBy, $allowedSorts, true)) {
+            $sortBy = 'latest';
+        }
+
         $query = Event::with(['academicYear', 'category', 'campuses', 'schools', 'aiGenerations', 'reviewFeedback' => fn ($query) => $query->open()->latest()])
             ->when(auth()->user()->role?->role_name === 'reviewer', fn ($query) => $query->where('status', '!=', 'draft'));
         $query->when($request->filled('status') && $request->status !== 'all', fn ($q) => $q->where('status', $request->status));
@@ -32,8 +39,13 @@ class EventController extends Controller
         $query->when($request->filled('campus') && $request->campus !== 'all', fn ($q) => $q->whereHas('campuses', fn ($campus) => $campus->where('campus_id', $request->campus)));
         $query->when($request->filled('school') && $request->school !== 'all', fn ($q) => $q->whereHas('schools', fn ($school) => $school->where('school_id', $request->school)));
         $query->when($request->filled('search'), fn ($q) => $q->where(fn ($s) => $s->where('title', 'like', "%{$request->search}%")->orWhere('description', 'like', "%{$request->search}%")->orWhere('location', 'like', "%{$request->search}%")));
-        $events = $query->latest('event_date')->paginate(12)->withQueryString();
-        return view('events.index', ['events' => $events, 'schools' => School::where('status', 'active')->orderBy('name')->get(), 'campuses' => Campus::where('status', 'active')->orderBy('name')->get(), 'academicYears' => AcademicYear::where('status', '!=', 'archived')->orderByDesc('title')->get()]);
+        $events = match ($sortBy) {
+            'oldest' => $query->oldest('event_date')->paginate(12)->withQueryString(),
+            'title' => $query->orderBy('title')->paginate(12)->withQueryString(),
+            'title_desc' => $query->orderByDesc('title')->paginate(12)->withQueryString(),
+            default => $query->latest('event_date')->paginate(12)->withQueryString(),
+        };
+        return view('events.index', ['events' => $events, 'sortBy' => $sortBy, 'schools' => School::where('status', 'active')->orderBy('name')->get(), 'campuses' => Campus::where('status', 'active')->orderBy('name')->get(), 'academicYears' => AcademicYear::where('status', '!=', 'archived')->orderByDesc('title')->get()]);
     }
 
     public function create()
