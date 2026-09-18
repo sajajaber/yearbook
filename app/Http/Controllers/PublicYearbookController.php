@@ -130,14 +130,6 @@ class PublicYearbookController extends Controller
             ->with(['category', 'media', 'campuses'])
             ->get();
 
-        $undergraduates = $undergraduates->where('consent_status', 'granted')
-            ->groupBy(fn($graduate) => $graduate->school?->name ?? 'Unassigned')
-            ->sortKeys();
-
-        $graduates = $graduates->where('consent_status', 'granted')
-            ->groupBy(fn($graduate) => $graduate->school?->name ?? 'Unassigned')
-            ->sortKeys();
-
         return view('public.yearbook.book', compact(
             'academicYear', 'graduation', 'undergraduates', 'graduates', 'events'
         ));
