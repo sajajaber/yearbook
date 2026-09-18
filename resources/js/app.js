@@ -5,6 +5,7 @@ import { initCounters } from "./lib/counter";
 import { initStagger } from "./lib/stagger";
 import { initMagnetic } from "./lib/magnetic";
 import { initParallax, initScrollProgress } from "./lib/parallax";
+import qrcode from "qrcode-generator";
 
 window.Alpine = Alpine;
 
@@ -18,6 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
     initMagnetic();
     initParallax();
     initScrollProgress();
+    initLocalQrCodes();
 
     initYearbookHeroSlideshow();
     initHeroImageManager();
@@ -908,4 +910,43 @@ function initHeroImageManager() {
     }
 
     renderSelected();
+}
+
+
+/**
+ * Generate profile QR codes entirely in the browser.
+ * No profile URL is sent to a QR-code provider or third party.
+ */
+function initLocalQrCodes() {
+    document.querySelectorAll('[data-local-qr]').forEach((container) => {
+        if (container.dataset.qrReady === 'true') {
+            return;
+        }
+
+        const url = container.dataset.qrUrl;
+        if (!url) {
+            return;
+        }
+
+        try {
+            const qr = qrcode(0, 'M');
+            qr.addData(url, 'Byte');
+            qr.make();
+
+            container.innerHTML = qr.createSvgTag({
+                cellSize: 4,
+                margin: 4,
+                scalable: true,
+            });
+            container.dataset.qrReady = 'true';
+
+            const svg = container.querySelector('svg');
+            if (svg) {
+                svg.setAttribute('role', 'img');
+                svg.setAttribute('aria-label', container.dataset.qrAlt || 'QR code');
+            }
+        } catch (error) {
+            console.warn('Local QR code generation failed.', error);
+        }
+    });
 }
