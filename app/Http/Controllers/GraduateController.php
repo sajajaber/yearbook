@@ -33,7 +33,13 @@ class GraduateController extends Controller
         $query = Graduate::with(['school', 'major', 'campus', 'graduation', 'aiGenerations', 'portraitMedia', 'resumeMedia', 'reviewFeedback' => fn ($query) => $query->open()->latest()])
             ->when($isReviewer, fn($query) => $query->where('publish_status', '!=', 'draft'))->orderBy('name');
         $query->when($request->filled('status') && $request->status !== 'all', fn($q) => $q->where('publish_status', $request->status));
-        $query->when($request->filled('year') && $request->year !== 'all', fn($q) => $q->whereHas('graduation', fn($graduation) => $graduation->where('academic_year_id', $request->year)));
+        $query->when($request->filled('year') && $request->year !== 'all', function ($q) use ($request) {
+            $year = $request->year;
+            $q->where(function ($yearQuery) use ($year) {
+                $yearQuery->where('academic_year_id', $year)
+                    ->orWhereHas('graduation', fn($graduation) => $graduation->where('academic_year_id', $year));
+            });
+        });
         $query->when($request->filled('campus') && $request->campus !== 'all', fn($q) => $q->where('campus_id', $request->campus));
         $query->when($request->filled('school') && $request->school !== 'all', fn($q) => $q->where('school_id', $request->school));
         $query->when($request->filled('major') && $request->major !== 'all', fn($q) => $q->where('major_id', $request->major));
