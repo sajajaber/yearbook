@@ -76,6 +76,22 @@ trait HasPublishingWorkflow
 
     protected function transitionTo(string $status): bool
     {
+        $current = $this->{$this->statusColumn()};
+
+        $allowed = match ($current) {
+            'draft' => ['reviewed'],
+            'rejected' => ['reviewed'],
+            'reviewed' => ['approved', 'rejected'],
+            'approved' => ['published'],
+            'published' => ['archived'],
+            'archived' => [],
+            default => [],
+        };
+
+        if (! in_array($status, $allowed, true)) {
+            return false;
+        }
+
         /** @var \Illuminate\Database\Eloquent\Model $this */
         return $this->update([$this->statusColumn() => $status]);
     }
