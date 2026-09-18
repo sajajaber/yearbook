@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 use App\Models\Graduation;
 use App\Models\AcademicYear;
 use App\Models\Campus;
@@ -16,6 +17,13 @@ use App\Models\Concerns\HasPublishingWorkflow;
 class Graduate extends Model implements PublishableInterface
 {
   use HasPublishingWorkflow;
+
+  protected static function booted(): void
+  {
+    static::creating(function (self $graduate) {
+      $graduate->public_slug ??= (string) Str::uuid();
+    });
+  }
 
   protected function statusColumn(): string
   {
