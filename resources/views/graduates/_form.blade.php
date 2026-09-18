@@ -4,6 +4,8 @@
 @php($availableAcademicYears = $academicYears ?? \App\Models\AcademicYear::orderByDesc('title')->get())
 @php($activeAcademicYear = $activeAcademicYear ?? $availableAcademicYears->firstWhere('status', 'active'))
 @php($approvedLinks = old('approved_links', $graduate->approved_links ?? []))
+@php($latestAiGeneration = $isEdit ? $graduate->aiGenerations->sortByDesc('id')->first() : null)
+@php($pendingAiGeneration = $isEdit ? $graduate->aiGenerations->firstWhere('status', 'pending_review') : null)
 
 <x-app-layout>
     <x-slot name="header">
@@ -19,7 +21,7 @@
         @if ($errors->any())<div class="notice notice-error">
             <ul>@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>
         </div>@endif
-        @if ($isEdit && !$graduate->aiGenerations->count() && $canManageAi)<form id="generate-biography-form" method="POST" action="{{ route('graduates.generate-biography', $graduate) }}">@csrf</form>@endif
+        @if ($isEdit && $canManageAi && !$pendingAiGeneration && (!$latestAiGeneration || $latestAiGeneration->status === 'rejected'))<form id="generate-biography-form" method="POST" action="{{ route('graduates.generate-biography', $graduate) }}">@csrf</form>@endif
         <form method="POST" action="{{ $isEdit ? route('graduates.update', $graduate) : route('graduates.store') }}" enctype="multipart/form-data" class="graduate-form">
             @csrf @if ($isEdit) @method('PUT') @endif
             <div class="form-main">
@@ -123,18 +125,24 @@
                     <label class="upload-field"><span>{{ $isEdit && $graduate->resumeMedia ? 'Choose a replacement PDF' : 'Choose a resume PDF' }}</span><input type="file" name="resume" accept="application/pdf"><small>PDF only. Maximum 10 MB.</small></label>@error('resume')<small class="form-error">{{ $message }}</small>@enderror
                 </section>
 
-                @if ($isEdit && !$graduate->aiGenerations->count() && $canManageAi)<section class="form-section form-section-compact">
+                @if ($isEdit && $canManageAi && !$pendingAiGeneration && (!$latestAiGeneration || $latestAiGeneration->status === 'rejected'))<section class="form-section form-section-compact">
                     <div class="form-section-heading">
                         <p class="eyebrow">Writing assistant</p>
-                        <h2>Build the biography.</h2>
+                        <h2>{{ $latestAiGeneration?->status === 'rejected' ? 'Try the biography again.' : 'Build the biography.' }}</h2>
                     </div>
-                    <p class="upload-note">Generate a draft biography from this profile's details for review.</p><button type="submit" form="generate-biography-form" class="button button-red">Generate biography <span aria-hidden="true">→</span></button>
-                </section>@elseif ($isEdit && $graduate->aiGenerations->count())<section class="form-section form-section-compact">
+                    <p class="upload-note">{{ $latestAiGeneration?->status === 'rejected' ? 'The previous AI draft was rejected. Generate a fresh draft for review.' : 'Generate a draft biography from this profile\'s details for review.' }}</p><button type="submit" form="generate-biography-form" class="button button-red">Generate biography <span aria-hidden="true">→</span></button>
+                </section>@elseif ($isEdit && $pendingAiGeneration)<section class="form-section form-section-compact">
                     <div class="form-section-heading">
                         <p class="eyebrow">Writing assistant</p>
                         <h2>Biography draft ready.</h2>
                     </div>
                     <p class="upload-note">This generated biography is waiting in the editorial review queue.</p><a href="{{ route('ai-generations.index', ['type' => 'graduate_biography']) }}" class="text-link">Open biography review <span aria-hidden="true">→</span></a>
+                </section>@elseif ($isEdit && $latestAiGeneration)<section class="form-section form-section-compact">
+                    <div class="form-section-heading">
+                        <p class="eyebrow">Writing assistant</p>
+                        <h2>Biography reviewed.</h2>
+                    </div>
+                    <p class="upload-note">An AI biography has already been reviewed for this graduate.</p>
                 </section>@endif
 
                 <section class="form-section form-section-compact">
