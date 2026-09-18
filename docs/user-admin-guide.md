@@ -358,7 +358,7 @@ Graduate public profiles use the graduate's **student reference** in the URL rat
 Example:
 
 ```text
-/yearbook/graduates/STU-2026-015
+/graduates/STU-2026-015
 ```
 
 The same student reference is used for the public resume and graduate PDF routes.
