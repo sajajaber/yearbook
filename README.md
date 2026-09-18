@@ -471,7 +471,10 @@ DB_PASSWORD=your_database_password
 ### Run migrations and seeders
 
 ```bash
-php artisan migrate --seed
+php artisan migrate
+
+# Development/demo accounts only:
+SEED_DEMO_USERS=true php artisan db:seed
 ```
 
 ### Create the storage link
@@ -594,6 +597,16 @@ LIU Digital Yearbook
 ---
 
 ## Security
+
+### Production security baseline
+
+- Serve the application over HTTPS and keep `APP_DEBUG=false`.
+- Set `APP_URL` to the HTTPS application URL and `SESSION_SECURE_COOKIE=true` in production.
+- Configure `TRUSTED_PROXIES` only for trusted TLS-terminating proxies/load balancers.
+- Keep `SEED_DEMO_USERS=false` in production; the seeded demo accounts are development/test accounts only.
+- Graduate data is sent to Gemini only after granted consent; graduate-linked images without granted consent are blocked from Gemini processing.
+- Graduate QR codes are generated locally in the browser rather than through an external QR service.
+
 
 The application uses Laravel's authentication and authorization mechanisms to protect administrative functionality.
 
