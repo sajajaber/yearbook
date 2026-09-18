@@ -11,6 +11,11 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
+        if (! filter_var(env('SEED_DEMO_USERS', false), FILTER_VALIDATE_BOOL)) {
+            $this->command?->info('Demo users were skipped. Set SEED_DEMO_USERS=true only for development/testing.');
+            return;
+        }
+
         $adminRole = Role::where('role_name', 'admin')->firstOrFail();
         $editorRole = Role::where('role_name', 'editor')->firstOrFail();
         $reviewerRole = Role::where('role_name', 'reviewer')->firstOrFail();
