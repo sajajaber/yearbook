@@ -376,13 +376,17 @@ The public yearbook is available through routes including:
 
 | Route | Purpose |
 |---|---|
-| `/yearbook` | Yearbook archive/home |
-| `/yearbook/graduates` | Graduate directory |
-| `/yearbook/graduates/{public_slug}` | Graduate profile |
-| `/yearbook/graduates/{public_slug}/pdf` | Graduate PDF |
-| `/yearbook/events` | Event directory |
-| `/yearbook/events/{id}` | Event details |
-| `/yearbook/timeline` | Yearbook timeline |
+| `/` | Yearbook home |
+| `/archive` | Academic-year archive |
+| `/graduates` | Graduate directory |
+| `/graduates/{student_reference}` | Graduate profile |
+| `/graduates/{student_reference}/resume` | Graduate resume |
+| `/graduates/{student_reference}/pdf` | Graduate PDF |
+| `/events` | Event directory |
+| `/events/{id}` | Event details |
+| `/graduations` | Graduation directory |
+| `/graduations/{id}` | Graduation details |
+| `/timeline` | Yearbook timeline |
 
 ---
 
