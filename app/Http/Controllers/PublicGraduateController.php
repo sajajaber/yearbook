@@ -6,7 +6,7 @@ use App\Models\Graduate;
 
 class PublicGraduateController extends Controller
 {
-    public function show(string $publicSlug)
+    public function show(string $studentReference)
     {
         $graduate = Graduate::with([
             'media',
@@ -17,35 +17,13 @@ class PublicGraduateController extends Controller
             'academicYear',
             'graduation.academicYear',
         ])
-            ->where('public_slug', $publicSlug)
+            ->where('student_reference', $studentReference)
             ->where('publish_status', 'published')
             ->where('consent_status', 'granted')
-            ->first();
-
-        if (! $graduate) {
-            $legacyGraduate = Graduate::where('student_reference', $publicSlug)
-                ->where('publish_status', 'published')
-                ->where('consent_status', 'granted')
-                ->first();
-
-            if (! $legacyGraduate && ctype_digit($publicSlug)) {
-                $legacyGraduate = Graduate::whereKey($publicSlug)
-                    ->where('publish_status', 'published')
-                    ->where('consent_status', 'granted')
-                    ->first();
-            }
-
-            if ($legacyGraduate?->public_slug) {
-                return redirect()->route('public.graduate.detail', [
-                    'public_slug' => $legacyGraduate->public_slug,
-                ]);
-            }
-
-            abort(404);
-        }
+            ->firstOrFail();
 
         $qrUrl = route('public.graduate.detail', [
-            'public_slug' => $graduate->public_slug,
+            'student_reference' => $graduate->student_reference,
         ]);
 
         return view('public.yearbook.graduate-detail', [
