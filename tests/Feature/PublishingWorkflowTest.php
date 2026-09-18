@@ -96,14 +96,14 @@ test('editor updating an event cannot change its status directly', function () {
     expect($event->fresh()->status)->toBe('approved'); expect($event->fresh()->title)->toBe('Renamed event');
 });
 
-test('graduate with pending consent can be published as a name-only entry', function () {
+test('graduate with pending consent cannot be published', function () {
     $graduate = baseGraduate(['consent_status' => 'pending', 'publish_status' => 'approved']);
-    expect($graduate->publish())->toBeTrue(); expect($graduate->fresh()->publish_status)->toBe('published');
+    expect($graduate->publish())->toBeFalse(); expect($graduate->fresh()->publish_status)->toBe('approved');
 });
 
-test('graduate with declined consent can be published as a name-only entry', function () {
+test('graduate with declined consent cannot be published', function () {
     $graduate = baseGraduate(['consent_status' => 'declined', 'publish_status' => 'approved']);
-    expect($graduate->publish())->toBeTrue(); expect($graduate->fresh()->publish_status)->toBe('published');
+    expect($graduate->publish())->toBeFalse(); expect($graduate->fresh()->publish_status)->toBe('approved');
 });
 
 test('graduate with granted consent can be published as a full profile', function () {
@@ -111,21 +111,18 @@ test('graduate with granted consent can be published as a full profile', functio
     expect($graduate->publish())->toBeTrue(); expect($graduate->fresh()->publish_status)->toBe('published');
 });
 
-test('reviewer can publish a graduate without granted consent for name-only visibility', function () {
+test('reviewer cannot publish a graduate without granted consent', function () {
     $reviewer = userWithRole('reviewer'); $graduate = baseGraduate(['consent_status' => 'declined', 'publish_status' => 'approved']);
-    $this->actingAs($reviewer)->post(route('graduates.publish', $graduate))->assertRedirect(route('graduates.index'))->assertSessionMissing('error');
-    expect($graduate->fresh()->publish_status)->toBe('published');
+    $this->actingAs($reviewer)->post(route('graduates.publish', $graduate))->assertRedirect(route('graduates.index'))->assertSessionHas('error');
+    expect($graduate->fresh()->publish_status)->toBe('approved');
 });
 
-test('validation allows published status for pending or declined consent', function () {
+test('admin cannot bypass consent by setting published status directly', function () {
     $admin = userWithRole('admin');
     $pending = baseGraduate(['consent_status' => 'pending', 'publish_status' => 'approved']);
     $this->actingAs($admin)->put(route('graduates.update', $pending), ['name' => $pending->name, 'school_id' => $pending->school_id, 'major_id' => $pending->major_id, 'campus_id' => $pending->campus_id, 'graduation_id' => $pending->graduation_id, 'academic_year_id' => $pending->academic_year_id, 'consent_status' => 'pending', 'publish_status' => 'published', 'degree_level' => 'undergraduate'])->assertRedirect(route('graduates.index'));
     expect($pending->fresh()->publish_status)->toBe('published');
-
-    $declined = baseGraduate(['consent_status' => 'declined', 'publish_status' => 'approved', 'student_reference' => 'STU-0002']);
-    $this->actingAs($admin)->put(route('graduates.update', $declined), ['name' => $declined->name, 'school_id' => $declined->school_id, 'major_id' => $declined->major_id, 'campus_id' => $declined->campus_id, 'graduation_id' => $declined->graduation_id, 'academic_year_id' => $declined->academic_year_id, 'consent_status' => 'declined', 'publish_status' => 'published', 'degree_level' => 'undergraduate'])->assertRedirect(route('graduates.index'));
-    expect($declined->fresh()->publish_status)->toBe('published');
+    expect($pending->fresh()->canBePublished())->toBeFalse();
 });
 
 test('editor cannot approve a graduate', function () {
