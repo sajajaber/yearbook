@@ -58,9 +58,9 @@ class SearchController extends Controller
                     ->orWhere('profile_text', 'like', "%{$query}%")
                     ->orWhere('quote', 'like', "%{$query}%");
             })
-            ->whereNotNull('student_reference')
+            ->whereNotNull('public_slug')
             ->limit(10)
-            ->get(['id', 'name', 'student_reference', 'profile_text', 'quote']);
+            ->get(['id', 'name', 'public_slug', 'profile_text', 'quote']);
 
         return $events->map(fn ($event) => [
             'type' => 'event',
@@ -75,7 +75,7 @@ class SearchController extends Controller
                 'id' => $graduate->id,
                 'title' => $graduate->name,
                 'excerpt' => \Illuminate\Support\Str::limit(strip_tags((string) ($graduate->profile_text ?: $graduate->quote)), 200),
-                'url' => route('public.graduate.detail', ['student_reference' => $graduate->student_reference]),
+                'url' => route('public.graduate.detail', ['public_slug' => $graduate->public_slug]),
                 'reason' => 'Keyword match',
             ])
         )->values();
