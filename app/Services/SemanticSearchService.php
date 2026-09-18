@@ -39,14 +39,14 @@ class SemanticSearchService
             ]);
 
         $graduates = Graduate::where('publish_status', 'published')->where('consent_status', 'granted')
-            ->get(['id', 'name', 'public_slug', 'student_reference', 'profile_text', 'quote'])
-            ->filter(fn($g) => filled($g->public_slug))
+            ->get(['id', 'name', 'student_reference', 'profile_text', 'quote'])
+            ->filter(fn($g) => filled($g->student_reference))
             ->map(fn($g) => [
                 'type' => 'graduate',
                 'id' => $g->id,
                 'title' => $g->name,
                 'excerpt' => Str::limit(strip_tags((string) ($g->profile_text ?: $g->quote)), 200),
-                'url' => route('public.graduate.detail', ['public_slug' => $g->public_slug]),
+                'url' => route('public.graduate.detail', ['student_reference' => $g->student_reference]),
             ]);
 
         $candidateLimit = max(50, (int) config('yearbook.semantic_search_candidate_limit', 500));
