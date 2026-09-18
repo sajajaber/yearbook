@@ -245,7 +245,7 @@ test('published granted graduates can access their resume while ineligible gradu
     Storage::disk('public')->put($media->path, '%PDF-test%');
 
     $this->get(route('public.graduate.resume', [
-        'public_slug' => $graduate->public_slug,
+        'student_reference' => $graduate->student_reference,
     ]))
         ->assertOk()
         ->assertHeader('Content-Type', 'application/pdf');
