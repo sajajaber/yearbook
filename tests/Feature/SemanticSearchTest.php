@@ -25,15 +25,15 @@ test('semantic graduate search provides GPA data to the AI ranking prompt', func
         'publish_status' => 'published',
     ]);
 
-    $prompt = null;
+    $capture = (object) ['prompt' => null];
 
-    app()->bind(AiProviderInterface::class, function () use (&$prompt) {
-        return new class($prompt) implements AiProviderInterface {
-            public function __construct(private ?string &$prompt) {}
+    app()->bind(AiProviderInterface::class, function () use ($capture) {
+        return new class($capture) implements AiProviderInterface {
+            public function __construct(private object $capture) {}
 
             public function generate(string $prompt): string
             {
-                $this->prompt = $prompt;
+                $this->capture->prompt = $prompt;
 
                 return '[{"index":1,"reason":"Highest GPA in the catalog."}]';
             }
@@ -42,7 +42,7 @@ test('semantic graduate search provides GPA data to the AI ranking prompt', func
 
     $results = app(SemanticSearchService::class)->search('students with high GPA');
 
-    expect($prompt)
+    expect($capture->prompt)
         ->toContain('gpa: 2.80')
         ->toContain('gpa: 3.92')
         ->toContain('actual GPA values')
