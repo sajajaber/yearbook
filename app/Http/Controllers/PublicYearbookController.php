@@ -159,25 +159,6 @@ class PublicYearbookController extends Controller
         return view('public.yearbook.event-detail', compact('event', 'relatedEvents'));
     }
 
-    public function graduateDetail($id)
-    {
-        $graduate = Graduate::with([
-            'media', 'portraitMedia', 'school', 'major', 'campus',
-            'academicYear', 'graduation.academicYear',
-        ])
-            ->where('id', $id)
-            ->where('publish_status', 'published')
-            ->where('consent_status', 'granted')
-            ->firstOrFail();
-
-        $qrUrl = route('public.graduate.detail', ['public_slug' => $graduate->public_slug]);
-
-        return view('public.yearbook.graduate-detail', [
-            'graduate' => $graduate,
-            'qrUrl' => $qrUrl,
-        ]);
-    }
-
     public function graduationDetail($id)
     {
         $graduation = Graduation::where('status', 'active')
@@ -187,6 +168,7 @@ class PublicYearbookController extends Controller
         $graduates = $graduation->graduates()
             ->where('publish_status', 'published')
             ->where('consent_status', 'granted')
+            ->whereNotNull('student_reference')
             ->with(['school', 'major', 'campus', 'media'])
             ->orderBy('name')
             ->paginate(12)
@@ -272,6 +254,7 @@ class PublicYearbookController extends Controller
 
         $query = Graduate::where('publish_status', 'published')
             ->where('consent_status', 'granted')
+            ->whereNotNull('student_reference')
             ->with([
                 'media',
                 'portraitMedia',
@@ -420,6 +403,7 @@ class PublicYearbookController extends Controller
 
         $graduates = Graduate::where('publish_status', 'published')
             ->where('consent_status', 'granted')
+            ->whereNotNull('student_reference')
             ->where(function ($q) use ($query) {
                 $q->where('name', 'like', "%{$query}%")
                     ->orWhere('profile_text', 'like', "%{$query}%")
