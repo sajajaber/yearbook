@@ -286,7 +286,7 @@
             </div>
             <div>
                 <h4>{{ $event->title }}</h4>
-                <p>{{ Str::limit($event->description, 160) }}</p>
+                <p>{{ Str::limit(strip_tags(\App\Support\RichText::sanitize($event->description)), 160) }}</p>
             </div>
         </a>
         @empty
