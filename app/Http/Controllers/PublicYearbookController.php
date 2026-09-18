@@ -115,13 +115,19 @@ class PublicYearbookController extends Controller
             ->get();
 
         $undergraduates = $baseQuery('undergraduate')
-            ->where('consent_status', 'granted')
             ->groupBy(fn($graduate) => $graduate->school?->name ?? 'Unassigned')
+            ->map(fn($students) => [
+                'visible' => $students->where('consent_status', 'granted')->values(),
+                'named' => collect(),
+            ])
             ->sortKeys();
 
         $graduates = $baseQuery('graduate')
-            ->where('consent_status', 'granted')
             ->groupBy(fn($graduate) => $graduate->school?->name ?? 'Unassigned')
+            ->map(fn($students) => [
+                'visible' => $students->where('consent_status', 'granted')->values(),
+                'named' => collect(),
+            ])
             ->sortKeys();
 
         $events = Event::where('academic_year_id', $academicYear->id)
@@ -311,6 +317,8 @@ class PublicYearbookController extends Controller
         };
 
         $graduates = $query->get();
+        $namedOnly = collect();
+        $namedOnlyBySchool = collect();
 
         $schools = School::orderBy('name')->get();
         $majors = Major::orderBy('name')->get();
@@ -320,7 +328,7 @@ class PublicYearbookController extends Controller
             ->get();
 
         return view('public.yearbook.graduates', compact(
-            'graduates', 'schools', 'majors', 'campuses', 'years',
+            'graduates', 'namedOnly', 'namedOnlyBySchool', 'schools', 'majors', 'campuses', 'years',
             'search', 'school', 'major', 'campus', 'year', 'degree', 'sort'
         ));
     }
