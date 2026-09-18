@@ -68,7 +68,13 @@ class GraduateController extends Controller
     public function update(UpdateGraduateRequest $request, string $id)
     {
         $graduate = Graduate::findOrFail($id);
-        $graduate->update($request->validated());
+        $validated = $request->validated();
+
+        if (auth()->user()->role?->role_name === 'editor' && $graduate->publish_status === 'published') {
+            $validated['publish_status'] = 'draft';
+        }
+
+        $graduate->update($validated);
         $this->savePortrait($graduate, $request);
         $this->saveResume($graduate, $request);
         if ($request->has('media_ids')) $this->syncMediaWithOrder($graduate, $request->input('media_ids', []));
