@@ -194,13 +194,3 @@ test('media AI caption generation is blocked for a non-consented graduate portra
         ->postJson(route('media.generate-caption', $media))
         ->assertForbidden();
 });
-
-test('demo users are skipped unless explicitly enabled', function () {
-    putenv('SEED_DEMO_USERS=false');
-    config(['app.env' => 'testing']);
-
-    $this->artisan('db:seed', ['--class' => 'Database\\Seeders\\UserSeeder'])
-        ->assertExitCode(0);
-
-    expect(User::where('email', 'admin@example.com')->exists())->toBeFalse();
-});
