@@ -59,12 +59,17 @@ class Graduate extends Model implements PublishableInterface
   }
 
   /**
-   * Consent controls the level of public detail, not whether the
-   * directory entry itself may be published. Pending/declined
-   * graduates can therefore be published as name-only entries.
+   * A graduate may only enter the public yearbook after consent is granted.
    */
-  public function canBePublished(): bool { return true; }
-  protected function guardPublish(): bool { return true; }
+  public function canBePublished(): bool
+  {
+    return self::consentAllowsPublishing($this->consent_status);
+  }
+
+  protected function guardPublish(): bool
+  {
+    return $this->canBePublished();
+  }
   public static function consentAllowsPublishing(?string $consentStatus): bool { return $consentStatus === 'granted'; }
 
   public function media()
