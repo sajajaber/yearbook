@@ -158,3 +158,49 @@ test('a suspended user cannot log in even with correct credentials', function ()
     $role = Role::firstOrCreate(['role_name' => 'editor']); $user = User::factory()->create(['role_id' => $role->id, 'status' => 'suspended', 'password' => bcrypt('password')]);
     $this->post('/admin/login', ['email' => $user->email, 'password' => 'password'])->assertRedirect(route('login')); $this->assertGuest();
 });
+
+
+test('graduate AI biography generation is blocked without granted consent', function () {
+    $editor = userWithRole('editor');
+    $graduate = baseGraduate([
+        'consent_status' => 'declined',
+        'publish_status' => 'draft',
+    ]);
+
+    $this->actingAs($editor)
+        ->post(route('graduates.generate-biography', $graduate))
+        ->assertRedirect(route('graduates.edit', $graduate))
+        ->assertSessionHas('error');
+
+    expect(App\Models\AiGeneration::count())->toBe(0);
+});
+
+test('media AI caption generation is blocked for a non-consented graduate portrait', function () {
+    $editor = userWithRole('editor');
+    $graduate = baseGraduate([
+        'consent_status' => 'declined',
+        'publish_status' => 'draft',
+    ]);
+    $media = App\Models\Media::create([
+        'file_name' => 'graduate.jpg',
+        'path' => 'media/graduate.jpg',
+        'type' => 'image',
+        'tags' => [],
+        'uploaded_by' => $editor->id,
+    ]);
+    $graduate->update(['portrait_media_id' => $media->id]);
+
+    $this->actingAs($editor)
+        ->postJson(route('media.generate-caption', $media))
+        ->assertForbidden();
+});
+
+test('demo users are skipped unless explicitly enabled', function () {
+    putenv('SEED_DEMO_USERS=false');
+    config(['app.env' => 'testing']);
+
+    $this->artisan('db:seed', ['--class' => 'Database\\Seeders\\UserSeeder'])
+        ->assertExitCode(0);
+
+    expect(User::where('email', 'admin@example.com')->exists())->toBeFalse();
+});
