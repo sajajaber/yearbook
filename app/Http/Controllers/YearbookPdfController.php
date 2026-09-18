@@ -70,7 +70,9 @@ class YearbookPdfController extends Controller
     public function book(?string $academicYearId = null)
     {
         $academicYear = $academicYearId
-            ? AcademicYear::findOrFail($academicYearId)
+            ? AcademicYear::where('id', $academicYearId)
+                ->where('status', '!=', 'draft')
+                ->firstOrFail()
             : AcademicYear::where('status', 'active')->latest()->firstOrFail();
 
         $events = Event::where('status', 'published')
