@@ -8,7 +8,7 @@ use Carbon\Carbon;
 
 class AcademicYear extends Model
 {
-    protected $fillable = ['title', 'start_date', 'end_date', 'status'];
+    protected $fillable = ['title', 'start_date', 'end_date', 'status', 'dedication'];
 
     /**
      * The "yearbook year" this academic year belongs to.
