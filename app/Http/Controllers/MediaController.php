@@ -169,6 +169,17 @@ class MediaController extends Controller
         return redirect()->route('media.index')->with('success', 'Media updated.');
     }
 
+    private function imageHasRestrictedGraduateConsent(Media $mediaItem): bool
+    {
+        $mediaItem->loadMissing(['portraitGraduates', 'graduates']);
+
+        return $mediaItem->portraitGraduates->contains(
+            fn ($graduate) => ! $graduate->canBePublished()
+        ) || $mediaItem->graduates->contains(
+            fn ($graduate) => ! $graduate->canBePublished()
+        );
+    }
+
     private function imagePayload(Media $mediaItem): array
     {
         $path = $mediaItem->thumbnail_path ?: $mediaItem->path;
@@ -184,63 +195,25 @@ class MediaController extends Controller
      */
     public function aiSuggestions(Request $request, GeminiVisionService $vision)
     {
-        $validated = $request->validate([
-            'file' => ['required', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:10240'],
-        ]);
-
-        $file = $validated['file'];
-
-        try {
-            $contents = file_get_contents($file->getRealPath());
-            $mimeType = $file->getMimeType() ?: 'image/jpeg';
-
-            $result = $vision->analyzeImage(
-                base64_encode($contents),
-                $mimeType,
-                'Analyze this image for a university digital yearbook. Return ONLY valid JSON in exactly this shape: {"caption":"...","tags":["..."]}. The caption must be concise, factual, and under 255 characters. Tags must be 5 to 10 short searchable keywords. Describe only visible, reasonably certain details. Do not identify people by name and do not invent names, dates, locations, departments, achievements, or other facts that cannot be determined from the image. No markdown and no explanation outside the JSON.'
-            );
-
-            $json = trim($result);
-            $json = preg_replace('/^```(?:json)?\s*|\s*```$/i', '', $json);
-            $decoded = json_decode($json, true);
-
-            if (! is_array($decoded)) {
-                throw new \RuntimeException('AI returned suggestions in an invalid format.');
-            }
-
-            $caption = trim((string) ($decoded['caption'] ?? ''));
-            $tags = collect($decoded['tags'] ?? [])
-                ->filter(fn($tag) => is_string($tag))
-                ->map(fn($tag) => preg_replace('/\s+/', ' ', trim($tag)))
-                ->filter()
-                ->unique(fn($tag) => mb_strtolower($tag))
-                ->take(30)
-                ->values()
-                ->all();
-
-            if (mb_strlen($caption) > 255) {
-                $caption = mb_substr($caption, 0, 255);
-            }
-
-            return response()->json([
-                'caption' => $caption,
-                'tags' => $tags,
-            ]);
-        } catch (\Throwable $e) {
-            report($e);
-
-            return response()->json([
-                'message' => $e->getMessage() ?: 'AI suggestions could not be generated. You can still enter the caption and tags manually.',
-            ], 500);
-        }
+        return response()->json([
+            'message' => 'AI suggestions for unsaved uploads are disabled because the application cannot verify graduate consent before the image is sent to Gemini.',
+        ], 403);
     }
 
+    /*
+     * Kept below for reference: existing media can use AI only after
+     * its known graduate associations pass the consent check.
+     */
     public function generateCaption(string $id, GeminiVisionService $vision)
     {
         $mediaItem = Media::findOrFail($id);
 
         if ($mediaItem->type !== 'image') {
             return response()->json(['message' => 'AI captions are available for images only.'], 422);
+        }
+
+        if ($this->imageHasRestrictedGraduateConsent($mediaItem)) {
+            return response()->json(['message' => 'AI processing is blocked because this image is associated with a graduate who has not granted consent.'], 403);
         }
 
         try {
@@ -265,6 +238,10 @@ class MediaController extends Controller
 
         if ($mediaItem->type !== 'image') {
             return response()->json(['message' => 'AI tags are available for images only.'], 422);
+        }
+
+        if ($this->imageHasRestrictedGraduateConsent($mediaItem)) {
+            return response()->json(['message' => 'AI processing is blocked because this image is associated with a graduate who has not granted consent.'], 403);
         }
 
         try {
