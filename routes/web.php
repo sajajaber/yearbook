@@ -28,23 +28,19 @@ use App\Models\HeroImage;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [PublicYearbookController::class, 'index'])->name('public.home');
-Route::prefix('yearbook')->name('public.')->group(function () {
-    Route::get('/', [PublicYearbookController::class, 'archive'])->name('archive');
-    Route::get('/hero-images', function () {
-        return HeroImage::orderedMedia()->map(fn($media) => ['id' => $media->id, 'url' => asset('storage/' . $media->path)])->values();
-    })->name('hero-images');
-    Route::get('/events/{id}', [PublicYearbookController::class, 'eventDetail'])->name('event.detail');
-    Route::get('/events', [PublicYearbookController::class, 'events'])->name('events');
-    Route::get('/graduates', [PublicYearbookController::class, 'graduates'])->name('graduates');
-    Route::get('/graduates/{public_slug}', [PublicGraduateController::class, 'show'])->name('graduate.detail');
-    Route::get('/graduates/{public_slug}/resume', [PublicGraduateResumeController::class, 'show'])->name('graduate.resume');
-    Route::get('/timeline', [PublicYearbookController::class, 'timeline'])->name('timeline');
-    Route::get('/graduates/{public_slug}/pdf', [YearbookPdfController::class, 'graduate'])->name('graduate.pdf');
-    Route::get('/graduations/{id}', [PublicYearbookController::class, 'graduationDetail'])->name('graduation.detail');
-    Route::get('/graduations', [PublicYearbookController::class, 'graduations'])->name('graduations');
-    Route::get('/{academicYear}/pdf', [YearbookPdfController::class, 'book'])->name('book.pdf');
-    Route::get('/{academicYear}', [PublicYearbookController::class, 'book'])->name('book');
-});
+Route::get('/archive', [PublicYearbookController::class, 'archive'])->name('public.archive');
+Route::get('/hero-images', function () {
+    return HeroImage::orderedMedia()->map(fn($media) => ['id' => $media->id, 'url' => asset('storage/' . $media->path)])->values();
+})->name('public.hero-images');
+Route::get('/events', [PublicYearbookController::class, 'events'])->name('public.events');
+Route::get('/events/{id}', [PublicYearbookController::class, 'eventDetail'])->name('public.event.detail');
+Route::get('/graduates', [PublicYearbookController::class, 'graduates'])->name('public.graduates');
+Route::get('/graduates/{student_reference}', [PublicGraduateController::class, 'show'])->name('public.graduate.detail');
+Route::get('/graduates/{student_reference}/resume', [PublicGraduateResumeController::class, 'show'])->name('public.graduate.resume');
+Route::get('/graduates/{student_reference}/pdf', [YearbookPdfController::class, 'graduate'])->name('public.graduate.pdf');
+Route::get('/timeline', [PublicYearbookController::class, 'timeline'])->name('public.timeline');
+Route::get('/graduations', [PublicYearbookController::class, 'graduations'])->name('public.graduations');
+Route::get('/graduations/{id}', [PublicYearbookController::class, 'graduationDetail'])->name('public.graduation.detail');
 Route::get('/search', [SearchController::class, 'index'])->name('search.index');
 Route::post('/search', [SearchController::class, 'search'])->middleware('throttle:20,1')->name('search.perform');
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified', 'role:admin,editor,reviewer'])->name('dashboard');
@@ -105,3 +101,10 @@ Route::middleware(['auth', 'verified', 'role:admin,reviewer'])->group(function (
 });
 Route::post('graduations/{graduation}/unarchive', [GraduationController::class, 'unarchive'])->middleware(['auth', 'verified', 'role:admin,editor'])->name('graduations.unarchive');
 require __DIR__ . '/auth.php';
+
+Route::get('/{academicYear}/pdf', [YearbookPdfController::class, 'book'])
+    ->whereNumber('academicYear')
+    ->name('public.book.pdf');
+Route::get('/{academicYear}', [PublicYearbookController::class, 'book'])
+    ->whereNumber('academicYear')
+    ->name('public.book');
