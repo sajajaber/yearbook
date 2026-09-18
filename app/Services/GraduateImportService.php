@@ -19,7 +19,7 @@ class GraduateImportService
         $handle = fopen($path, 'r'); if (! $handle) throw new \RuntimeException('The uploaded CSV could not be read.');
         $headers = fgetcsv($handle); if (! is_array($headers)) { fclose($handle); throw new \RuntimeException('The CSV file is empty.'); }
         $headers = array_map(fn ($value) => $this->normalizeHeader($value), $headers);
-        $missing = array_values(array_diff(['name','degree_level','school','major','campus','academic_year'], $headers));
+        $missing = array_values(array_diff(['student_reference','name','degree_level','school','major','campus','academic_year'], $headers));
         if ($missing) { fclose($handle); throw new \RuntimeException('Missing required CSV columns: ' . implode(', ', $missing) . '.'); }
         $rows = []; $line = 1;
         while (($values = fgetcsv($handle)) !== false) {
@@ -38,7 +38,7 @@ class GraduateImportService
         foreach ($rows as $row) {
             $rowErrors = []; $studentReference = $this->nullable($row['student_reference'] ?? null); $name = trim((string) ($row['name'] ?? '')); $degree = strtolower(trim((string) ($row['degree_level'] ?? '')));
             $school = $this->findByName($schools, $row['school'] ?? ''); $major = $this->findByName($majors, $row['major'] ?? ''); $campus = $this->findByName($campuses, $row['campus'] ?? ''); $year = $this->findYear($years, $row['academic_year'] ?? ''); $graduation = $this->findGraduation($graduations, $row['graduation'] ?? '', $year?->id);
-            if ($name === '') $rowErrors[] = 'Name is required.'; if (! in_array($degree, ['undergraduate','graduate'], true)) $rowErrors[] = 'Degree level must be undergraduate or graduate.'; if (! $school) $rowErrors[] = 'School was not found.'; if (! $major) $rowErrors[] = 'Major was not found.'; if (! $campus) $rowErrors[] = 'Campus was not found.'; if (! $year) $rowErrors[] = 'Academic year was not found.'; if (($row['graduation'] ?? '') !== '' && ! $graduation) $rowErrors[] = 'Graduation ceremony was not found for the selected academic year.';
+            if ($studentReference === null) $rowErrors[] = 'Student reference is required.'; if ($name === '') $rowErrors[] = 'Name is required.'; if (! in_array($degree, ['undergraduate','graduate'], true)) $rowErrors[] = 'Degree level must be undergraduate or graduate.'; if (! $school) $rowErrors[] = 'School was not found.'; if (! $major) $rowErrors[] = 'Major was not found.'; if (! $campus) $rowErrors[] = 'Campus was not found.'; if (! $year) $rowErrors[] = 'Academic year was not found.'; if (($row['graduation'] ?? '') !== '' && ! $graduation) $rowErrors[] = 'Graduation ceremony was not found for the selected academic year.';
             $consent = strtolower(trim((string) ($row['consent_status'] ?? 'pending'))); if (! in_array($consent, ['pending','granted','declined'], true)) $rowErrors[] = 'Consent status must be pending, granted, or declined.';
             $gpa = $this->nullable($row['gpa'] ?? null); if ($gpa !== null && (! is_numeric($gpa) || (float) $gpa < 0 || (float) $gpa > 4)) $rowErrors[] = 'GPA must be between 0 and 4.';
             if ($studentReference !== null) {
