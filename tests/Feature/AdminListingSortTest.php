@@ -30,7 +30,7 @@ function listingYear(): AcademicYear
     ]);
 }
 
-function listingGraduate(AcademicYear $year, string $name): Graduate
+function listingGraduate(AcademicYear $year, string $name, string $degreeLevel = 'undergraduate'): Graduate
 {
     $number = Graduate::count() + School::count() + 1;
 
@@ -59,7 +59,7 @@ function listingGraduate(AcademicYear $year, string $name): Graduate
         'major_id' => $major->id,
         'campus_id' => $campus->id,
         'academic_year_id' => $year->id,
-        'degree_level' => 'undergraduate',
+        'degree_level' => $degreeLevel,
         'consent_status' => 'granted',
         'publish_status' => 'draft',
     ]);
@@ -100,6 +100,26 @@ test('admin graduate listing sorts alphabetically in both directions', function 
         ->get(route('graduates.index', ['sort' => 'name_desc']))
         ->assertOk()
         ->assertSeeInOrder(['Zulu Graduate', 'Alpha Graduate']);
+});
+
+test('admin graduate listing filters by degree level', function () {
+    $admin = listingAdmin();
+    $year = listingYear();
+
+    listingGraduate($year, 'Undergraduate Person', 'undergraduate');
+    listingGraduate($year, 'Graduate Person', 'graduate');
+
+    $this->actingAs($admin)
+        ->get(route('graduates.index', ['degree_level' => 'graduate']))
+        ->assertOk()
+        ->assertSee('Graduate Person')
+        ->assertDontSee('Undergraduate Person');
+
+    $this->actingAs($admin)
+        ->get(route('graduates.index', ['degree_level' => 'undergraduate']))
+        ->assertOk()
+        ->assertSee('Undergraduate Person')
+        ->assertDontSee('Graduate Person');
 });
 
 test('admin event listing sorts by date and title', function () {
