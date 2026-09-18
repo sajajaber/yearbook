@@ -26,6 +26,10 @@ class AiGenerationPublisher
     ): void {
         $event = Event::findOrFail($generation->source_record_id);
 
+        if ($event->status === 'published') {
+            throw new RuntimeException('Published events cannot be overwritten by an AI review. Edit the source and submit it through the normal review workflow.');
+        }
+
         $event->update([
             'description' => $text,
         ]);
@@ -36,6 +40,14 @@ class AiGenerationPublisher
         string $text
     ): void {
         $graduate = Graduate::findOrFail($generation->source_record_id);
+
+        if ($graduate->publish_status === 'published') {
+            throw new RuntimeException('Published graduate profiles cannot be overwritten by an AI review. Edit the source and submit it through the normal review workflow.');
+        }
+
+        if (! $graduate->canBePublished()) {
+            throw new RuntimeException('AI content cannot be published until graduate consent is granted.');
+        }
 
         $graduate->update([
             'profile_text' => $text,
