@@ -56,7 +56,15 @@ class EventController extends Controller
 
     public function update(UpdateEventRequest $request, string $id)
     {
-        $event = Event::findOrFail($id); $validated = $request->validated(); $validated['featured'] = $request->boolean('featured'); $event->update($validated);
+        $event = Event::findOrFail($id);
+        $validated = $request->validated();
+        $validated['featured'] = $request->boolean('featured');
+
+        if (auth()->user()->role?->role_name === 'editor' && $event->status === 'published') {
+            $validated['status'] = 'draft';
+        }
+
+        $event->update($validated);
         ReviewFeedback::where('reviewable_type', Event::class)->where('reviewable_id', $event->id)->open()->update(['status' => 'resolved']);
         AuditLog::record('updated', $event); $event->campuses()->sync($request->input('campus_ids', [])); $event->schools()->sync($request->input('school_ids', [])); $this->syncMediaWithOrder($event, $request->input('media_ids', []));
         return redirect()->route('events.index');
