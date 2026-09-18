@@ -465,6 +465,23 @@
         background: #fff
     }
 
+    .qr-section [data-local-qr] {
+        display: grid;
+        place-items: center;
+        margin: 20px auto 15px;
+    }
+
+    .qr-section [data-local-qr] svg {
+        display: block;
+        width: 160px;
+        height: 160px;
+        padding: 10px;
+        border: 1px solid var(--profile-line);
+        border-radius: 14px;
+        background: #fff;
+        box-sizing: content-box;
+    }
+
     .gallery-grid {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
