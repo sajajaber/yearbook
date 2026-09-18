@@ -404,7 +404,7 @@ The public graduate profile uses the graduate's **student reference**, not the d
 Example:
 
 ```text
-/yearbook/graduates/STU-2026-015
+/graduates/STU-2026-015
 ```
 
 The same `student_reference` parameter is used for the public graduate resume and PDF routes.
