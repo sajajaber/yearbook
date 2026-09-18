@@ -200,10 +200,6 @@ class MediaController extends Controller
         ], 403);
     }
 
-    /*
-     * Kept below for reference: existing media can use AI only after
-     * its known graduate associations pass the consent check.
-     */
     public function generateCaption(string $id, GeminiVisionService $vision)
     {
         $mediaItem = Media::findOrFail($id);
