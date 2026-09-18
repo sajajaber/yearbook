@@ -38,7 +38,8 @@ class PublicYearbookController extends Controller
             ->get();
 
         $graduations = Graduation::where('academic_year_id', $currentYear->id ?? null)
-            ->latest('created_at')
+            ->where('status', 'active')
+            ->latest('ceremony_date')
             ->with(['media', 'academicYear', 'campuses', 'schools'])
             ->get();
 
@@ -370,7 +371,8 @@ class PublicYearbookController extends Controller
 
     public function graduations(Request $request)
     {
-        $query = Graduation::with(['media', 'academicYear', 'campuses', 'schools']);
+        $query = Graduation::where('status', 'active')
+            ->with(['media', 'academicYear', 'campuses', 'schools']);
 
         if ($year = $request->input('year')) {
             $query->whereYear('ceremony_date', $year);
