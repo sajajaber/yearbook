@@ -5,7 +5,22 @@
         <section class="event-intro"><div><p class="eyebrow eyebrow-light">The year in motion</p><h2>Capture campus<br>in the moment.</h2><p>Keep the stories, gatherings, and milestones that bring this year's yearbook to life.</p></div><div class="event-intro-mark" aria-hidden="true">EVENTS<br><span>{{ $events->total() }}</span></div></section>
         @if(session('success')||session('error'))<div class="notice {{ session('error')?'notice-error':'notice-success' }}">{{ session('error')??session('success') }}</div>@endif
         <section class="filter-ribbon" aria-label="Event filters"><div class="filter-ribbon-heading"><div><p class="eyebrow">Filter events</p><span>Focus the story calendar by edition or place.</span></div><a href="{{ route('events.index') }}" class="clear-filters">Clear filters</a></div><div class="event-filters"><a href="{{ request()->fullUrlWithQuery(['status'=>null,'page'=>1]) }}" class="filter-button {{ request('status','all')==='all'?'is-selected':'' }}">All <span>{{ \App\Models\Event::query()->when($isReviewer,fn($q)=>$q->where('status','!=','draft'))->count() }}</span></a>@foreach(['draft'=>'Draft','reviewed'=>'Submitted for review','approved'=>'Approved','published'=>'Published','rejected'=>'Changes requested'] as $key=>$label)@continue($key==='draft'&&$isReviewer)<a href="{{ request()->fullUrlWithQuery(['status'=>$key,'page'=>1]) }}" class="filter-button {{ request('status')===$key?'is-selected':'' }}">{{ $label }} <span>{{ $statusCounts->get($key,0) }}</span></a>@endforeach</div><div class="ribbon-fields"><select class="directory-filter" x-model="year" @change="window.location='{{ route('events.index') }}?status='+encodeURIComponent(status)+'&year='+encodeURIComponent(year)+'&campus='+encodeURIComponent(campus)+'&school='+encodeURIComponent(school)"><option value="all">All years</option>@foreach($academicYears as $academicYear)<option value="{{ $academicYear->id }}">{{ $academicYear->title }}</option>@endforeach</select><select class="directory-filter" x-model="campus" @change="window.location='{{ route('events.index') }}?status='+encodeURIComponent(status)+'&year='+encodeURIComponent(year)+'&campus='+encodeURIComponent(campus)+'&school='+encodeURIComponent(school)"><option value="all">All campuses</option>@foreach($campuses as $campus)<option value="{{ $campus->id }}">{{ $campus->name }}</option>@endforeach</select><select class="directory-filter" x-model="school" @change="window.location='{{ route('events.index') }}?status='+encodeURIComponent(status)+'&year='+encodeURIComponent(year)+'&campus='+encodeURIComponent(campus)+'&school='+encodeURIComponent(school)"><option value="all">All schools</option>@foreach($schools as $school)<option value="{{ $school->id }}">{{ $school->name }}</option>@endforeach</select></div></section>
-        <section class="event-toolbar"><label class="search-field"><span aria-hidden="true">⌕</span><input type="search" x-model="search" placeholder="Search events"></label></section>
+        <section class="event-toolbar">
+            <label class="search-field"><span aria-hidden="true">⌕</span><input type="search" x-model="search" placeholder="Search events"></label>
+            <form method="GET" action="{{ route('events.index') }}" class="admin-sort-form">
+                <input type="hidden" name="status" value="{{ request('status','all') }}">
+                <input type="hidden" name="year" value="{{ request('year','all') }}">
+                <input type="hidden" name="campus" value="{{ request('campus','all') }}">
+                <input type="hidden" name="school" value="{{ request('school','all') }}">
+                <label for="event-sort" class="sr-only">Sort events</label>
+                <select id="event-sort" class="directory-filter" name="sort" onchange="this.form.submit()" aria-label="Sort events">
+                    <option value="latest" @selected($sortBy === 'latest')>Newest event date</option>
+                    <option value="oldest" @selected($sortBy === 'oldest')>Oldest event date</option>
+                    <option value="title" @selected($sortBy === 'title')>Title A–Z</option>
+                    <option value="title_desc" @selected($sortBy === 'title_desc')>Title Z–A</option>
+                </select>
+            </form>
+        </section>
         <section class="event-section"><div class="section-heading"><div><p class="eyebrow">Story calendar</p><h2>Campus moments</h2></div><span class="panel-meta">{{ $events->total() }} records</span></div>
             <div class="event-grid">
                 @forelse($events as $event)
