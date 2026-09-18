@@ -170,7 +170,7 @@ class PublicYearbookController extends Controller
             ->where('consent_status', 'granted')
             ->firstOrFail();
 
-        $qrUrl = route('public.graduate.detail', ['id' => $graduate->id]);
+        $qrUrl = route('public.graduate.detail', ['public_slug' => $graduate->public_slug]);
 
         return view('public.yearbook.graduate-detail', [
             'graduate' => $graduate,
