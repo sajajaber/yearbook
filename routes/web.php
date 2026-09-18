@@ -36,10 +36,10 @@ Route::prefix('yearbook')->name('public.')->group(function () {
     Route::get('/events/{id}', [PublicYearbookController::class, 'eventDetail'])->name('event.detail');
     Route::get('/events', [PublicYearbookController::class, 'events'])->name('events');
     Route::get('/graduates', [PublicYearbookController::class, 'graduates'])->name('graduates');
-    Route::get('/graduates/{student_reference}', [PublicGraduateController::class, 'show'])->name('graduate.detail');
-    Route::get('/graduates/{student_reference}/resume', [PublicGraduateResumeController::class, 'show'])->name('graduate.resume');
+    Route::get('/graduates/{public_slug}', [PublicGraduateController::class, 'show'])->name('graduate.detail');
+    Route::get('/graduates/{public_slug}/resume', [PublicGraduateResumeController::class, 'show'])->name('graduate.resume');
     Route::get('/timeline', [PublicYearbookController::class, 'timeline'])->name('timeline');
-    Route::get('/graduates/{student_reference}/pdf', [YearbookPdfController::class, 'graduate'])->name('graduate.pdf');
+    Route::get('/graduates/{public_slug}/pdf', [YearbookPdfController::class, 'graduate'])->name('graduate.pdf');
     Route::get('/graduations/{id}', [PublicYearbookController::class, 'graduationDetail'])->name('graduation.detail');
     Route::get('/graduations', [PublicYearbookController::class, 'graduations'])->name('graduations');
     Route::get('/{academicYear}/pdf', [YearbookPdfController::class, 'book'])->name('book.pdf');
