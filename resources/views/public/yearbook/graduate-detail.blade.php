@@ -846,7 +846,7 @@
             <div class="profile-info">
                 <h1>{{ $graduate->name }}</h1>
                 <div class="profile-badges"><span class="badge">{{ $graduate->major->name ?? 'Major' }}</span><span class="badge">{{ $graduate->school->name ?? 'School' }}</span><span class="badge">{{ $graduate->campus->name ?? 'Campus' }}</span>@if($graduate->graduation)<span class="badge">Class of {{ \Carbon\Carbon::parse($graduate->graduation->ceremony_date)->format('Y') }}</span>@endif</div>
-                <div class="profile-actions print-hide"><a href="{{ route('public.graduate.pdf',$graduate->id) }}" class="btn btn-primary" style="color: white">Download PDF <span aria-hidden="true">&darr;</span></a></div>
+                <div class="profile-actions print-hide"><a href="{{ route('public.graduate.pdf', ['student_reference' => $graduate->student_reference]) }}" class="btn btn-primary" style="color: white">Download PDF <span aria-hidden="true">&darr;</span></a></div>
             </div>
         </div>
     </div>
