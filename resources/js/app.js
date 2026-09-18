@@ -37,7 +37,7 @@ function initYearbookHeroSlideshow() {
         return;
     }
 
-    fetch('/yearbook/hero-images', {
+    fetch('/hero-images', {
         headers: {
             'Accept': 'application/json',
             'X-Requested-With': 'XMLHttpRequest',
