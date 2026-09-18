@@ -68,7 +68,14 @@
             </div>
             <div class="sidebar-widget qr-section scroll-reveal">
                 <h3>QR Code</h3>
-                <p>Scan to view this profile</p><img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode($qrUrl) }}" alt="QR Code for {{ $graduate->name }}'s profile" loading="lazy">
+                <p>Scan to view this profile</p>
+                <div
+                    data-local-qr
+                    data-qr-url="{{ $qrUrl }}"
+                    data-qr-alt="QR Code for {{ $graduate->name }}'s profile"
+                    aria-label="QR Code for {{ $graduate->name }}'s profile"
+                ></div>
+                <noscript><p>Enable JavaScript to display the QR code.</p></noscript>
             </div>
             <div class="sidebar-widget scroll-reveal">
                 <h3>Quick Facts</h3>@if($graduate->graduation)<div class="quick-fact"><span class="quick-fact-label">Graduation Year</span><span class="quick-fact-value">{{ \Carbon\Carbon::parse($graduate->graduation->ceremony_date)->format('Y') }}</span></div>@endif<div class="quick-fact"><span class="quick-fact-label">School</span><span class="quick-fact-value">{{ $graduate->school->name ?? 'N/A' }}</span></div>
