@@ -155,6 +155,12 @@ class GraduateController extends Controller
     public function generateBiography(string $id, GraduateAiService $aiService)
     {
         $graduate = Graduate::with(['major', 'school'])->findOrFail($id);
+
+        if (! $graduate->canBePublished()) {
+            return redirect()->route('graduates.edit', $graduate)
+                ->with('error', 'AI biography generation is unavailable until the graduate has granted consent for public profile processing.');
+        }
+
         try { $generatedText = $aiService->draftBiography($graduate->name, $graduate->major->name ?? '', $graduate->school->name ?? '', $graduate->achievements ?? []); }
         catch (\Throwable $e) { AuditLog::record('ai_generation_failed', $graduate); return redirect()->route('graduates.edit', $graduate)->with('error', 'AI biography generation failed. Please try again or contact an administrator.'); }
         AiGeneration::create(['content_type' => 'graduate_biography', 'source_record_id' => $graduate->id, 'source_record_type' => 'graduate', 'prompt_version' => 'v1', 'generated_text' => $generatedText, 'status' => 'pending_review']);
