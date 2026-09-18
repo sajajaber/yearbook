@@ -26,35 +26,13 @@ class YearbookPdfController extends Controller
      * Export a single, published graduate's profile as a PDF.
      * Public — mirrors the visibility of the profile page itself.
      */
-    public function graduate(string $publicSlug)
+    public function graduate(string $studentReference)
     {
         $graduate = Graduate::where('publish_status', 'published')
             ->where('consent_status', 'granted')
             ->with(['media', 'school', 'major', 'campus', 'graduation'])
-            ->where('public_slug', $publicSlug)
-            ->first();
-
-        if (! $graduate) {
-            $legacyGraduate = Graduate::where('publish_status', 'published')
-                ->where('consent_status', 'granted')
-                ->where('student_reference', $publicSlug)
-                ->first();
-
-            if (! $legacyGraduate && ctype_digit($publicSlug)) {
-                $legacyGraduate = Graduate::where('publish_status', 'published')
-                    ->where('consent_status', 'granted')
-                    ->whereKey($publicSlug)
-                    ->first();
-            }
-
-            if ($legacyGraduate) {
-                return redirect()->route('public.graduate.pdf', [
-                    'public_slug' => $legacyGraduate->public_slug,
-                ]);
-            }
-
-            abort(404);
-        }
+            ->where('student_reference', $studentReference)
+            ->firstOrFail();
 
         $pdf = Pdf::loadView('public.yearbook.pdf.graduate', [
             'graduate' => $graduate,
