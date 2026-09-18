@@ -11,7 +11,7 @@
             $portrait = $student->portraitMedia ?? $student->media->firstWhere('type', 'image');
         @endphp
         @if ($student->student_reference)
-        <a href="{{ route('public.graduate.detail', ['public_slug' => $student->public_slug]) }}" class="student-photo-card">
+        <a href="{{ route('public.graduate.detail', ['student_reference' => $student->student_reference]) }}" class="student-photo-card">
         @else
         <div class="student-photo-card">
         @endif
