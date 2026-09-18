@@ -4,7 +4,32 @@
         <section class="graduate-intro"><div><p class="eyebrow eyebrow-light">The people behind the year</p><h2>Make every<br>story count.</h2><p>Review, refine, and publish the voices that will define this year's yearbook.</p></div><div class="graduate-intro-stats"><div><strong>{{ $graduates->total() }}</strong><span>profiles</span></div><div><strong>{{ $consentGranted }}</strong><span>consents</span></div></div></section>
         @if(session('success') || session('error'))<div class="notice {{ session('error')?'notice-error':'notice-success' }}">{{ session('error') ?? session('success') }}</div>@endif
         <section class="filter-ribbon" aria-label="Graduate profile filters"><div class="filter-ribbon-heading"><div><p class="eyebrow">Filter profiles</p><span>Focus the directory by edition, place, or discipline.</span></div><a href="{{ route('graduates.index') }}" class="clear-filters">Clear filters</a></div><div class="graduate-filters"><a href="{{ request()->fullUrlWithQuery(['status'=>null,'page'=>1]) }}" class="filter-button {{ request('status','all')==='all'?'is-selected':'' }}">All <span>{{ $statusCounts->sum() }}</span></a>@foreach(['draft'=>'Draft','reviewed'=>'Submitted for review','approved'=>'Approved','published'=>'Published','rejected'=>'Changes requested'] as $key=>$label)<a href="{{ request()->fullUrlWithQuery(['status'=>$key,'page'=>1]) }}" class="filter-button {{ request('status')===$key?'is-selected':'' }}">{{ $label }} <span>{{ $statusCounts->get($key,0) }}</span></a>@endforeach</div><div class="ribbon-fields"><select class="directory-filter" x-model="year" name="year" @change="window.location='{{ route('graduates.index') }}?status='+encodeURIComponent(status)+'&year='+encodeURIComponent(year)+'&campus='+encodeURIComponent(campus)+'&school='+encodeURIComponent(school)+'&major='+encodeURIComponent(major)+'&search='+encodeURIComponent(search)"><option value="all">All years</option>@foreach($academicYears as $academicYear)<option value="{{ $academicYear->id }}">{{ $academicYear->title }}</option>@endforeach</select><select class="directory-filter" x-model="campus" name="campus" @change="window.location='{{ route('graduates.index') }}?status='+encodeURIComponent(status)+'&year='+encodeURIComponent(year)+'&campus='+encodeURIComponent(campus)+'&school='+encodeURIComponent(school)+'&major='+encodeURIComponent(major)+'&search='+encodeURIComponent(search)"><option value="all">All campuses</option>@foreach($campuses as $campus)<option value="{{ $campus->id }}">{{ $campus->name }}</option>@endforeach</select><select class="directory-filter" x-model="school" name="school" @change="window.location='{{ route('graduates.index') }}?status='+encodeURIComponent(status)+'&year='+encodeURIComponent(year)+'&campus='+encodeURIComponent(campus)+'&school='+encodeURIComponent(school)+'&major='+encodeURIComponent(major)+'&search='+encodeURIComponent(search)"><option value="all">All schools</option>@foreach($schools as $school)<option value="{{ $school->id }}">{{ $school->name }}</option>@endforeach</select><select class="directory-filter" x-model="major" name="major" @change="window.location='{{ route('graduates.index') }}?status='+encodeURIComponent(status)+'&year='+encodeURIComponent(year)+'&campus='+encodeURIComponent(campus)+'&school='+encodeURIComponent(school)+'&major='+encodeURIComponent(major)+'&search='+encodeURIComponent(search)"><option value="all">All majors</option>@foreach($majors as $major)<option value="{{ $major->id }}">{{ $major->name }}</option>@endforeach</select></div></section>
-        <section class="graduate-toolbar"><form method="GET" action="{{ route('graduates.index') }}"><input type="hidden" name="status" x-model="status"><input type="hidden" name="year" x-model="year"><input type="hidden" name="campus" x-model="campus"><input type="hidden" name="school" x-model="school"><input type="hidden" name="major" x-model="major"><label class="search-field"><span aria-hidden="true">⌕</span><input type="search" name="search" x-model="search" value="{{ request('search','') }}" placeholder="Search by name, school, or major"></label></form></section>
+        <section class="graduate-toolbar">
+            <form method="GET" action="{{ route('graduates.index') }}" class="graduate-search-form">
+                <input type="hidden" name="status" x-model="status">
+                <input type="hidden" name="year" x-model="year">
+                <input type="hidden" name="campus" x-model="campus">
+                <input type="hidden" name="school" x-model="school">
+                <input type="hidden" name="major" x-model="major">
+                <input type="hidden" name="sort" value="{{ $sortBy }}">
+                <label class="search-field"><span aria-hidden="true">⌕</span><input type="search" name="search" x-model="search" value="{{ request('search','') }}" placeholder="Search by name, school, or major"></label>
+            </form>
+            <form method="GET" action="{{ route('graduates.index') }}" class="admin-sort-form">
+                <input type="hidden" name="status" value="{{ request('status','all') }}">
+                <input type="hidden" name="year" value="{{ request('year','all') }}">
+                <input type="hidden" name="campus" value="{{ request('campus','all') }}">
+                <input type="hidden" name="school" value="{{ request('school','all') }}">
+                <input type="hidden" name="major" value="{{ request('major','all') }}">
+                <input type="hidden" name="search" value="{{ request('search','') }}">
+                <label for="graduate-sort" class="sr-only">Sort graduates</label>
+                <select id="graduate-sort" class="directory-filter" name="sort" onchange="this.form.submit()" aria-label="Sort graduates">
+                    <option value="name" @selected($sortBy === 'name')>Name A–Z</option>
+                    <option value="name_desc" @selected($sortBy === 'name_desc')>Name Z–A</option>
+                    <option value="latest" @selected($sortBy === 'latest')>Newest added</option>
+                    <option value="oldest" @selected($sortBy === 'oldest')>Oldest added</option>
+                </select>
+            </form>
+        </section>
         <section class="graduate-section"><div class="section-heading"><div><p class="eyebrow">Profile directory</p><h2>Class of graduates</h2></div><span class="panel-meta">{{ $graduates->total() }} records</span></div>
             <div class="graduate-grid" :class="{ 'graduate-list':view==='list' }">
                 @forelse($graduates as $graduate)
