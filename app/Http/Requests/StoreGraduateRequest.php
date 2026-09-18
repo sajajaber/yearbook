@@ -36,7 +36,7 @@ class StoreGraduateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'student_reference' => 'nullable|string|max:255|unique:graduates,student_reference',
+            'student_reference' => 'required|string|max:255|unique:graduates,student_reference',
             'name' => 'required|string|max:255',
             'school_id' => 'required|exists:schools,id',
             'major_id' => 'required|exists:majors,id',
