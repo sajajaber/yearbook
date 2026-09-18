@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Graduate;
 use Illuminate\Support\Facades\Storage;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class PublicGraduateResumeController extends Controller
 {
@@ -24,11 +23,12 @@ class PublicGraduateResumeController extends Controller
 
             if (! $legacyGraduate && ctype_digit($publicSlug)) {
                 $legacyGraduate = Graduate::whereKey($publicSlug)
-                ->where('publish_status', 'published')
-                ->where('consent_status', 'granted')
-                ->first();
+                    ->where('publish_status', 'published')
+                    ->where('consent_status', 'granted')
+                    ->first();
+            }
 
-            if ($legacyGraduate) {
+            if ($legacyGraduate?->public_slug) {
                 return redirect()->route('public.graduate.resume', [
                     'public_slug' => $legacyGraduate->public_slug,
                 ]);
