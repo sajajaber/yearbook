@@ -3,6 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\School;
+use App\Models\Graduate;
+use App\Models\Major;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use App\Models\AuditLog;
 
@@ -66,7 +70,26 @@ class SchoolController extends Controller
     public function destroy(string $id)
     {
         $school = School::findOrFail($id);
-        $school->delete();
+
+        $isReferenced = Major::where('school_id', $school->id)->exists()
+            || Graduate::where('school_id', $school->id)->exists()
+            || DB::table('event_schools')->where('school_id', $school->id)->exists()
+            || DB::table('graduation_schools')->where('school_id', $school->id)->exists();
+
+        if ($isReferenced) {
+            return redirect()->back()
+                ->with('error', 'This school cannot be deleted because it is still assigned to majors, graduates, events, or graduation records.')
+                ->with('active_tab', request()->input('tab', 'schools'));
+        }
+
+        try {
+            $school->delete();
+        } catch (QueryException $e) {
+            return redirect()->back()
+                ->with('error', 'This school cannot be deleted because it is still being used by other records.')
+                ->with('active_tab', request()->input('tab', 'schools'));
+        }
+
         AuditLog::record('deleted', $school);
         return redirect()->back()
             ->with('success', 'School deleted.')
