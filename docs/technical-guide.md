@@ -383,23 +383,23 @@ The current public yearbook routes are defined in `routes/web.php`.
 | Purpose | Route |
 |---|---|
 | Home | `/` |
-| Yearbook archive | `/yearbook` |
-| Graduate directory | `/yearbook/graduates` |
-| Graduate profile | `/yearbook/graduates/{student_reference}` |
-| Graduate resume | `/yearbook/graduates/{student_reference}/resume` |
-| Graduate PDF | `/yearbook/graduates/{student_reference}/pdf` |
-| Events | `/yearbook/events` |
-| Event details | `/yearbook/events/{id}` |
-| Graduations | `/yearbook/graduations` |
-| Graduation details | `/yearbook/graduations/{id}` |
-| Timeline | `/yearbook/timeline` |
-| Academic-year page | `/yearbook/{academicYear}` |
-| Academic-year PDF | `/yearbook/{academicYear}/pdf` |
+| Yearbook archive | `/archive` |
+| Graduate directory | `/graduates` |
+| Graduate profile | `/graduates/{student_reference}` |
+| Graduate resume | `/graduates/{student_reference}/resume` |
+| Graduate PDF | `/graduates/{student_reference}/pdf` |
+| Events | `/events` |
+| Event details | `/events/{id}` |
+| Graduations | `/graduations` |
+| Graduation details | `/graduations/{id}` |
+| Timeline | `/timeline` |
+| Academic-year page | `/{academicYear}` |
+| Academic-year PDF | `/{academicYear}/pdf` |
 | Search page | `/search` |
 
 ### Graduate URL identifier
 
-The public graduate profile uses the graduate's **student reference**, not the database primary-key ID.
+The public graduate profile uses the graduate's **student reference**, not the database primary-key ID or a generated UUID. The public routes are hosted at the domain root rather than under a `/yearbook` prefix.
 
 Example:
 
