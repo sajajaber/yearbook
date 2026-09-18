@@ -180,7 +180,9 @@ class PublicYearbookController extends Controller
 
     public function graduationDetail($id)
     {
-        $graduation = Graduation::with(['campuses', 'schools', 'media'])->findOrFail($id);
+        $graduation = Graduation::where('status', 'active')
+            ->with(['campuses', 'schools', 'media'])
+            ->findOrFail($id);
 
         $graduates = $graduation->graduates()
             ->where('publish_status', 'published')
