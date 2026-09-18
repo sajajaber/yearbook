@@ -48,9 +48,8 @@ class YearbookPdfController extends Controller
      * events, and every published + consented graduate profile) for 
      * the given academic year, or the current active year if omitted.
      *
-     * Gated to admin/editor via the route middleware (see routes/web.php)
-     * since this renders every graduate profile at once and is meant
-     * for production of the official printed book, not casual browsing.
+     * Public for non-draft academic years because the archive exposes
+     * completed yearbook editions. Draft academic years are blocked.
      */
     public function book(?string $academicYearId = null)
     {
