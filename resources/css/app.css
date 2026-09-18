@@ -1345,6 +1345,33 @@ a {
     padding: 15px 20px;
 }
 
+.admin-sort-form {
+    align-items: center;
+    display: flex;
+    flex: 0 0 auto;
+    gap: 8px;
+}
+
+.admin-sort-form .directory-filter {
+    min-width: 155px;
+}
+
+@media (max-width: 700px) {
+    .event-toolbar,
+    .graduate-toolbar {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .admin-sort-form {
+        width: 100%;
+    }
+
+    .admin-sort-form .directory-filter {
+        width: 100%;
+    }
+}
+
 .event-filters {
     display: flex;
     flex-wrap: wrap;
