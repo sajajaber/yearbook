@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Major;
+use App\Models\Graduate;
+use Illuminate\Database\QueryException;
 use App\Models\School;
 use App\Models\AuditLog;
 
@@ -70,7 +72,21 @@ class MajorController extends Controller
     public function destroy(string $id)
     {
         $major = Major::findOrFail($id);
-        $major->delete();
+
+        if (Graduate::where('major_id', $major->id)->exists()) {
+            return redirect()->back()
+                ->with('error', 'This major cannot be deleted because it is assigned to one or more graduates.')
+                ->with('active_tab', request()->input('tab', 'majors'));
+        }
+
+        try {
+            $major->delete();
+        } catch (QueryException $e) {
+            return redirect()->back()
+                ->with('error', 'This major cannot be deleted because it is still being used by other records.')
+                ->with('active_tab', request()->input('tab', 'majors'));
+        }
+
         AuditLog::record('deleted', $major);
         return redirect()->back()
             ->with('success', 'Major deleted.')
