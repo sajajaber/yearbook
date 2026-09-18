@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\EventCategory;
+use App\Models\Event;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use App\Models\AuditLog;
 
@@ -65,7 +67,21 @@ class EventCategoryController extends Controller
     public function destroy(string $id)
     {
         $eventCategory = EventCategory::findOrFail($id);
-        $eventCategory->delete();
+
+        if (Event::where('category_id', $eventCategory->id)->exists()) {
+            return redirect()->back()
+                ->with('error', 'This category cannot be deleted because it is used by one or more events.')
+                ->with('active_tab', request()->input('tab', 'categories'));
+        }
+
+        try {
+            $eventCategory->delete();
+        } catch (QueryException $e) {
+            return redirect()->back()
+                ->with('error', 'This category cannot be deleted because it is still being used by other records.')
+                ->with('active_tab', request()->input('tab', 'categories'));
+        }
+
         AuditLog::record('deleted', $eventCategory);
         return redirect()->back()
             ->with('success', 'Category deleted.')
