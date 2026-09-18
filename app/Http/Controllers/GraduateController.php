@@ -30,8 +30,15 @@ class GraduateController extends Controller
     public function index(Request $request)
     {
         $isReviewer = auth()->user()->role?->role_name === 'reviewer';
+        $sortBy = $request->input('sort', 'name');
+        $allowedSorts = ['name', 'name_desc', 'latest', 'oldest'];
+
+        if (! in_array($sortBy, $allowedSorts, true)) {
+            $sortBy = 'name';
+        }
+
         $query = Graduate::with(['school', 'major', 'campus', 'graduation', 'aiGenerations', 'portraitMedia', 'resumeMedia', 'reviewFeedback' => fn ($query) => $query->open()->latest()])
-            ->when($isReviewer, fn($query) => $query->where('publish_status', '!=', 'draft'))->orderBy('name');
+            ->when($isReviewer, fn($query) => $query->where('publish_status', '!=', 'draft'));
         $query->when($request->filled('status') && $request->status !== 'all', fn($q) => $q->where('publish_status', $request->status));
         $query->when($request->filled('year') && $request->year !== 'all', function ($q) use ($request) {
             $year = $request->year;
@@ -51,10 +58,15 @@ class GraduateController extends Controller
                     ->orWhereHas('major', fn($major) => $major->where('name', 'like', "%{$search}%"));
             });
         });
-        $graduates = $query->paginate(12)->withQueryString();
+        $graduates = match ($sortBy) {
+            'name_desc' => $query->orderByDesc('name')->paginate(12)->withQueryString(),
+            'latest' => $query->latest('created_at')->paginate(12)->withQueryString(),
+            'oldest' => $query->oldest('created_at')->paginate(12)->withQueryString(),
+            default => $query->orderBy('name')->paginate(12)->withQueryString(),
+        };
         $statusCounts = Graduate::selectRaw('publish_status, COUNT(*) as total')->when($isReviewer, fn($query) => $query->where('publish_status', '!=', 'draft'))->groupBy('publish_status')->pluck('total', 'publish_status');
         $consentGranted = Graduate::when($isReviewer, fn($query) => $query->where('publish_status', '!=', 'draft'))->where('consent_status', 'granted')->count();
-        return view('graduates.index', ['graduates' => $graduates, 'statusCounts' => $statusCounts, 'consentGranted' => $consentGranted, 'schools' => School::where('status', 'active')->orderBy('name')->get(), 'campuses' => Campus::where('status', 'active')->orderBy('name')->get(), 'majors' => Major::orderBy('name')->get(), 'academicYears' => AcademicYear::where('status', '!=', 'archived')->orderByDesc('title')->get()]);
+        return view('graduates.index', ['graduates' => $graduates, 'sortBy' => $sortBy, 'statusCounts' => $statusCounts, 'consentGranted' => $consentGranted, 'schools' => School::where('status', 'active')->orderBy('name')->get(), 'campuses' => Campus::where('status', 'active')->orderBy('name')->get(), 'majors' => Major::orderBy('name')->get(), 'academicYears' => AcademicYear::where('status', '!=', 'archived')->orderByDesc('title')->get()]);
     }
 
     public function create()
