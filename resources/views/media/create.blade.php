@@ -308,7 +308,7 @@
             </div>
 
             <div class="media-create-field">
-                <div class="media-field-label"><label for="caption">Caption</label><button type="button" id="generate-caption" class="media-ai-inline" disabled>✨ Generate</button></div>
+                <div class="media-field-label"><label for="caption">Caption</label></div>
                 <textarea id="caption" name="caption" maxlength="255" rows="5" placeholder="Enter a caption for this media">{{ old('caption') }}</textarea>
                 <div id="caption-ai-status" class="media-ai-status" role="status" aria-live="polite"></div>
                 @error('caption')<p style="color:#b42318;margin:6px 0 0">{{ $message }}</p>@enderror
@@ -327,13 +327,13 @@
             </div>
 
             <div class="media-create-field">
-                <div class="media-field-label"><label for="tag-input">Tags</label><button type="button" id="generate-tags" class="media-ai-inline" disabled>✨ Generate</button></div>
+                <div class="media-field-label"><label for="tag-input">Tags</label></div>
                 <div class="media-tag-entry"><input type="text" id="tag-input" maxlength="50" placeholder="e.g. graduation, ceremony, 2026" autocomplete="off" aria-describedby="tag-help"><button type="button" id="add-tag" class="media-tag-add">+ Add tag</button></div>
                 <div id="tag-list" class="media-tag-list" aria-live="polite">
                     @foreach(old('tags',[]) as $tag) @if(trim((string)$tag)!=='')<span class="media-tag"><span>{{ $tag }}</span><button type="button" data-remove-tag aria-label="Remove tag {{ $tag }}">×</button><input type="hidden" name="tags[]" value="{{ $tag }}"></span>@endif @endforeach
                 </div>
                 <div id="tags-ai-status" class="media-ai-status" role="status" aria-live="polite"></div>
-                <small id="tag-help" class="media-create-help">Tags are optional. AI suggestions can be edited or removed before uploading.</small>
+                <small id="tag-help" class="media-create-help">Tags are optional. AI suggestions are available after the image has been saved to the media library, where graduate consent can be checked.</small>
                 @error('tags')<p style="color:#b42318;margin:6px 0 0">{{ $message }}</p>@enderror
                 @error('tags.*')<p style="color:#b42318;margin:6px 0 0">{{ $message }}</p>@enderror
             </div>
@@ -370,9 +370,7 @@
                 tagInput = document.getElementById('tag-input'),
                 tagList = document.getElementById('tag-list'),
                 addTagButton = document.getElementById('add-tag');
-            const generateCaption = document.getElementById('generate-caption'),
-                generateTags = document.getElementById('generate-tags'),
-                captionStatus = document.getElementById('caption-ai-status'),
+            const captionStatus = document.getElementById('caption-ai-status'),
                 tagsStatus = document.getElementById('tags-ai-status');
             const modal = document.getElementById('compression-modal'),
                 accept = document.getElementById('compression-accept'),
@@ -456,70 +454,6 @@
                 if (b) b.closest('.media-tag').remove()
             };
 
-            function setAiEnabled(enabled) {
-                generateCaption.disabled = !enabled;
-                generateTags.disabled = !enabled
-            }
-            async function requestAi(file, only = null) {
-                if (!file || type(file) !== 'image') return;
-                const token = ++aiToken;
-                setAiEnabled(false);
-                if (!only || only === 'caption') {
-                    generateCaption.textContent = '✨ Generating…';
-                    captionStatus.textContent = 'Generating caption…'
-                }
-                if (!only || only === 'tags') {
-                    generateTags.textContent = '✨ Generating…';
-                    tagsStatus.textContent = 'Generating tags…'
-                }
-                const data = new FormData();
-                data.append('file', file);
-                try {
-                    const response = await fetch('{{ route('
-                        media.ai - suggestions ') }}', {
-                            method: 'POST',
-                            body: data,
-                            headers: {
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}',
-                                'Accept': 'application/json',
-                                'X-Requested-With': 'XMLHttpRequest'
-                            },
-                            credentials: 'same-origin'
-                        });
-                    const payload = await response.json();
-                    if (token !== aiToken) return;
-                    if (!response.ok) throw new Error(payload.message || 'AI suggestions could not be generated.');
-                    if ((!only || only === 'caption') && payload.caption) {
-                        caption.value = payload.caption;
-                        captionStatus.textContent = 'Suggestion added — review or edit it before uploading.';
-                        captionStatus.className = 'media-ai-status is-success'
-                    }
-                    if ((!only || only === 'tags') && Array.isArray(payload.tags)) {
-                        payload.tags.forEach(addTagValue);
-                        tagsStatus.textContent = 'Suggestions added — review or remove them before uploading.';
-                        tagsStatus.className = 'media-ai-status is-success'
-                    }
-                } catch (e) {
-                    if (token !== aiToken) return;
-                    if (!only || only === 'caption') {
-                        captionStatus.textContent = `AI unavailable: ${e.message}`;
-                        captionStatus.className = 'media-ai-status is-error'
-                    }
-                    if (!only || only === 'tags') {
-                        tagsStatus.textContent = `AI unavailable: ${e.message}`;
-                        tagsStatus.className = 'media-ai-status is-error'
-                    }
-                } finally {
-                    if (token === aiToken) {
-                        setAiEnabled(true);
-                        generateCaption.textContent = '✨ Generate';
-                        generateTags.textContent = '✨ Generate'
-                    }
-                }
-            }
-            generateCaption.onclick = () => requestAi(selectedImage, 'caption');
-            generateTags.onclick = () => requestAi(selectedImage, 'tags');
-
             function openCompression(file) {
                 originalSize.textContent = bytes(file.size);
                 estimatedSize.textContent = bytes(Math.max(250 * 1024, Math.round(file.size * .35)));
@@ -561,7 +495,6 @@
             async function prepare(file) {
                 clearError();
                 if (!file) {
-                    setAiEnabled(false);
                     return
                 }
                 const t = type(file);
@@ -573,21 +506,17 @@
                 if (file.size > limits[t]) {
                     error(`${t.charAt(0).toUpperCase()+t.slice(1)} files must be ${bytes(limits[t])} or smaller.`);
                     fileInput.value = '';
-                    setAiEnabled(false);
-                    return
+                        return
                 }
                 selectedImage = t === 'image' ? file : null;
-                setAiEnabled(t === 'image');
                 captionStatus.textContent = '';
                 tagsStatus.textContent = '';
                 captionStatus.className = 'media-ai-status';
                 tagsStatus.className = 'media-ai-status';
                 if (t === 'image') {
-                    help.textContent = file.size > 5 * 1024 * 1024 ? 'Large image selected. Compression confirmation is required before upload.' : 'Image selected. AI suggestions can be generated or refreshed before upload.';
+                    help.textContent = file.size > 5 * 1024 * 1024 ? 'Large image selected. Compression confirmation is required before upload.' : 'Image selected. Enter the caption and tags manually, or generate AI suggestions after saving the image to the media library.';
                     if (file.size > 5 * 1024 * 1024) {
                         openCompression(file)
-                    } else {
-                        requestAi(file)
                     }
                 } else {
                     help.textContent = t === 'video' ? 'Video selected. AI suggestions are available for images only.' : 'Document selected. AI suggestions are available for images only.'
@@ -598,7 +527,6 @@
                 closeCompression();
                 selectedImage = null;
                 fileInput.value = '';
-                setAiEnabled(false);
                 error('The image was not uploaded because compression was rejected.')
             };
             accept.onclick = async () => {
@@ -617,7 +545,6 @@
                     selectedImage = compressed;
                     closeCompression();
                     help.textContent = 'Image compressed and ready. AI suggestions can be edited before upload.';
-                    requestAi(compressed)
                 } catch (e) {
                     closeCompression();
                     error(e.message)
