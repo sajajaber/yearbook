@@ -2,13 +2,20 @@
 
 use App\Contracts\AiProviderInterface;
 use App\Models\Graduate;
+use App\Models\Major;
 use App\Services\SemanticSearchService;
 
 test('semantic graduate search provides GPA data to the AI ranking prompt', function () {
+    $major = Major::create([
+        'name' => 'Computer Science',
+        'code' => 'CS-TEST',
+    ]);
+
     Graduate::create([
         'student_reference' => 'SEM-LOW-' . uniqid(),
         'name' => 'Lower GPA Student',
         'degree_level' => 'undergraduate',
+        'major_id' => $major->id,
         'gpa' => 2.80,
         'profile_text' => 'Computer Science student.',
         'consent_status' => 'granted',
@@ -19,6 +26,7 @@ test('semantic graduate search provides GPA data to the AI ranking prompt', func
         'student_reference' => 'SEM-HIGH-' . uniqid(),
         'name' => 'High GPA Student',
         'degree_level' => 'undergraduate',
+        'major_id' => $major->id,
         'gpa' => 3.92,
         'profile_text' => 'Computer Science student with strong academic performance.',
         'consent_status' => 'granted',
