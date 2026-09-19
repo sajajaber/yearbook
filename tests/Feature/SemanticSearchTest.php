@@ -3,10 +3,18 @@
 use App\Contracts\AiProviderInterface;
 use App\Models\Graduate;
 use App\Models\Major;
+use App\Models\School;
 use App\Services\SemanticSearchService;
 
 test('semantic graduate search provides GPA data to the AI ranking prompt', function () {
+    $school = School::create([
+        'name' => 'Test School',
+        'code' => 'TEST-SCHOOL',
+        'status' => 'active',
+    ]);
+
     $major = Major::create([
+        'school_id' => $school->id,
         'name' => 'Computer Science',
         'code' => 'CS-TEST',
     ]);
