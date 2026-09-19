@@ -7,6 +7,7 @@ use App\Models\AiGeneration;
 use App\Services\AiGenerationReviewService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
+use RuntimeException;
 
 class AiGenerationController extends Controller
 {
@@ -30,11 +31,17 @@ class AiGenerationController extends Controller
         AiGeneration $aiGeneration,
         AiGenerationReviewService $service
     ): RedirectResponse {
-        $service->review(
-            $aiGeneration,
-            $request->validated(),
-            auth()->id()
-        );
+        try {
+            $service->review(
+                $aiGeneration,
+                $request->validated(),
+                auth()->id()
+            );
+        } catch (RuntimeException $e) {
+            return redirect()
+                ->route('ai-generations.index', ['type' => $aiGeneration->content_type])
+                ->with('error', $e->getMessage());
+        }
 
         return redirect()
             ->route('ai-generations.index')
