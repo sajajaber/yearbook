@@ -1,6 +1,9 @@
 <?php
 
 use App\Contracts\AiProviderInterface;
+use App\Models\AcademicYear;
+use App\Models\Campus;
+use App\Models\Graduation;
 use App\Models\Graduate;
 use App\Models\Major;
 use App\Models\School;
@@ -19,11 +22,33 @@ test('semantic graduate search provides GPA data to the AI ranking prompt', func
         'code' => 'CS-TEST',
     ]);
 
+    $campus = Campus::create([
+        'name' => 'Test Campus',
+        'code' => 'TEST-CAMPUS',
+    ]);
+
+    $academicYear = AcademicYear::create([
+        'title' => '2025-2026',
+        'start_date' => '2025-09-01',
+        'end_date' => '2026-06-30',
+        'status' => 'active',
+    ]);
+
+    $graduation = Graduation::create([
+        'academic_year_id' => $academicYear->id,
+        'ceremony_date' => '2026-06-20',
+        'venue' => 'Main Hall',
+        'status' => 'active',
+    ]);
+
     Graduate::create([
         'student_reference' => 'SEM-LOW-' . uniqid(),
         'name' => 'Lower GPA Student',
         'degree_level' => 'undergraduate',
         'major_id' => $major->id,
+        'campus_id' => $campus->id,
+        'graduation_id' => $graduation->id,
+        'academic_year_id' => $academicYear->id,
         'gpa' => 2.80,
         'profile_text' => 'Computer Science student.',
         'consent_status' => 'granted',
@@ -35,6 +60,9 @@ test('semantic graduate search provides GPA data to the AI ranking prompt', func
         'name' => 'High GPA Student',
         'degree_level' => 'undergraduate',
         'major_id' => $major->id,
+        'campus_id' => $campus->id,
+        'graduation_id' => $graduation->id,
+        'academic_year_id' => $academicYear->id,
         'gpa' => 3.92,
         'profile_text' => 'Computer Science student with strong academic performance.',
         'consent_status' => 'granted',
