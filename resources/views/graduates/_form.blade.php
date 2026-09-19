@@ -170,7 +170,7 @@
                             <option>{{ ucfirst($graduate->consent_status ?? 'pending') }}</option>
                         </select><small>Only an administrator can change permissions.</small></label>
                     <label class="form-field"><span>Publish status</span><select disabled>
-                            <option>{{ $graduate->publish_status === 'reviewed' ? 'Submitted for review' : ($graduate->publish_status === 'rejected' ? 'Changes requested' : ucfirst($graduate->publish_status ?? 'draft')) }}</option>
+                            <option>{{ ($graduate->publish_status ?? 'draft') === 'reviewed' ? 'Submitted for review' : (($graduate->publish_status ?? 'draft') === 'rejected' ? 'Changes requested' : ucfirst($graduate->publish_status ?? 'draft')) }}</option>
                         </select></label>
                     @endif
                 </section>
