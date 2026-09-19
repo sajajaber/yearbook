@@ -42,7 +42,7 @@ class UpdateGraduateRequest extends FormRequest
                 'required',
                 'string',
                 'max:255',
-                Rule::unique('graduates', 'student_reference')->ignore($this->route('graduate')?->id),
+                Rule::unique('graduates', 'student_reference')->ignore($this->route('graduate')),
             ],
             'name' => 'required|string|max:255',
             'school_id' => 'required|exists:schools,id',
