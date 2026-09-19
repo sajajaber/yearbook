@@ -120,7 +120,7 @@ test('reviewer cannot publish a graduate without granted consent', function () {
 test('admin cannot bypass consent by setting published status directly', function () {
     $admin = userWithRole('admin');
     $pending = baseGraduate(['consent_status' => 'pending', 'publish_status' => 'approved']);
-    $this->actingAs($admin)->put(route('graduates.update', $pending), ['name' => $pending->name, 'school_id' => $pending->school_id, 'major_id' => $pending->major_id, 'campus_id' => $pending->campus_id, 'graduation_id' => $pending->graduation_id, 'academic_year_id' => $pending->academic_year_id, 'consent_status' => 'pending', 'publish_status' => 'published', 'degree_level' => 'undergraduate'])
+    $this->actingAs($admin)->put(route('graduates.update', $pending), ['student_reference' => $pending->student_reference, 'name' => $pending->name, 'school_id' => $pending->school_id, 'major_id' => $pending->major_id, 'campus_id' => $pending->campus_id, 'graduation_id' => $pending->graduation_id, 'academic_year_id' => $pending->academic_year_id, 'consent_status' => 'pending', 'publish_status' => 'published', 'degree_level' => 'undergraduate'])
         ->assertRedirect(route('graduates.edit', $pending))
         ->assertSessionHasErrors('consent_status');
     expect($pending->fresh()->publish_status)->toBe('approved');
