@@ -8,18 +8,17 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        // Stable reference/administration data.
         $this->call([
             RoleSeeder::class,
             SchoolSeeder::class,
             MajorSeeder::class,
-            UserSeeder::class,
             CampusSeeder::class,
-            AcademicYearSeeder::class,
             EventCategorySeeder::class,
-            GraduationSeeder::class,
-            GraduateSeeder::class,
-            EventSeeder::class,
-            MediaSeeder::class,
+            UserSeeder::class,
         ]);
+
+        // Yearbook content is seeded separately so it can be replaced
+        // without rebuilding the stable reference data.
     }
 }
