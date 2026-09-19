@@ -17,6 +17,7 @@ use App\Models\User;
 use App\Notifications\ReviewWorkflowNotification;
 use App\Services\GraduateAiService;
 use App\Services\ImageProcessor;
+use App\Exceptions\AiServiceTimeoutException;
 use App\Http\Requests\StoreGraduateRequest;
 use App\Http\Requests\UpdateGraduateRequest;
 use App\Http\Controllers\Concerns\SyncsOrderedMedia;
@@ -181,8 +182,28 @@ class GraduateController extends Controller
                 ->with('error', 'AI biography generation is unavailable until the graduate has granted consent for public profile processing.');
         }
 
-        try { $generatedText = $aiService->draftBiography($graduate->name, $graduate->major->name ?? '', $graduate->school->name ?? '', $graduate->achievements ?? []); }
-        catch (\Throwable $e) { AuditLog::record('ai_generation_failed', $graduate); return redirect()->route('graduates.edit', $graduate)->with('error', 'AI biography generation failed. Please try again or contact an administrator.'); }
+        try {
+            $generatedText = $aiService->draftBiography(
+                $graduate->name,
+                $graduate->major->name ?? '',
+                $graduate->school->name ?? '',
+                $graduate->achievements ?? []
+            );
+        } catch (AiServiceTimeoutException|\RuntimeException $e) {
+            report($e);
+            AuditLog::record('ai_generation_failed', $graduate);
+
+            return redirect()
+                ->route('graduates.edit', $graduate)
+                ->with('error', $e->getMessage());
+        } catch (\Throwable $e) {
+            report($e);
+            AuditLog::record('ai_generation_failed', $graduate);
+
+            return redirect()
+                ->route('graduates.edit', $graduate)
+                ->with('error', 'AI biography generation failed unexpectedly. Please try again or contact an administrator.');
+        }
         AiGeneration::create(['content_type' => 'graduate_biography', 'source_record_id' => $graduate->id, 'source_record_type' => 'graduate', 'prompt_version' => 'v1', 'generated_text' => $generatedText, 'status' => 'pending_review']);
         AuditLog::record('ai_generation_created', $graduate);
         return redirect()->route('graduates.edit', $graduate)->with('success', 'AI biography generated — pending review.');
