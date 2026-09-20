@@ -82,5 +82,12 @@ class GraduateImportService
     private function list(string $value):array{return collect(preg_split('/\s*[|\n;]\s*/',$value))->map(fn($item)=>trim($item))->filter()->values()->all();}
     private function nullable(?string $value):?string{$value=trim((string)$value);return $value===''?null:$value;}
     private function key(string $value):string{return mb_strtolower(trim(preg_replace('/\s+/',' ',$value)));}
-    private function normalizeHeader($value):string{return strtolower(trim(str_replace([' ','-'],'_',(string)$value)));}
+    private function normalizeHeader($value): string
+    {
+        // Strip a UTF-8 BOM so CSVs exported by Excel and other tools
+        // are accepted when the first header is student_reference.
+        $value = preg_replace('/^\\xEF\\xBB\\xBF/u', '', (string) $value) ?? (string) $value;
+
+        return strtolower(trim(str_replace([' ', '-'], '_', $value)));
+    }
 }
