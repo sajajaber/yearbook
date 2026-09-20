@@ -44,6 +44,7 @@ class Graduation extends Model
     {
         return $this->belongsToMany(Media::class, 'graduation_media')
             ->withPivot('display_order')
+            ->whereDoesntHave('portraitGraduates')
             ->orderBy('graduation_media.display_order');
     }
 
