@@ -416,7 +416,7 @@
       <div class="media-card" role="listitem">
         <div class="media-preview" aria-label="Preview of {{ $mediaItem->file_name }}">
           @if ($mediaItem->type === 'image')
-          <img src="{{ route('media.file', $mediaItem->id) }}" alt="{{ $mediaItem->alt_text ?? $mediaItem->file_name }}" class="media-img" loading="lazy">
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 200'%3E%3Crect fill='%23e7f0fa' width='300' height='200'/%3E%3C/svg%3E" data-src="{{ $mediaItem->thumbnailUrl() }}" alt="{{ $mediaItem->alt_text ?? $mediaItem->file_name }}" class="media-img lazy" loading="lazy">
           @elseif ($mediaItem->type === 'video')
           <div class="media-video-placeholder"><svg class="video-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path d="M8 5v14l11-7z" />
@@ -562,6 +562,27 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
+      const images = document.querySelectorAll('img.lazy');
+      if ('IntersectionObserver' in window) {
+        const imageObserver = new IntersectionObserver((entries, observer) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              const img = entry.target;
+              img.src = img.dataset.src;
+              img.classList.remove('lazy');
+              img.classList.add('loaded');
+              observer.unobserve(img);
+            }
+          });
+        });
+        images.forEach(img => imageObserver.observe(img));
+      } else {
+        images.forEach(img => {
+          img.src = img.dataset.src;
+          img.classList.add('loaded');
+        });
+      }
+    });
     document.querySelectorAll('.media-video-placeholder').forEach(placeholder => {
       placeholder.addEventListener('click', function() {
         const video = this.parentElement.querySelector('.media-video');
