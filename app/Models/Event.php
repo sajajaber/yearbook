@@ -40,7 +40,9 @@ class Event extends Model implements PublishableInterface
     public function media()
     {
         return $this->belongsToMany(Media::class, 'event_media')
-            ->withPivot('display_order')->orderBy('event_media.display_order');
+            ->withPivot('display_order')
+            ->whereDoesntHave('portraitGraduates')
+            ->orderBy('event_media.display_order');
     }
 
     protected function casts(): array
