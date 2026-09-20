@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Media;
+use App\Models\Graduate;
 use App\Models\Event;
 use App\Models\AuditLog;
 use App\Services\MediaTypeResolver;
@@ -11,6 +12,7 @@ use App\Services\ImageProcessor;
 use App\Services\GeminiVisionService;
 use App\Http\Requests\StoreMediaRequest;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class MediaController extends Controller
 {
@@ -291,11 +293,27 @@ class MediaController extends Controller
     public function destroy(string $id, ImageProcessor $imageProcessor)
     {
         $mediaItem = Media::findOrFail($id);
-        Storage::disk('public')->delete($mediaItem->path);
-        $imageProcessor->deleteThumbnail($mediaItem->thumbnail_path);
-        $mediaItem->delete();
-        AuditLog::record('deleted', $mediaItem);
 
-        return redirect()->route('media.index');
+        DB::transaction(function () use ($mediaItem, $imageProcessor) {
+            // A media item can be referenced by a graduate as a portrait or resume.
+            // Clear those references before deleting the parent media record.
+            Graduate::where('portrait_media_id', $mediaItem->id)
+                ->update(['portrait_media_id' => null]);
+
+            Graduate::where('resume_media_id', $mediaItem->id)
+                ->update(['resume_media_id' => null]);
+
+            // Remove many-to-many graduate/event links before deleting the media item.
+            $mediaItem->graduates()->detach();
+            $mediaItem->events()->detach();
+
+            Storage::disk('public')->delete($mediaItem->path);
+            $imageProcessor->deleteThumbnail($mediaItem->thumbnail_path);
+
+            $mediaItem->delete();
+            AuditLog::record('deleted', $mediaItem);
+        });
+
+        return redirect()->route('media.index')->with('success', 'Media deleted successfully.');
     }
 }
