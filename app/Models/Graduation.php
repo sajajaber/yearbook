@@ -11,11 +11,17 @@ use App\Models\Media;
 
 class Graduation extends Model
 {
+    protected $casts = [
+        'speakers' => 'array',
+        'award_recipients' => 'array',
+    ];
     protected $fillable = [
         'academic_year_id',
         'ceremony_date',
         'venue',
         'description',
+        'speakers',
+        'award_recipients',
         'status',
     ];
 
