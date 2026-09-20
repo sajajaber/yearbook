@@ -46,8 +46,8 @@
             <h2>Recognize the people on stage.</h2>
           </div>
 
-          <div class="selection-block">
-            <div class="selection-heading">
+          <div class="selection-block participant-block">
+            <div class="selection-heading participant-heading">
               <span class="form-field-label">Speakers</span>
               <small>Add the names of speakers who should appear on the public graduation page.</small>
             </div>
@@ -56,7 +56,7 @@
                 @foreach(old('speakers', $graduation->speakers ?? []) as $speaker)
                   <div class="repeatable-row">
                     <input type="text" name="speakers[]" value="{{ $speaker }}" placeholder="Speaker name">
-                    <button type="button" class="text-link repeatable-remove">Remove</button>
+                    <button type="button" class="repeatable-remove">Remove</button>
                   </div>
                 @endforeach
               </div>
@@ -64,8 +64,8 @@
             </div>
           </div>
 
-          <div class="selection-block">
-            <div class="selection-heading">
+          <div class="selection-block participant-block">
+            <div class="selection-heading participant-heading">
               <span class="form-field-label">Award recipients</span>
               <small>Add each recipient together with the award they received.</small>
             </div>
