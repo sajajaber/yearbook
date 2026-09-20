@@ -2,7 +2,7 @@
 
 ## 1. Introduction
 
-This guide documents the setup, configuration, development, testing, and deployment of the **LIU Digital Yearbook** Laravel application.
+This guide documents the setup, configuration, development, testing, maintenance, and deployment of the **LIU Digital Yearbook** Laravel application.
 
 The application provides a public digital yearbook and an authenticated administration system for graduates, events, graduations, media, academic years, users, review workflows, audit records, and AI-assisted features.
 
@@ -12,23 +12,23 @@ The application provides a public digital yearbook and an authenticated administ
 
 ## 2. Current Technology Stack
 
-| Technology | Current project usage |
-|---|---|
-| Laravel | 13.x (`^13.8`) |
-| PHP | 8.3+ (`^8.3`) |
-| Blade | Server-rendered application UI |
-| Eloquent ORM | Database access and relationships |
-| MySQL / MariaDB | Supported relational database for the application |
-| SQLite | Default `.env.example` database and automated test database |
-| Vite | Frontend asset development/build |
-| Tailwind CSS | Styling |
-| Alpine.js | Client-side interactions |
-| Lenis | Frontend scrolling interactions |
-| Gemini API | AI-assisted generation and media-related assistance |
-| barryvdh/laravel-dompdf | PDF generation |
-| Pest / PHPUnit | Automated testing |
-| Laravel Breeze | Authentication scaffolding/dependency |
-| Laravel Pint | PHP code formatting |
+| Technology              | Current project usage                                       |
+| ----------------------- | ----------------------------------------------------------- |
+| Laravel                 | 13.x (`^13.8`)                                              |
+| PHP                     | 8.3+ (`^8.3`)                                               |
+| Blade                   | Server-rendered application UI                              |
+| Eloquent ORM            | Database access and relationships                           |
+| MySQL / MariaDB         | Supported relational database for the application           |
+| SQLite                  | Default `.env.example` database and automated test database |
+| Vite                    | Frontend asset development/build                            |
+| Tailwind CSS            | Styling                                                     |
+| Alpine.js               | Client-side interactions                                    |
+| Lenis                   | Frontend scrolling interactions                             |
+| Gemini API              | AI-assisted generation and media-related assistance         |
+| barryvdh/laravel-dompdf | PDF generation                                              |
+| Pest / PHPUnit          | Automated testing                                           |
+| Laravel Breeze          | Authentication scaffolding/dependency                       |
+| Laravel Pint            | PHP code formatting                                         |
 
 The project does **not** use Filament. The administration interface is implemented with the application's Laravel controllers and Blade views.
 
@@ -71,6 +71,7 @@ Clone the repository:
 
 ```bash
 git clone https://github.com/sajajaber/yearbook.git
+
 cd yearbook
 ```
 
@@ -123,7 +124,7 @@ CACHE_STORE=database
 FILESYSTEM_DISK=local
 ```
 
-### MySQL / MariaDB configuration
+### MySQL / MariaDB Configuration
 
 For the project's common MySQL/MariaDB development setup, change the database section in `.env` to match the local database server:
 
@@ -172,7 +173,7 @@ php artisan migrate:fresh --seed
 
 The main seeded data includes roles, schools, majors, users, campuses, academic years, event categories, graduations, graduates, events, and media.
 
-### Automated test database
+### Automated Test Database
 
 Tests use an in-memory SQLite database. `phpunit.xml` sets:
 
@@ -201,7 +202,7 @@ php artisan storage:link
 
 The application uses the public disk for media that must be displayed through the public yearbook.
 
-### Media processing
+### Media Processing
 
 The application contains media/image-processing functionality for uploaded content. Image handling can include thumbnail generation and profile/gallery image processing where supported.
 
@@ -253,7 +254,7 @@ Configure the following environment variables in `.env`:
 
 ```dotenv
 GEMINI_API_KEY=your_api_key
-GEMINI_MODEL=gemini-3.8-flash
+GEMINI_MODEL=gemini-3.6-flash
 GEMINI_TIMEOUT=60
 ```
 
@@ -289,7 +290,7 @@ Never commit the Gemini API key.
 
 ## 10. Running the Application
 
-### Laravel server
+### Laravel Server
 
 Run:
 
@@ -303,7 +304,7 @@ The local application is normally available at:
 http://127.0.0.1:8000
 ```
 
-### Full development environment
+### Full Development Environment
 
 Alternatively:
 
@@ -341,11 +342,11 @@ Authenticated administration is protected through Laravel authentication and the
 
 The application uses three main roles:
 
-| Role | Main responsibility |
-|---|---|
-| Admin | Full administration, configuration, content management, review, approval, and publication |
-| Editor | Create/edit content and submit content for review |
-| Reviewer | Review content, add review feedback, approve/reject, and publish where permitted |
+| Role     | Main responsibility                                                                       |
+| -------- | ----------------------------------------------------------------------------------------- |
+| Admin    | Full administration, configuration, content management, review, approval, and publication |
+| Editor   | Create/edit content and submit content for review                                         |
+| Reviewer | Review content, add review feedback, approve/reject, and publish where permitted          |
 
 Authorization is enforced server-side through route middleware and controller logic. UI visibility alone is not considered an authorization mechanism.
 
@@ -380,26 +381,28 @@ Editors prepare and submit content. Reviewers and administrators handle review a
 
 The current public yearbook routes are defined in `routes/web.php`.
 
-| Purpose | Route |
-|---|---|
-| Home | `/` |
-| Yearbook archive | `/archive` |
-| Graduate directory | `/graduates` |
-| Graduate profile | `/graduates/{student_reference}` |
-| Graduate resume | `/graduates/{student_reference}/resume` |
-| Graduate PDF | `/graduates/{student_reference}/pdf` |
-| Events | `/events` |
-| Event details | `/events/{id}` |
-| Graduations | `/graduations` |
-| Graduation details | `/graduations/{id}` |
-| Timeline | `/timeline` |
-| Academic-year page | `/{academicYear}` |
-| Academic-year PDF | `/{academicYear}/pdf` |
-| Search page | `/search` |
+| Purpose            | Route                                   |
+| ------------------ | --------------------------------------- |
+| Home               | `/`                                     |
+| Yearbook archive   | `/archive`                              |
+| Graduate directory | `/graduates`                            |
+| Graduate profile   | `/graduates/{student_reference}`        |
+| Graduate resume    | `/graduates/{student_reference}/resume` |
+| Graduate PDF       | `/graduates/{student_reference}/pdf`    |
+| Events             | `/events`                               |
+| Event details      | `/events/{id}`                          |
+| Graduations        | `/graduations`                          |
+| Graduation details | `/graduations/{id}`                     |
+| Timeline           | `/timeline`                             |
+| Academic-year page | `/{academicYear}`                       |
+| Academic-year PDF  | `/{academicYear}/pdf`                   |
+| Search page        | `/search`                               |
 
-### Graduate URL identifier
+### Graduate URL Identifier
 
-The public graduate profile uses the graduate's **student reference**, not the database primary-key ID or a generated UUID. The public routes are hosted at the domain root rather than under a `/yearbook` prefix.
+The public graduate profile uses the graduate's **student reference**, not the database primary-key ID or a generated UUID.
+
+The public routes are hosted at the domain root rather than under a `/yearbook` prefix.
 
 Example:
 
@@ -517,7 +520,7 @@ tests/
 
 The configured test environment uses in-memory SQLite and synchronous queues.
 
-### Recommended checks
+### Recommended Checks
 
 Before committing a significant change:
 
@@ -581,63 +584,7 @@ If the database queue is used in production, a queue worker must be kept running
 
 ---
 
-## 20. Deployment Checklist
-
-### Application
-
-- [ ] Production `.env` configured
-- [ ] `APP_DEBUG=false`
-- [ ] `APP_URL` configured
-- [ ] `APP_KEY` configured
-- [ ] Composer production dependencies installed
-- [ ] Frontend assets built
-
-### Database
-
-- [ ] Production database created
-- [ ] Credentials tested
-- [ ] Migrations completed
-- [ ] Required seed/reference data loaded where applicable
-- [ ] Backups configured
-
-### Storage
-
-- [ ] `php artisan storage:link` completed
-- [ ] Uploaded media is accessible where intended
-- [ ] Storage permissions are correct
-
-### AI
-
-- [ ] Gemini API key configured securely
-- [ ] Gemini model configured
-- [ ] API connectivity tested
-
-### Security
-
-- [ ] `APP_DEBUG=false`
-- [ ] HTTPS configured
-- [ ] `.env` protected
-- [ ] Database credentials not committed
-- [ ] Gemini API key not committed
-- [ ] Administrative routes protected by authentication/authorization
-
-### Functional verification
-
-- [ ] Public homepage loads
-- [ ] Graduate directory works
-- [ ] Graduate profile URLs use `student_reference`
-- [ ] Graduate resume/PDF routes work
-- [ ] Events and galleries work
-- [ ] Graduation pages work
-- [ ] Admin authentication works
-- [ ] Review/publication workflow works
-- [ ] Media uploads work
-- [ ] AI features work when configured
-- [ ] Automated tests pass
-
----
-
-## 21. Useful Maintenance Commands
+## 20. Useful Maintenance Commands
 
 Clear cached configuration, routes, views, and framework caches:
 
@@ -671,6 +618,69 @@ php artisan test
 
 ---
 
+## 21. Backup & Recovery
+
+Regular backups help protect the LIU Digital Yearbook database and uploaded media from accidental deletion, system failure, or data loss.
+
+### Database Backup
+
+The yearbook database can be backed up using a MySQL/MariaDB database dump:
+
+```bash
+mysqldump -u yearbook_user -p yearbook_db > yearbook_backup.sql
+```
+
+The generated `yearbook_backup.sql` file contains the application's database records, including graduates, events, academic years, users, media records, and other stored data.
+
+The backup file should be stored in a secure location separate from the main application environment.
+
+### Uploaded Media Backup
+
+Database backups do not contain the actual uploaded files. Graduate portraits, event images, documents, and other uploaded media are stored under:
+
+```text
+storage/app/public/
+```
+
+This directory should therefore be included in regular backups.
+
+### Application Source Code
+
+The application source code is maintained in the project's GitHub repository. Git version history provides a recovery point for the application's source code and allows previous versions to be restored when necessary.
+
+### Recovery
+
+To restore a database from a previously created backup:
+
+```bash
+mysql -u yearbook_user -p yearbook_db < yearbook_backup.sql
+```
+
+The backed-up `storage/app/public/` directory should also be restored to the Laravel application's storage directory.
+
+If the public storage link needs to be recreated:
+
+```bash
+php artisan storage:link
+```
+
+After restoration, the application should be tested to verify:
+
+- Database connectivity
+- Graduate profiles
+- Graduate portraits and other media
+- Events and event media
+- Public yearbook pages
+- Authentication and administration functions
+
+### Recommended Backup Practice
+
+For a production deployment, database backups and uploaded media should be backed up regularly and stored separately from the main application environment.
+
+The database backup, uploaded media, and application source code should be considered together when planning recovery because all three contribute to the complete yearbook system.
+
+---
+
 ## 22. Troubleshooting
 
 ### `vendor/autoload.php` is missing
@@ -681,49 +691,53 @@ Run:
 composer install
 ```
 
-### The wrong PHP installation is being used on Windows
+### The Wrong PHP Installation Is Being Used on Windows
 
 Run:
 
 ```bash
 where php
+
 php --ini
 ```
 
 Make sure the intended PHP installation is first in the PATH and that its `php.ini` contains the required extensions.
 
-### Composer/OpenSSL errors
+### Composer/OpenSSL Errors
 
 Check:
 
 ```bash
 php --ini
+
 php -m | findstr openssl
 ```
 
 The OpenSSL extension must be available to the PHP executable used by Composer.
 
-### Database connection errors
+### Database Connection Errors
 
 Verify `.env`, confirm the database server is running, then run:
 
 ```bash
 php artisan optimize:clear
+
 php artisan migrate:status
 ```
 
-### Images/media are not displayed
+### Images/Media Are Not Displayed
 
 Run:
 
 ```bash
 php artisan storage:link
+
 php artisan optimize:clear
 ```
 
 Then verify the media file exists under `storage/app/public` and that the public storage link is valid.
 
-### AI requests fail or time out
+### AI Requests Fail or Time Out
 
 Check:
 
@@ -739,16 +753,17 @@ Then run:
 php artisan optimize:clear
 ```
 
-### Tests fail unexpectedly
+### Tests Fail Unexpectedly
 
 Clear cached configuration and rerun:
 
 ```bash
 php artisan optimize:clear
+
 php artisan test
 ```
 
-### Git reports merge/rebase conflicts
+### Git Reports Merge/Rebase Conflicts
 
 Check the repository state:
 
@@ -760,6 +775,7 @@ Resolve the reported files, stage the resolved files, and then continue the Git 
 
 ```bash
 git add <resolved-file>
+
 git rebase --continue
 ```
 
@@ -773,6 +789,7 @@ The current project is organized into the following main folders:
 
 ```text
 yearbook/
+
 ├── app/
 │   ├── Contracts/
 │   ├── Exceptions/
@@ -786,28 +803,35 @@ yearbook/
 │   ├── Services/
 │   ├── Support/
 │   └── View/
-│
+
 ├── bootstrap/
 ├── config/
+
 ├── database/
 │   ├── factories/
 │   ├── migrations/
 │   └── seeders/
+
 ├── public/
+
 ├── resources/
 │   ├── css/
 │   ├── js/
 │   └── views/
+
 ├── routes/
+
 ├── storage/
 │   ├── app/
 │   │   ├── private/
 │   │   └── public/
 │   ├── framework/
 │   └── logs/
+
 ├── tests/
 │   ├── Feature/
 │   └── Unit/
+
 ├── docs/
 └── vendor/
 ```
@@ -818,7 +842,7 @@ This section intentionally shows folders rather than individual source files.
 
 ## 24. Security Guidelines
 
-### Environment secrets
+### Environment Secrets
 
 Keep credentials and secrets in `.env`, including:
 
@@ -831,15 +855,15 @@ Keep credentials and secrets in `.env`, including:
 
 Authorization must be enforced server-side through middleware and application logic. Hiding an interface element is not sufficient protection.
 
-### File uploads
+### File Uploads
 
 Uploaded files should pass the application's validation and media-processing flow. Do not trust client-provided filenames or metadata.
 
-### Graduate privacy
+### Graduate Privacy
 
 Graduate content is subject to publication and consent rules. Public graduate profiles require the appropriate publication and consent state enforced by the application.
 
-### Production configuration
+### Production Configuration
 
 Do not expose debug information in production:
 
