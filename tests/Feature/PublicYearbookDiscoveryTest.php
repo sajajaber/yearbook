@@ -205,6 +205,55 @@ test('media library supports name sorting in both directions', function () {
         ->assertSeeInOrder(['Zulu Media.jpg', 'Alpha Media.jpg']);
 });
 
+test('media library can filter by media type', function () {
+    Storage::fake('public');
+    $editor = discoveryEditor();
+
+    Storage::disk('public')->put('media/photo.jpg', 'image');
+    Storage::disk('public')->put('media/video.mp4', 'video');
+    Storage::disk('public')->put('media/document.pdf', 'document');
+
+    Media::create([
+        'file_name' => 'Campus Photo.jpg',
+        'path' => 'media/photo.jpg',
+        'type' => 'image',
+        'tags' => [],
+        'uploaded_by' => $editor->id,
+    ]);
+    Media::create([
+        'file_name' => 'Campus Video.mp4',
+        'path' => 'media/video.mp4',
+        'type' => 'video',
+        'tags' => [],
+        'uploaded_by' => $editor->id,
+    ]);
+    Media::create([
+        'file_name' => 'Program Guide.pdf',
+        'path' => 'media/document.pdf',
+        'type' => 'document',
+        'tags' => [],
+        'uploaded_by' => $editor->id,
+    ]);
+
+    $this->actingAs($editor)->get(route('media.index', ['type' => 'image']))
+        ->assertOk()
+        ->assertSee('Campus Photo.jpg')
+        ->assertDontSee('Campus Video.mp4')
+        ->assertDontSee('Program Guide.pdf');
+
+    $this->actingAs($editor)->get(route('media.index', ['type' => 'video']))
+        ->assertOk()
+        ->assertSee('Campus Video.mp4')
+        ->assertDontSee('Campus Photo.jpg')
+        ->assertDontSee('Program Guide.pdf');
+
+    $this->actingAs($editor)->get(route('media.index', ['type' => 'document']))
+        ->assertOk()
+        ->assertSee('Program Guide.pdf')
+        ->assertDontSee('Campus Photo.jpg')
+        ->assertDontSee('Campus Video.mp4');
+});
+
 test('graduate profiles use the student reference in the public URL', function () {
     $year = discoveryAcademicYear('Graduate Route ' . uniqid());
     $graduate = discoveryGraduate($year, 'Route Graduate', 'STU-2026-25-' . uniqid());
