@@ -122,7 +122,7 @@
         color: #8c1d17;
       }
 
-      /* Toolbar: search, filter pills, sort */
+      /* Toolbar: search, filter dropdown, sort */
 
       .media-controls {
         display: flex;
@@ -150,6 +150,28 @@
       }
 
       .media-search-form input[type="search"]:focus {
+        outline: none;
+        border-color: var(--red);
+        box-shadow: 0 0 0 3px rgba(255, 176, 52, .22);
+      }
+
+      .media-type-form select {
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 9px 34px 9px 14px;
+        background: var(--white);
+        color: var(--ink);
+        font-size: .78rem;
+        font-weight: 600;
+        cursor: pointer;
+        appearance: none;
+        background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2364748b%22 stroke-width=%222%22 stroke-linecap=%22round%22%3E%3Cpath d=%22m6 9 6 6 6-6%22/%3E%3C/svg%3E');
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        background-size: 12px;
+      }
+
+      .media-type-form select:focus {
         outline: none;
         border-color: var(--red);
         box-shadow: 0 0 0 3px rgba(255, 176, 52, .22);
@@ -342,13 +364,18 @@
           <input type="hidden" name="type" value="{{ $type }}">
           <input type="hidden" name="sort" value="{{ $sortBy }}">
         </form>
-        <div class="media-filters" aria-label="Media filters">
-          <a href="{{ route('media.index', ['filter' => 'all', 'type' => 'all', 'search' => $search, 'sort' => $sortBy, 'page' => 1]) }}" class="filter-button {{ $filter === 'all' && $type === 'all' ? 'is-selected' : '' }}" aria-current="{{ $filter === 'all' && $type === 'all' ? 'page' : 'false' }}">All</a>
-          <a href="{{ route('media.index', ['filter' => 'all', 'type' => 'image', 'search' => $search, 'sort' => $sortBy, 'page' => 1]) }}" class="filter-button {{ $filter === 'all' && $type === 'image' ? 'is-selected' : '' }}" aria-current="{{ $filter === 'all' && $type === 'image' ? 'page' : 'false' }}">Images</a>
-          <a href="{{ route('media.index', ['filter' => 'all', 'type' => 'video', 'search' => $search, 'sort' => $sortBy, 'page' => 1]) }}" class="filter-button {{ $filter === 'all' && $type === 'video' ? 'is-selected' : '' }}" aria-current="{{ $filter === 'all' && $type === 'video' ? 'page' : 'false' }}">Videos</a>
-          <a href="{{ route('media.index', ['filter' => 'all', 'type' => 'document', 'search' => $search, 'sort' => $sortBy, 'page' => 1]) }}" class="filter-button {{ $filter === 'all' && $type === 'document' ? 'is-selected' : '' }}" aria-current="{{ $filter === 'all' && $type === 'document' ? 'page' : 'false' }}">Documents</a>
-          <a href="{{ route('media.index', ['filter' => 'graduate-portraits', 'type' => 'image', 'search' => $search, 'sort' => $sortBy, 'page' => 1]) }}" class="filter-button {{ $filter === 'graduate-portraits' ? 'is-selected' : '' }}" aria-current="{{ $filter === 'graduate-portraits' ? 'page' : 'false' }}">Graduate profile photos</a>
-        </div>
+        <form method="GET" action="{{ route('media.index') }}" class="media-type-form">
+          <input type="hidden" name="search" value="{{ $search }}">
+          <input type="hidden" name="sort" value="{{ $sortBy }}">
+          <label for="media-type" class="sr-only">Filter by media type</label>
+          <select id="media-type" name="type" onchange="this.form.submit()" aria-label="Filter by media type">
+            <option value="all" @selected($filter === 'all' && $type === 'all')>All</option>
+            <option value="image" @selected($filter === 'all' && $type === 'image')>Images</option>
+            <option value="video" @selected($filter === 'all' && $type === 'video')>Videos</option>
+            <option value="document" @selected($filter === 'all' && $type === 'document')>Documents</option>
+            <option value="image" @selected($filter === 'graduate-portraits')>Graduate profile photos</option>
+          </select>
+        </form>
         <form method="GET" action="{{ route('media.index') }}" class="media-sort-form">
           <input type="hidden" name="filter" value="{{ $filter }}">
           <input type="hidden" name="type" value="{{ $type }}">
