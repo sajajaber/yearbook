@@ -71,10 +71,10 @@
             </div>
             <div class="repeatable-list" data-repeatable="awards">
               <div class="repeatable-items">
-                @foreach(old('award_recipients', $graduation->award_recipients ?? []) as $recipient)
+                @foreach(old('award_recipients', $graduation->award_recipients ?? []) as $awardIndex => $recipient)
                   <div class="repeatable-row repeatable-row-award">
-                    <input type="text" name="award_recipients[][name]" value="{{ $recipient['name'] ?? '' }}" placeholder="Recipient name">
-                    <input type="text" name="award_recipients[][award]" value="{{ $recipient['award'] ?? '' }}" placeholder="Award">
+                    <input type="text" name="award_recipients[{{ $awardIndex }}][name]" value="{{ $recipient['name'] ?? '' }}" placeholder="Recipient name">
+                    <input type="text" name="award_recipients[{{ $awardIndex }}][award]" value="{{ $recipient['award'] ?? '' }}" placeholder="Award">
                     <button type="button" class="text-link repeatable-remove">Remove</button>
                   </div>
                 @endforeach
@@ -99,14 +99,16 @@
       const items = list.querySelector('.repeatable-items');
       const add = list.querySelector('.repeatable-add');
       const isAward = list.dataset.repeatable === 'awards';
+      let awardIndex = items.querySelectorAll('.repeatable-row-award').length;
 
       add?.addEventListener('click', () => {
         const row = document.createElement('div');
         row.className = isAward ? 'repeatable-row repeatable-row-award' : 'repeatable-row';
         row.innerHTML = isAward
-          ? '<input type="text" name="award_recipients[][name]" placeholder="Recipient name"><input type="text" name="award_recipients[][award]" placeholder="Award"><button type="button" class="text-link repeatable-remove">Remove</button>'
+          ? '<input type="text" name="award_recipients[${awardIndex}][name]" placeholder="Recipient name"><input type="text" name="award_recipients[${awardIndex}][award]" placeholder="Award"><button type="button" class="text-link repeatable-remove">Remove</button>'
           : '<input type="text" name="speakers[]" placeholder="Speaker name"><button type="button" class="text-link repeatable-remove">Remove</button>';
         items.appendChild(row);
+        if (isAward) awardIndex++;
       });
 
       list.addEventListener('click', event => {
