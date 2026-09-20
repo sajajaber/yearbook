@@ -138,6 +138,34 @@ class MediaController extends Controller
         return redirect()->route('media.index')->with('success', 'Media uploaded successfully');
     }
 
+    /**
+     * Serve an image directly from the public storage disk.
+     * This keeps the admin media library working even when the local
+     * public/storage symlink is missing or stale.
+     */
+    public function file(string $id)
+    {
+        $mediaItem = Media::findOrFail($id);
+
+        if ($mediaItem->type !== 'image') {
+            abort(404);
+        }
+
+        $storage = Storage::disk('public');
+        $path = $mediaItem->thumbnail_path && $storage->exists($mediaItem->thumbnail_path)
+            ? $mediaItem->thumbnail_path
+            : $mediaItem->path;
+
+        if (! $path || ! $storage->exists($path)) {
+            abort(404);
+        }
+
+        return response()->file($storage->path($path), [
+            'Content-Type' => $storage->mimeType($path) ?: 'image/jpeg',
+            'Cache-Control' => 'public, max-age=86400',
+        ]);
+    }
+
     public function edit(string $id)
     {
         $mediaItem = Media::with('events')->findOrFail($id);
