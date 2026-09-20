@@ -339,14 +339,19 @@
         <form method="GET" action="{{ route('media.index') }}" class="media-search-form" role="search">
           <input type="search" name="search" value="{{ $search }}" placeholder="Search media" aria-label="Search media">
           <input type="hidden" name="filter" value="{{ $filter }}">
+          <input type="hidden" name="type" value="{{ $type }}">
           <input type="hidden" name="sort" value="{{ $sortBy }}">
         </form>
-        <div class="media-filters">
-          <a href="{{ route('media.index', array_merge(request()->query(), ['filter' => 'all', 'page' => 1])) }}" class="filter-button {{ $filter === 'all' ? 'is-selected' : '' }}" aria-current="{{ $filter === 'all' ? 'page' : 'false' }}">All</a>
-          <a href="{{ route('media.index', array_merge(request()->query(), ['filter' => 'graduate-portraits', 'page' => 1])) }}" class="filter-button {{ $filter === 'graduate-portraits' ? 'is-selected' : '' }}" aria-current="{{ $filter === 'graduate-portraits' ? 'page' : 'false' }}">Graduate profile photos</a>
+        <div class="media-filters" aria-label="Media filters">
+          <a href="{{ route('media.index', ['filter' => 'all', 'type' => 'all', 'search' => $search, 'sort' => $sortBy, 'page' => 1]) }}" class="filter-button {{ $filter === 'all' && $type === 'all' ? 'is-selected' : '' }}" aria-current="{{ $filter === 'all' && $type === 'all' ? 'page' : 'false' }}">All</a>
+          <a href="{{ route('media.index', ['filter' => 'all', 'type' => 'image', 'search' => $search, 'sort' => $sortBy, 'page' => 1]) }}" class="filter-button {{ $filter === 'all' && $type === 'image' ? 'is-selected' : '' }}" aria-current="{{ $filter === 'all' && $type === 'image' ? 'page' : 'false' }}">Images</a>
+          <a href="{{ route('media.index', ['filter' => 'all', 'type' => 'video', 'search' => $search, 'sort' => $sortBy, 'page' => 1]) }}" class="filter-button {{ $filter === 'all' && $type === 'video' ? 'is-selected' : '' }}" aria-current="{{ $filter === 'all' && $type === 'video' ? 'page' : 'false' }}">Videos</a>
+          <a href="{{ route('media.index', ['filter' => 'all', 'type' => 'document', 'search' => $search, 'sort' => $sortBy, 'page' => 1]) }}" class="filter-button {{ $filter === 'all' && $type === 'document' ? 'is-selected' : '' }}" aria-current="{{ $filter === 'all' && $type === 'document' ? 'page' : 'false' }}">Documents</a>
+          <a href="{{ route('media.index', ['filter' => 'graduate-portraits', 'type' => 'image', 'search' => $search, 'sort' => $sortBy, 'page' => 1]) }}" class="filter-button {{ $filter === 'graduate-portraits' ? 'is-selected' : '' }}" aria-current="{{ $filter === 'graduate-portraits' ? 'page' : 'false' }}">Graduate profile photos</a>
         </div>
         <form method="GET" action="{{ route('media.index') }}" class="media-sort-form">
           <input type="hidden" name="filter" value="{{ $filter }}">
+          <input type="hidden" name="type" value="{{ $type }}">
           <input type="hidden" name="search" value="{{ $search }}">
 
           <label for="media-sort" class="sr-only">Sort media</label>
