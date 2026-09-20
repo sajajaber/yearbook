@@ -439,8 +439,13 @@
           <div class="media-metadata">
             @if ($mediaItem->credit)<span class="media-meta"><span class="meta-label">Credit:</span> {{ $mediaItem->credit }}</span>@endif
             <span class="media-meta"><span class="meta-label">Uploaded:</span> {{ $mediaItem->created_at->format('M d, Y') }}</span>
-            @php $fileSize = $mediaItem->type === 'document' ? null : \Storage::disk('public')->size($mediaItem->path); @endphp
-            @if ($fileSize)<span class="media-meta"><span class="meta-label">Size:</span> {{ number_format($fileSize / 1024, 0) }}KB</span>@endif
+            @php
+              $mediaStorage = \Storage::disk('public');
+              $fileSize = ($mediaItem->type !== 'document' && $mediaStorage->exists($mediaItem->path))
+                  ? $mediaStorage->size($mediaItem->path)
+                  : null;
+            @endphp
+            @if ($fileSize !== null)<span class="media-meta"><span class="meta-label">Size:</span> {{ number_format($fileSize / 1024, 0) }}KB</span>@endif
             @if ($mediaItem->uploader)<span class="media-meta"><span class="meta-label">By:</span> {{ $mediaItem->uploader->name }}</span>@endif
           </div>
 
