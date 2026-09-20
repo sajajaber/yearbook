@@ -365,15 +365,17 @@
           <input type="hidden" name="sort" value="{{ $sortBy }}">
         </form>
         <form method="GET" action="{{ route('media.index') }}" class="media-type-form">
+          <input type="hidden" name="filter" value="{{ $filter }}">
+          <input type="hidden" name="type" value="{{ $type }}">
           <input type="hidden" name="search" value="{{ $search }}">
           <input type="hidden" name="sort" value="{{ $sortBy }}">
           <label for="media-type" class="sr-only">Filter by media type</label>
-          <select id="media-type" name="type" onchange="this.form.submit()" aria-label="Filter by media type">
+          <select id="media-type" onchange="const graduatePortraits = this.value === 'graduate-portraits'; this.form.elements.filter.value = graduatePortraits ? 'graduate-portraits' : 'all'; this.form.elements.type.value = graduatePortraits ? 'image' : this.value; this.form.submit();" aria-label="Filter by media type">
             <option value="all" @selected($filter === 'all' && $type === 'all')>All</option>
             <option value="image" @selected($filter === 'all' && $type === 'image')>Images</option>
             <option value="video" @selected($filter === 'all' && $type === 'video')>Videos</option>
             <option value="document" @selected($filter === 'all' && $type === 'document')>Documents</option>
-            <option value="image" @selected($filter === 'graduate-portraits')>Graduate profile photos</option>
+            <option value="graduate-portraits" @selected($filter === 'graduate-portraits')>Graduate profile photos</option>
           </select>
         </form>
         <form method="GET" action="{{ route('media.index') }}" class="media-sort-form">
