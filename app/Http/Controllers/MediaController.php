@@ -17,12 +17,24 @@ class MediaController extends Controller
     public function index()
     {
         $filter = request('filter', 'all');
+        $allowedFilters = ['all', 'graduate-portraits'];
+        if (! in_array($filter, $allowedFilters, true)) {
+            $filter = 'all';
+        }
+
+        $type = request('type', 'all');
+        $allowedTypes = ['all', 'image', 'video', 'document'];
+        if (! in_array($type, $allowedTypes, true)) {
+            $type = 'all';
+        }
+
         $search = request('search', '');
         $tag = trim((string) request('tag', ''));
         $sortBy = request('sort', 'latest');
 
         $mediaItems = Media::with(['portraitGraduates', 'graduates', 'events'])
             ->when($filter === 'graduate-portraits', fn($query) => $query->whereHas('portraitGraduates'))
+            ->when($type !== 'all', fn($query) => $query->where('type', $type))
             ->when(
                 $search,
                 fn($query) => $query->where(function ($query) use ($search) {
@@ -52,7 +64,7 @@ class MediaController extends Controller
             ->sort(fn($a, $b) => strcasecmp($a, $b))
             ->values();
 
-        return view('media.index', compact('mediaItems', 'filter', 'search', 'sortBy', 'tag', 'totalMedia', 'events', 'availableTags'));
+        return view('media.index', compact('mediaItems', 'filter', 'type', 'search', 'sortBy', 'tag', 'totalMedia', 'events', 'availableTags'));
     }
 
     public function create()
