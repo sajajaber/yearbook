@@ -59,8 +59,8 @@
             <h2>Recognize the people on stage.</h2>
           </div>
 
-          <div class="selection-block">
-            <div class="selection-heading">
+          <div class="selection-block participant-block">
+            <div class="selection-heading participant-heading">
               <span class="form-field-label">Speakers</span>
               <small>Add the names of speakers who should appear on the public graduation page.</small>
             </div>
@@ -69,7 +69,7 @@
                 @foreach(old('speakers', []) as $speaker)
                   <div class="repeatable-row">
                     <input type="text" name="speakers[]" value="{{ $speaker }}" placeholder="Speaker name">
-                    <button type="button" class="text-link repeatable-remove">Remove</button>
+                    <button type="button" class="repeatable-remove">Remove</button>
                   </div>
                 @endforeach
               </div>
@@ -77,14 +77,14 @@
             </div>
           </div>
 
-          <div class="selection-block">
-            <div class="selection-heading">
+          <div class="selection-block participant-block">
+            <div class="selection-heading participant-heading">
               <span class="form-field-label">Award recipients</span>
               <small>Add each recipient together with the award they received.</small>
             </div>
             <div class="repeatable-list" data-repeatable="awards">
               <div class="repeatable-items">
-                @foreach(old('award_recipients', []) as $recipient)
+                @foreach(old('award_recipients', []) as $awardIndex => $recipient)
                   <div class="repeatable-row repeatable-row-award">
                     <input type="text" name="award_recipients[{{ $awardIndex }}][name]" value="{{ $recipient['name'] ?? '' }}" placeholder="Recipient name">
                     <input type="text" name="award_recipients[{{ $awardIndex }}][award]" value="{{ $recipient['award'] ?? '' }}" placeholder="Award">
