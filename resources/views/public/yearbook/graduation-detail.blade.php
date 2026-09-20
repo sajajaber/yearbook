@@ -91,6 +91,47 @@ $galleryMedia = $graduation->media;
                 @endif
 
                 {{-- =================================================
+                     SPEAKERS AND AWARD RECIPIENTS
+                     ================================================= --}}
+
+                @if(!empty($graduation->speakers) || !empty($graduation->award_recipients))
+                <div class="participants-grid">
+                    @if(!empty($graduation->speakers))
+                    <section class="participants-card">
+                        <span class="section-label">On Stage</span>
+                        <h2>Speakers</h2>
+                        <ul class="participants-list">
+                            @foreach($graduation->speakers as $speaker)
+                                @if(filled($speaker))
+                                <li>{{ $speaker }}</li>
+                                @endif
+                            @endforeach
+                        </ul>
+                    </section>
+                    @endif
+
+                    @if(!empty($graduation->award_recipients))
+                    <section class="participants-card">
+                        <span class="section-label">Recognition</span>
+                        <h2>Award Recipients</h2>
+                        <ul class="participants-list">
+                            @foreach($graduation->award_recipients as $recipient)
+                                @if(!empty($recipient['name']))
+                                <li>
+                                    <strong>{{ $recipient['name'] }}</strong>
+                                    @if(!empty($recipient['award']))
+                                        <span>{{ $recipient['award'] }}</span>
+                                    @endif
+                                </li>
+                                @endif
+                            @endforeach
+                        </ul>
+                    </section>
+                    @endif
+                </div>
+                @endif
+
+                {{-- =================================================
                      CEREMONY MEDIA
                      ================================================= --}}
 
