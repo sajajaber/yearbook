@@ -69,6 +69,14 @@ class Media extends Model
      */
     public function thumbnailUrl(): string
     {
-        return Storage::disk('public')->url($this->thumbnail_path ?? $this->path);
+        $storage = Storage::disk('public');
+
+        // Thumbnails may be missing after cleanup or older uploads.
+        // Fall back to the original media file so image previews still work.
+        $previewPath = $this->thumbnail_path && $storage->exists($this->thumbnail_path)
+            ? $this->thumbnail_path
+            : $this->path;
+
+        return $storage->url($previewPath);
     }
 }
