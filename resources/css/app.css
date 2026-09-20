@@ -2124,6 +2124,29 @@ a {
     margin-bottom: 17px;
 }
 
+
+/* ========================================
+   GRADUATION PARTICIPANTS
+   ======================================== */
+.participant-block { padding: 18px 0 0; border-top: 1px solid var(--line); }
+.participant-block + .participant-block { margin-top: 22px; }
+.participant-heading { display: grid; gap: 5px; }
+.participant-heading .form-field-label { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; letter-spacing: .02em; }
+.participant-heading .form-field-label::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--red); box-shadow: 0 0 0 4px rgba(255, 176, 52, .12); }
+.participant-heading small { max-width: 650px; }
+.repeatable-list { margin-top: 14px; }
+.repeatable-items { display: grid; gap: 10px; }
+.repeatable-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 10px; background: var(--paper); border: 1px solid var(--line); border-radius: 12px; transition: border-color .2s ease, box-shadow .2s ease, background .2s ease; }
+.repeatable-row:focus-within { border-color: #9bb3cb; background: var(--white); box-shadow: 0 0 0 3px rgba(0, 42, 92, .06); }
+.repeatable-row input { width: 100%; min-height: 42px; border: 1px solid #cbd8e6; border-radius: 9px; background: var(--white); color: var(--ink); padding: 10px 12px; font: 12px/1.4 "Inter", sans-serif; outline: none; transition: border-color .2s ease, box-shadow .2s ease; }
+.repeatable-row input::placeholder { color: #94a3b8; }
+.repeatable-row input:focus { border-color: var(--ink); box-shadow: 0 0 0 3px rgba(0, 42, 92, .08); }
+.repeatable-row-award { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; }
+.repeatable-remove { display: inline-flex; align-items: center; justify-content: center; min-height: 38px; padding: 0 11px; border: 1px solid #e5b7ad; border-radius: 8px; background: #fffafa; color: #a33d2c; font: 700 10px/1 "Inter", sans-serif; cursor: pointer; text-decoration: none; white-space: nowrap; transition: background .2s ease, border-color .2s ease, color .2s ease, transform .2s ease; }
+.repeatable-remove:hover { background: #fff0ed; border-color: #d98c7d; color: #8f2f21; transform: translateY(-1px); }
+.repeatable-add { margin-top: 12px; min-height: 40px; border-style: dashed; font-size: 10px; font-weight: 700; }
+.repeatable-add:hover { border-color: #9bb3cb; background: #f5f9fd; color: var(--ink); }
+@media (max-width: 600px) { .repeatable-row, .repeatable-row-award { grid-template-columns: 1fr; } .repeatable-remove, .repeatable-add { width: 100%; } }
 .form-actions {
     display: flex;
     justify-content: flex-end;
