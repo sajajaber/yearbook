@@ -1,18 +1,368 @@
 <x-app-layout>
-    <x-slot name="header"><div class="dashboard-heading"><div><p class="eyebrow">Yearbook office / people</p><h1>Import graduates</h1></div><a href="{{ route('graduates.index') }}" class="button button-navy">← Back to graduates</a></div></x-slot>
+    <x-slot name="header">
+        <div class="dashboard-heading">
+            <div>
+                <p class="eyebrow">Yearbook office / people</p>
+                <h1>Import graduates</h1>
+            </div><a href="{{ route('graduates.index') }}" class="button button-navy">← Back to graduates</a>
+        </div>
+    </x-slot>
     <div class="dashboard-wrap" style="max-width:1180px;margin:0 auto;padding:34px 28px 70px;">
         @if(session('error'))<div class="notice notice-error" role="alert">{{ session('error') }}</div>@endif
         @if($errors->any())<div class="notice notice-error" role="alert">{{ $errors->first() }}</div>@endif
         @if(!isset($result))
-            <section class="import-hero"><div><p class="eyebrow eyebrow-light">Bulk profile creation</p><h2 style="color: #ffffff;">Bring the class list in at once.</h2><p>Upload a CSV, preview every row, fix anything that does not match the yearbook data, then import the clean records as drafts.</p></div><div class="import-hero-mark">CSV<br><span>→</span><br>YEARBOOK</div></section>
-            <section class="import-panel"><div class="import-panel-head"><div><p class="eyebrow">Step 1</p><h3>Upload your CSV</h3><p>Use the exact column names below. Names are matched against existing schools, majors, campuses, academic years, and ceremonies.</p></div></div><form method="POST" action="{{ route('graduates.import.preview') }}" enctype="multipart/form-data" class="import-form">@csrf<label class="file-drop"><input type="file" name="file" accept=".csv,.txt" required><strong>Choose a CSV file</strong><span>CSV or TXT · maximum 10 MB</span></label><button type="submit" class="button button-red">Preview import →</button></form></section>
-            <section class="import-panel"><div class="import-panel-head"><div><p class="eyebrow">CSV template</p><h3>Required + optional columns</h3><p>Required: <strong>name, degree_level, school, major, campus, academic_year</strong>. Graduation may be blank for graduates who are not attending a ceremony.</p></div></div><div class="column-list">@foreach(\App\Services\GraduateImportService::HEADERS as $header)<span class="column-chip {{ in_array($header,['name','degree_level','school','major','campus','academic_year'])?'required':'' }}">{{ $header }}</span>@endforeach</div><p class="import-note">For list fields such as achievements, activities, projects, and internships, separate multiple entries with <strong>|</strong>. Imported profiles always start as <strong>Draft</strong> so the existing review and consent workflow remains in control.</p><a href="{{ route('graduates.import.template') }}" class="button button-navy" style="margin-top:16px;">Download CSV template ↓</a></section>
+        <section class="import-hero">
+            <div>
+                <p class="eyebrow eyebrow-light">Bulk profile creation</p>
+                <h2 style="color: #ffffff;">Bring the class list in at once.</h2>
+                <p>Upload a CSV, preview every row, fix anything that does not match the yearbook data, then import the clean records as drafts.</p>
+            </div>
+            <div class="import-hero-mark">CSV<br><span>→</span><br>YEARBOOK</div>
+        </section>
+        <section class="import-panel">
+            <div class="import-panel-head">
+                <div>
+                    <p class="eyebrow">Step 1</p>
+                    <h3>Upload your CSV</h3>
+                    <p>Use the exact column names below. Names are matched against existing schools, majors, campuses, academic years, and ceremonies.</p>
+                </div>
+            </div>
+            <form method="POST" action="{{ route('graduates.import.preview') }}" enctype="multipart/form-data" class="import-form">@csrf<label class="file-drop"><input type="file" name="file" accept=".csv,.txt" required><strong>Choose a CSV file</strong><span>CSV or TXT · maximum 10 MB</span></label><button type="submit" class="button button-red">Preview import →</button></form>
+        </section>
+        <section class="import-panel">
+            <div class="import-panel-head">
+                <div>
+                    <p class="eyebrow">CSV template</p>
+                    <h3>Required + optional columns</h3>
+                    <p>Required: <strong>name, degree_level, school, major, campus, academic_year</strong>. Graduation may be blank for graduates who are not attending a ceremony.</p>
+                </div>
+            </div>
+            <div class="column-list">@foreach(\App\Services\GraduateImportService::HEADERS as $header)<span class="column-chip {{ in_array($header,['name','degree_level','school','major','campus','academic_year'])?'required':'' }}">{{ $header }}</span>@endforeach</div>
+            <p class="import-note">For list fields such as achievements, activities, projects, and internships, separate multiple entries with <strong>|</strong>. Imported profiles always start as <strong>Draft</strong> so the existing review and consent workflow remains in control.</p><a href="{{ route('graduates.import.template') }}" class="button button-navy" style="margin-top:16px;">Download CSV template ↓</a>
+        </section>
         @else
-            <section class="import-hero compact"><div><p class="eyebrow eyebrow-light">Step 2</p><h2>Review before importing.</h2><p>Nothing has been added yet. Resolve errors and duplicates in the CSV, then upload it again.</p></div><div class="import-counts"><div><strong>{{ count($result['valid']) }}</strong><span>ready</span></div><div><strong>{{ count($result['duplicates']) }}</strong><span>duplicates</span></div><div><strong>{{ count($result['errors']) }}</strong><span>errors</span></div></div></section>
-            <section class="import-panel"><div class="import-panel-head"><div><p class="eyebrow">Validation report</p><h3>{{ count($result['valid']) }} records checked</h3><p>Every imported graduate will be created as a draft. Existing records are never overwritten.</p></div></div><div class="table-wrap"><table class="import-table"><thead><tr><th>Row</th><th>Name</th><th>School</th><th>Major</th><th>Academic year</th><th>Result</th></tr></thead><tbody>@foreach($result['valid'] as $row)<tr><td>{{ $row['_line'] }}</td><td><strong>{{ $row['name'] }}</strong></td><td>{{ $row['school'] }}</td><td>{{ $row['major'] }}</td><td>{{ $row['academic_year'] }}</td><td><span class="import-status status-ready">Ready</span></td></tr>@endforeach @foreach($result['errors'] as $item)<tr><td>{{ $item['row'] }}</td><td colspan="4">Validation failed</td><td><span class="import-status status-error">{{ implode(' ', $item['messages']) }}</span></td></tr>@endforeach @foreach($result['duplicates'] as $item)<tr><td>{{ $item['row'] }}</td><td colspan="4">Duplicate detected</td><td><span class="import-status status-duplicate">{{ $item['message'] }}</span></td></tr>@endforeach</tbody></table></div>@if($result['errors'] || $result['duplicates'])<div class="import-blocked"><strong>Import blocked.</strong> Correct the highlighted rows and upload the CSV again. This protects existing graduate records from accidental duplicates.</div><a href="{{ route('graduates.import') }}" class="button button-navy">Upload corrected CSV</a>@else<div class="import-ready"><strong>{{ count($result['valid']) }} graduates are ready.</strong> They will be created as drafts and can then follow the normal editor → reviewer → publish workflow.</div><form method="POST" action="{{ route('graduates.import.store') }}" onsubmit="return confirm('Import {{ count($result['valid']) }} graduate records as drafts?');">@csrf<button type="submit" class="button button-red">Import {{ count($result['valid']) }} graduates →</button></form>@endif</section>
+        <section class="import-hero compact">
+            <div>
+                <p class="eyebrow eyebrow-light">Step 2</p>
+                <h2 style="color: #ffffffff;">Review before importing.</h2>
+                <p>Nothing has been added yet. Resolve errors and duplicates in the CSV, then upload it again.</p>
+            </div>
+            <div class="import-counts">
+                <div><strong>{{ count($result['valid']) }}</strong><span>ready</span></div>
+                <div><strong>{{ count($result['duplicates']) }}</strong><span>duplicates</span></div>
+                <div><strong>{{ count($result['errors']) }}</strong><span>errors</span></div>
+            </div>
+        </section>
+        <section class="import-panel">
+            <div class="import-panel-head">
+                <div>
+                    <p class="eyebrow">Validation report</p>
+                    <h3>{{ count($result['valid']) }} records checked</h3>
+                    <p>Every imported graduate will be created as a draft. Existing records are never overwritten.</p>
+                </div>
+            </div>
+            <div class="table-wrap">
+                <table class="import-table">
+                    <thead>
+                        <tr>
+                            <th>Row</th>
+                            <th>Name</th>
+                            <th>School</th>
+                            <th>Major</th>
+                            <th>Academic year</th>
+                            <th>Result</th>
+                        </tr>
+                    </thead>
+                    <tbody>@foreach($result['valid'] as $row)<tr>
+                            <td>{{ $row['_line'] }}</td>
+                            <td><strong>{{ $row['name'] }}</strong></td>
+                            <td>{{ $row['school'] }}</td>
+                            <td>{{ $row['major'] }}</td>
+                            <td>{{ $row['academic_year'] }}</td>
+                            <td><span class="import-status status-ready">Ready</span></td>
+                        </tr>@endforeach @foreach($result['errors'] as $item)<tr>
+                            <td>{{ $item['row'] }}</td>
+                            <td colspan="4">Validation failed</td>
+                            <td><span class="import-status status-error">{{ implode(' ', $item['messages']) }}</span></td>
+                        </tr>@endforeach @foreach($result['duplicates'] as $item)<tr>
+                            <td>{{ $item['row'] }}</td>
+                            <td colspan="4">Duplicate detected</td>
+                            <td><span class="import-status status-duplicate">{{ $item['message'] }}</span></td>
+                        </tr>@endforeach</tbody>
+                </table>
+            </div>@if($result['errors'] || $result['duplicates'])<div class="import-blocked"><strong>Import blocked.</strong> Correct the highlighted rows and upload the CSV again. This protects existing graduate records from accidental duplicates.</div><a href="{{ route('graduates.import') }}" class="button button-navy">Upload corrected CSV</a>@else<div class="import-ready"><strong>{{ count($result['valid']) }} graduates are ready.</strong> They will be created as drafts and can then follow the normal editor → reviewer → publish workflow.</div>
+            <form method="POST" action="{{ route('graduates.import.store') }}" onsubmit="return confirm('Import {{ count($result['valid']) }} graduate records as drafts?');">@csrf<button type="submit" class="button button-red">Import {{ count($result['valid']) }} graduates →</button></form>@endif
+        </section>
         @endif
     </div>
     <style>
-        .import-hero{display:flex;justify-content:space-between;gap:35px;align-items:center;padding:42px 46px;margin-bottom:24px;border-radius:22px;background:linear-gradient(135deg,#002a5c 0%,#073972 100%);color:#fff;box-shadow:0 18px 45px rgba(0,42,92,.14)}.import-hero.compact{padding:34px 42px}.import-hero h2{margin:5px 0 12px;font-family:Merriweather,serif;font-size:clamp(28px,4vw,44px);line-height:1.08}.import-hero p{max-width:720px;margin:0;color:rgba(255,255,255,.78);line-height:1.75}.eyebrow-light{color:#ffc107}.import-hero-mark{text-align:center;font-size:13px;font-weight:900;letter-spacing:.18em;line-height:1.7;color:#ffc107}.import-hero-mark span{font-size:25px}.import-counts{display:flex;gap:26px}.import-counts div{text-align:center}.import-counts strong{display:block;font-size:30px}.import-counts span{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.7)}.import-panel{background:#fff;border:1px solid #d8e3ef;border-radius:18px;padding:30px;margin-bottom:20px;box-shadow:0 8px 24px rgba(0,42,92,.05)}.import-panel-head{margin-bottom:22px}.import-panel h3{margin:3px 0 7px;color:#002a5c;font-size:23px}.import-panel p{color:#64748b;line-height:1.7;margin:0}.import-form{display:flex;align-items:center;gap:15px;flex-wrap:wrap}.file-drop{display:flex;flex-direction:column;justify-content:center;gap:4px;min-height:120px;flex:1;min-width:260px;padding:22px;border:1.5px dashed #b8c9da;border-radius:14px;background:#f7fbff;cursor:pointer}.file-drop input{display:none}.file-drop strong{color:#002a5c}.file-drop span{font-size:12px;color:#64748b}.column-list{display:flex;flex-wrap:wrap;gap:8px}.column-chip{padding:8px 10px;border:1px solid #d8e3ef;border-radius:9px;background:#f7fbff;color:#64748b;font-size:12px}.column-chip.required{color:#002a5c;border-color:#b9cce0;font-weight:800}.import-note{margin-top:18px!important;font-size:13px}.table-wrap{overflow:auto;margin-bottom:22px}.import-table{width:100%;border-collapse:collapse;font-size:13px}.import-table th,.import-table td{padding:13px 12px;border-bottom:1px solid #e7edf4;text-align:left;vertical-align:top}.import-table th{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#64748b}.import-status{display:inline-block;padding:5px 8px;border-radius:7px;font-size:11px;font-weight:800}.status-ready{background:#eef9f2;color:#23623a}.status-error{background:#fff4f4;color:#8b1e1e}.status-duplicate{background:#fff8ed;color:#8a5a00}.import-blocked,.import-ready{padding:15px 17px;border-radius:12px;margin-bottom:18px;font-size:13px;line-height:1.6}.import-blocked{background:#fff4f4;border:1px solid #e8b8b8;color:#8b1e1e}.import-ready{background:#eef9f2;border:1px solid #b9dfc5;color:#23623a}.notice{margin-bottom:20px}.button{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;border:0;cursor:pointer}.button-red{background:#ffb034;color:#002a5c}.button-navy{background:#002a5c;color:#fff}@media(max-width:700px){.import-hero{padding:30px 24px;flex-direction:column;align-items:flex-start}.import-counts{width:100%;justify-content:space-between}.import-panel{padding:22px}.import-form .button{width:100%}}
+        .import-hero {
+            display: flex;
+            justify-content: space-between;
+            gap: 35px;
+            align-items: center;
+            padding: 42px 46px;
+            margin-bottom: 24px;
+            border-radius: 22px;
+            background: linear-gradient(135deg, #002a5c 0%, #073972 100%);
+            color: #fff;
+            box-shadow: 0 18px 45px rgba(0, 42, 92, .14)
+        }
+
+        .import-hero.compact {
+            padding: 34px 42px
+        }
+
+        .import-hero h2 {
+            margin: 5px 0 12px;
+            font-family: Merriweather, serif;
+            font-size: clamp(28px, 4vw, 44px);
+            line-height: 1.08
+        }
+
+        .import-hero p {
+            max-width: 720px;
+            margin: 0;
+            color: rgba(255, 255, 255, .78);
+            line-height: 1.75
+        }
+
+        .eyebrow-light {
+            color: #ffc107
+        }
+
+        .import-hero-mark {
+            text-align: center;
+            font-size: 13px;
+            font-weight: 900;
+            letter-spacing: .18em;
+            line-height: 1.7;
+            color: #ffc107
+        }
+
+        .import-hero-mark span {
+            font-size: 25px
+        }
+
+        .import-counts {
+            display: flex;
+            gap: 26px
+        }
+
+        .import-counts div {
+            text-align: center
+        }
+
+        .import-counts strong {
+            display: block;
+            font-size: 30px
+        }
+
+        .import-counts span {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: rgba(255, 255, 255, .7)
+        }
+
+        .import-panel {
+            background: #fff;
+            border: 1px solid #d8e3ef;
+            border-radius: 18px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 24px rgba(0, 42, 92, .05)
+        }
+
+        .import-panel-head {
+            margin-bottom: 22px
+        }
+
+        .import-panel h3 {
+            margin: 3px 0 7px;
+            color: #002a5c;
+            font-size: 23px
+        }
+
+        .import-panel p {
+            color: #64748b;
+            line-height: 1.7;
+            margin: 0
+        }
+
+        .import-form {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap
+        }
+
+        .file-drop {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 4px;
+            min-height: 120px;
+            flex: 1;
+            min-width: 260px;
+            padding: 22px;
+            border: 1.5px dashed #b8c9da;
+            border-radius: 14px;
+            background: #f7fbff;
+            cursor: pointer
+        }
+
+        .file-drop input {
+            display: none
+        }
+
+        .file-drop strong {
+            color: #002a5c
+        }
+
+        .file-drop span {
+            font-size: 12px;
+            color: #64748b
+        }
+
+        .column-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px
+        }
+
+        .column-chip {
+            padding: 8px 10px;
+            border: 1px solid #d8e3ef;
+            border-radius: 9px;
+            background: #f7fbff;
+            color: #64748b;
+            font-size: 12px
+        }
+
+        .column-chip.required {
+            color: #002a5c;
+            border-color: #b9cce0;
+            font-weight: 800
+        }
+
+        .import-note {
+            margin-top: 18px !important;
+            font-size: 13px
+        }
+
+        .table-wrap {
+            overflow: auto;
+            margin-bottom: 22px
+        }
+
+        .import-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px
+        }
+
+        .import-table th,
+        .import-table td {
+            padding: 13px 12px;
+            border-bottom: 1px solid #e7edf4;
+            text-align: left;
+            vertical-align: top
+        }
+
+        .import-table th {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: #64748b
+        }
+
+        .import-status {
+            display: inline-block;
+            padding: 5px 8px;
+            border-radius: 7px;
+            font-size: 11px;
+            font-weight: 800
+        }
+
+        .status-ready {
+            background: #eef9f2;
+            color: #23623a
+        }
+
+        .status-error {
+            background: #fff4f4;
+            color: #8b1e1e
+        }
+
+        .status-duplicate {
+            background: #fff8ed;
+            color: #8a5a00
+        }
+
+        .import-blocked,
+        .import-ready {
+            padding: 15px 17px;
+            border-radius: 12px;
+            margin-bottom: 18px;
+            font-size: 13px;
+            line-height: 1.6
+        }
+
+        .import-blocked {
+            background: #fff4f4;
+            border: 1px solid #e8b8b8;
+            color: #8b1e1e
+        }
+
+        .import-ready {
+            background: #eef9f2;
+            border: 1px solid #b9dfc5;
+            color: #23623a
+        }
+
+        .notice {
+            margin-bottom: 20px
+        }
+
+        .button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            border: 0;
+            cursor: pointer
+        }
+
+        .button-red {
+            background: #ffb034;
+            color: #002a5c
+        }
+
+        .button-navy {
+            background: #002a5c;
+            color: #fff
+        }
+
+        @media(max-width:700px) {
+            .import-hero {
+                padding: 30px 24px;
+                flex-direction: column;
+                align-items: flex-start
+            }
+
+            .import-counts {
+                width: 100%;
+                justify-content: space-between
+            }
+
+            .import-panel {
+                padding: 22px
+            }
+
+            .import-form .button {
+                width: 100%
+            }
+        }
     </style>
 </x-app-layout>
