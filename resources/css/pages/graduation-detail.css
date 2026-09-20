@@ -868,3 +868,50 @@
             transition-duration: .01ms !important;
         }
     }
+
+
+/* Ceremony participants */
+.participants-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+    margin: 2rem 0;
+}
+
+.participants-card {
+    padding: 1.5rem;
+    border: 1px solid rgba(0, 42, 92, 0.12);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.82);
+}
+
+.participants-card h2 {
+    margin: 0.35rem 0 1rem;
+}
+
+.participants-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.participants-list li {
+    padding: 0.8rem 0;
+    border-top: 1px solid rgba(0, 42, 92, 0.08);
+}
+
+.participants-list li:first-child {
+    border-top: 0;
+}
+
+.participants-list li span {
+    display: block;
+    margin-top: 0.2rem;
+    opacity: 0.72;
+}
+
+@media (max-width: 760px) {
+    .participants-grid {
+        grid-template-columns: 1fr;
+    }
+}
