@@ -305,3 +305,32 @@ test('published granted graduates can access their resume while ineligible gradu
         'student_reference' => $graduate->student_reference,
     ]))->assertNotFound();
 });
+
+
+test('graduation page shows speakers and award recipients', function () {
+    $year = discoveryAcademicYear('Graduation Participants ' . uniqid());
+
+    $graduation = Graduation::create([
+        'academic_year_id' => $year->id,
+        'ceremony_date' => '2026-06-20',
+        'venue' => 'Main Hall',
+        'description' => 'Graduation ceremony',
+        'speakers' => ['Dr. Jane Speaker', 'Prof. John Speaker'],
+        'award_recipients' => [
+            ['name' => 'Alice Awardee', 'award' => 'Outstanding Graduate Award'],
+            ['name' => 'Bob Awardee', 'award' => 'Academic Excellence Award'],
+        ],
+        'status' => 'active',
+    ]);
+
+    $this->get(route('public.graduation.detail', ['id' => $graduation->id]))
+        ->assertOk()
+        ->assertSee('Speakers')
+        ->assertSee('Dr. Jane Speaker')
+        ->assertSee('Prof. John Speaker')
+        ->assertSee('Award Recipients')
+        ->assertSee('Alice Awardee')
+        ->assertSee('Outstanding Graduate Award')
+        ->assertSee('Bob Awardee')
+        ->assertSee('Academic Excellence Award');
+});
